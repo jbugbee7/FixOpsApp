@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -21,44 +21,61 @@ export const useForumMessages = () => {
   const [hasConnectionError, setHasConnectionError] = useState(false);
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
+  const mountedRef = useRef(true);
+  const fetchingRef = useRef(false);
 
-  // Memoize fetchMessages to prevent unnecessary re-renders
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  // Optimized fetchMessages with better error handling
   const fetchMessages = useCallback(async () => {
-    if (!user) {
-      setIsFetching(false);
+    if (!user || fetchingRef.current || !mountedRef.current) {
+      if (mountedRef.current) setIsFetching(false);
       return;
     }
 
+    fetchingRef.current = true;
     try {
       setHasConnectionError(false);
-      console.log('Fetching forum messages...');
+      console.log('Fetching forum messages optimized...');
       
       const { data, error } = await supabase
         .from('forum_messages')
         .select('*')
         .order('created_at', { ascending: true });
 
+      if (!mountedRef.current) return;
+
       if (error) {
         console.error('Error fetching messages:', error);
         throw error;
       }
 
-      console.log('Fetched messages:', data);
+      console.log('Fetched messages:', data?.length || 0);
       setMessages(data || []);
     } catch (error) {
       console.error('Error fetching messages:', error);
-      setHasConnectionError(true);
-      
-      // Only show toast for non-network errors to avoid spam
-      if (error && typeof error === 'object' && 'code' in error) {
-        toast({
-          title: "Connection Error",
-          description: "Unable to load forum messages. Please check your connection.",
-          variant: "destructive",
-        });
+      if (mountedRef.current) {
+        setHasConnectionError(true);
+        
+        // Only show toast for non-network errors
+        if (error && typeof error === 'object' && 'code' in error) {
+          toast({
+            title: "Connection Error",
+            description: "Unable to load messages.",
+            variant: "destructive",
+          });
+        }
       }
     } finally {
-      setIsFetching(false);
+      if (mountedRef.current) {
+        setIsFetching(false);
+        fetchingRef.current = false;
+      }
     }
   }, [user, toast]);
 
@@ -67,17 +84,17 @@ export const useForumMessages = () => {
     fetchMessages();
   }, [fetchMessages]);
 
-  // Set up real-time subscription with better error handling
+  // Optimized real-time subscription
   useEffect(() => {
-    if (!user) {
-      console.log('No user, skipping real-time subscription');
+    if (!user || !mountedRef.current) {
+      console.log('No user, skipping forum real-time subscription');
       return;
     }
 
-    console.log('Setting up real-time subscription for forum messages');
+    console.log('Setting up optimized forum real-time subscription');
 
     const channel = supabase
-      .channel('forum_messages')
+      .channel('forum_messages_optimized')
       .on(
         'postgres_changes',
         {
@@ -86,6 +103,7 @@ export const useForumMessages = () => {
           table: 'forum_messages'
         },
         (payload) => {
+          if (!mountedRef.current) return;
           console.log('New message received via real-time:', payload);
           if (payload.new && typeof payload.new === 'object') {
             setMessages(prev => [...prev, payload.new as ForumMessage]);
@@ -100,6 +118,7 @@ export const useForumMessages = () => {
           table: 'forum_messages'
         },
         (payload) => {
+          if (!mountedRef.current) return;
           console.log('Message updated via real-time:', payload);
           if (payload.new && typeof payload.new === 'object') {
             setMessages(prev => 
@@ -110,37 +129,22 @@ export const useForumMessages = () => {
           }
         }
       )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'forum_messages'
-        },
-        (payload) => {
-          console.log('Message deleted via real-time:', payload);
-          if (payload.old && typeof payload.old === 'object' && 'id' in payload.old) {
-            setMessages(prev => prev.filter(msg => msg.id !== payload.old.id));
-          }
-        }
-      )
       .subscribe((status) => {
-        console.log('Real-time subscription status:', status);
-        if (status !== 'SUBSCRIBED') {
-          console.error('Real-time subscription failed with status:', status);
+        console.log('Forum real-time subscription status:', status);
+        if (status !== 'SUBSCRIBED' && mountedRef.current) {
           setHasConnectionError(true);
         }
       });
 
     return () => {
-      console.log('Cleaning up real-time subscription');
+      console.log('Cleaning up forum real-time subscription');
       supabase.removeChannel(channel);
     };
   }, [user]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !user || !userProfile) {
-      console.log('Cannot send message: missing input, user, or profile');
+    if (!inputMessage.trim() || !user || !userProfile || !mountedRef.current) {
+      console.log('Cannot send message: missing requirements');
       return;
     }
 
@@ -149,7 +153,7 @@ export const useForumMessages = () => {
       setHasConnectionError(false);
       const authorName = userProfile.full_name || user.email || 'Unknown User';
       
-      console.log('Sending message:', { user_id: user.id, author_name: authorName, message: inputMessage.trim() });
+      console.log('Sending optimized message:', { user_id: user.id, author_name: authorName });
       
       const { error } = await supabase
         .from('forum_messages')
@@ -164,18 +168,24 @@ export const useForumMessages = () => {
         throw error;
       }
 
-      setInputMessage('');
-      console.log('Message sent successfully');
+      if (mountedRef.current) {
+        setInputMessage('');
+        console.log('Message sent successfully');
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      setHasConnectionError(true);
-      toast({
-        title: "Failed to Send Message",
-        description: "Unable to send your message. Please try again.",
-        variant: "destructive",
-      });
+      if (mountedRef.current) {
+        setHasConnectionError(true);
+        toast({
+          title: "Failed to Send Message",
+          description: "Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
-      setIsLoading(false);
+      if (mountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 

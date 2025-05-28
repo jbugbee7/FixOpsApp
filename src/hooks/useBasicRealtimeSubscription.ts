@@ -7,26 +7,34 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
   const subscriptionRef = useRef<any>(null);
   const lastFetchRef = useRef(0);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    if (!user?.id) {
-      console.log('No user ID for realtime subscription');
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id || !mountedRef.current) {
+      console.log('No user ID or unmounted, skipping realtime subscription');
       return;
     }
 
-    // Only fetch once on mount - call immediately without delay
+    // Initial fetch - only once
     if (!hasFetchedRef.current) {
-      console.log('Initial fetch for realtime subscription for user:', user.id);
+      console.log('Initial fetch for realtime subscription');
       fetchCases();
       hasFetchedRef.current = true;
     }
 
-    // Subscribe to real-time changes only if online and not already subscribed
+    // Subscribe to real-time changes only if online
     if (isOnline && !subscriptionRef.current) {
-      console.log('Setting up realtime subscription for user:', user.id);
+      console.log('Setting up optimized realtime subscription');
       
       subscriptionRef.current = supabase
-        .channel('user-cases-changes')
+        .channel(`user-cases-${user.id}`)
         .on(
           'postgres_changes',
           {
@@ -36,26 +44,30 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
             filter: `user_id=eq.${user.id}`
           },
           (payload) => {
+            if (!mountedRef.current) return;
+            
             console.log('Real-time change received:', payload.eventType);
             
-            // Enhanced debouncing to prevent excessive fetching
+            // Optimized debouncing
             const now = Date.now();
-            if (now - lastFetchRef.current < 3000) {
+            if (now - lastFetchRef.current < 2000) {
               console.log('Debouncing realtime fetch');
               return;
             }
             lastFetchRef.current = now;
             
-            // Clear any existing timeout
+            // Clear existing timeout
             if (timeoutRef.current) {
               clearTimeout(timeoutRef.current);
             }
             
-            // Add optimized delay to allow database to settle
+            // Optimized delay for better performance
             timeoutRef.current = setTimeout(() => {
-              console.log('Triggering fetch from realtime change');
-              fetchCases();
-            }, 1000); // Reduced delay for better responsiveness
+              if (mountedRef.current) {
+                console.log('Triggering optimized fetch from realtime');
+                fetchCases();
+              }
+            }, 500);
           }
         )
         .subscribe((status) => {

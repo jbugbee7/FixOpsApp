@@ -11,18 +11,21 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [hasError, setHasError] = useState(false);
   const fetchingRef = useRef(false);
   const lastFetchTime = useRef(0);
+  const mountedRef = useRef(true);
 
   const fetchCases = useCallback(async (useOfflineData = false) => {
-    if (!user) {
-      console.log('No user found, setting loading to false');
-      setLoading(false);
-      setCases([]);
+    if (!user || !mountedRef.current) {
+      console.log('No user or component unmounted, setting loading to false');
+      if (mountedRef.current) {
+        setLoading(false);
+        setCases([]);
+      }
       return;
     }
     
     // Debounce rapid fetch requests
     const now = Date.now();
-    if (now - lastFetchTime.current < 1000) {
+    if (now - lastFetchTime.current < 500) {
       console.log('Debouncing fetch request');
       return;
     }
@@ -35,34 +38,36 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     }
     
     fetchingRef.current = true;
-    setLoading(true);
-    setHasError(false);
+    if (mountedRef.current) {
+      setLoading(true);
+      setHasError(false);
+    }
     
     try {
-      console.log('Starting case fetch for user:', user.id, 'online:', isOnline);
+      console.log('Starting optimized case fetch for user:', user.id, 'online:', isOnline);
       
       // If offline or explicitly requesting offline data, try AsyncStorage first
       if (!isOnline || useOfflineData) {
         const offlineData = await AsyncStorage.getCases();
-        if (offlineData && offlineData.cases) {
+        if (offlineData && offlineData.cases && mountedRef.current) {
           console.log('Using cached data:', offlineData.cases.length, 'cases');
           setCases(offlineData.cases);
           if (!isOnline) {
             toast({
               title: "Offline Mode",
-              description: "Loading cached data. Connect to internet to sync latest changes.",
+              description: "Showing cached data.",
               variant: "default"
             });
-            setLoading(false);
-            fetchingRef.current = false;
-            return;
           }
+          setLoading(false);
+          fetchingRef.current = false;
+          return;
         }
       }
 
       // Try to fetch from Supabase if online
       if (isOnline) {
-        console.log('Attempting to fetch cases from Supabase for user:', user.id);
+        console.log('Fetching cases from Supabase for user:', user.id);
         
         const { data, error } = await supabase
           .from('cases')
@@ -70,98 +75,101 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
+        if (!mountedRef.current) return;
+
         if (error) {
           console.error('Supabase error:', error);
           setHasError(true);
           
-          // Handle specific database policy errors by falling back to empty state
-          if (error.code === '42P17' || error.message.includes('infinite recursion') || error.message.includes('policy')) {
-            console.log('Database policy error detected - showing empty state');
+          // Handle specific errors more efficiently
+          if (error.code === '42P17' || error.message.includes('policy')) {
+            console.log('Database policy error - showing empty state');
             setCases([]);
             toast({
               title: "Welcome to FixOps",
-              description: "Ready to get started! Create your first work order.",
+              description: "Ready to get started!",
               variant: "default"
             });
-          } else if (error.message.includes('JWTError') || error.message.includes('JWT')) {
-            console.log('JWT error detected');
-            setCases([]);
-            toast({
-              title: "Authentication Issue",
-              description: "Please refresh the page or sign out and back in.",
-              variant: "destructive"
-            });
           } else {
-            // For other errors, try to fallback to cached data
+            // Try cached data for other errors
             const offlineData = await AsyncStorage.getCases();
-            if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
-              console.log('Using cached data after error:', offlineData.cases.length, 'cases');
+            if (offlineData?.cases?.length) {
               setCases(offlineData.cases);
               toast({
                 title: "Using Cached Data",
-                description: "Unable to connect to server. Showing cached data.",
+                description: "Connection issues detected.",
                 variant: "default"
               });
             } else {
-              console.log('No cached data available after error');
               setCases([]);
             }
           }
         } else {
-          console.log('Successfully fetched from Supabase:', data?.length || 0, 'cases');
+          console.log('Successfully fetched:', data?.length || 0, 'cases');
           setCases(data || []);
           setHasError(false);
           
-          // Store fresh data for offline use only if data has changed
-          if (data && data.length > 0) {
-            // Only store if different from current cache to reduce storage operations
-            const cachedData = await AsyncStorage.getCases();
-            if (!cachedData || JSON.stringify(cachedData.cases) !== JSON.stringify(data)) {
-              await AsyncStorage.storeCases(data);
-              console.log('Stored fresh data to AsyncStorage');
-            }
+          // Efficiently store data only if changed
+          if (data?.length) {
+            AsyncStorage.storeCases(data);
           }
         }
       }
     } catch (error) {
       console.error('Unexpected error during fetch:', error);
-      setHasError(true);
-      
-      // Final fallback to cached data
-      try {
-        const offlineData = await AsyncStorage.getCases();
-        if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
-          console.log('Using cached data after unexpected error:', offlineData.cases.length, 'cases');
-          setCases(offlineData.cases);
-          toast({
-            title: "Using Cached Data",
-            description: "Connection error. Showing cached data.",
-            variant: "default"
-          });
-        } else {
-          console.log('No cached data available after unexpected error');
+      if (mountedRef.current) {
+        setHasError(true);
+        
+        // Final fallback to cached data
+        try {
+          const offlineData = await AsyncStorage.getCases();
+          if (offlineData?.cases?.length) {
+            setCases(offlineData.cases);
+            toast({
+              title: "Using Cached Data",
+              description: "Connection error detected.",
+              variant: "default"
+            });
+          } else {
+            setCases([]);
+          }
+        } catch (storageError) {
+          console.error('Error accessing cached data:', storageError);
           setCases([]);
         }
-      } catch (storageError) {
-        console.error('Error accessing cached data:', storageError);
-        setCases([]);
       }
     } finally {
-      setLoading(false);
-      fetchingRef.current = false;
-      console.log('Case fetch completed, loading set to false');
+      if (mountedRef.current) {
+        setLoading(false);
+        fetchingRef.current = false;
+        console.log('Case fetch completed');
+      }
     }
   }, [user?.id, isOnline]);
 
-  // Automatically fetch when user or online status changes, but debounced
+  // Optimized effect with cleanup
   useEffect(() => {
+    mountedRef.current = true;
     console.log('useBasicCaseFetching effect triggered - user:', user?.id, 'online:', isOnline);
-    const timeoutId = setTimeout(() => {
-      fetchCases();
-    }, 100); // Small delay to batch rapid changes
     
-    return () => clearTimeout(timeoutId);
+    const timeoutId = setTimeout(() => {
+      if (mountedRef.current) {
+        fetchCases();
+      }
+    }, 50); // Reduced delay for better responsiveness
+    
+    return () => {
+      clearTimeout(timeoutId);
+      mountedRef.current = false;
+    };
   }, [fetchCases]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   return {
     cases,

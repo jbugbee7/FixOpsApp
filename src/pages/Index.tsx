@@ -19,7 +19,7 @@ const Index = () => {
   
   console.log('Index render - authLoading:', authLoading, 'user:', user?.id);
   
-  // Use basic operations only
+  // Use optimized basic operations
   const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useBasicCaseOperations(user, isOnline);
   
   console.log('Index render - casesLoading:', casesLoading, 'hasError:', hasError, 'cases count:', cases.length);
@@ -63,18 +63,19 @@ const Index = () => {
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // If user is not authenticated after auth loading is complete, redirect to auth
+  // Optimized auth check
   if (!authLoading && !user) {
     console.log('No user found after auth loading, redirecting to auth');
     window.location.href = '/auth';
     return null;
   }
 
-  // Show loading skeleton while auth is loading OR while initially loading cases (but not for database errors)
-  const isInitialLoading = authLoading || (casesLoading && !hasError);
+  // More efficient loading check - only show skeleton for auth loading or initial case loading without errors
+  const isInitialLoading = authLoading || (casesLoading && !hasError && !cases.length);
   
   console.log('Index render decision - isInitialLoading:', isInitialLoading);
 
+  // Handle selected states efficiently
   if (selectedCase) {
     return (
       <CaseDetails 
@@ -103,9 +104,9 @@ const Index = () => {
     );
   }
 
-  // Show loading skeleton only for initial loading (not for database errors)
+  // Optimized loading skeleton - only for true initial loading
   if (isInitialLoading) {
-    console.log('Showing loading skeleton');
+    console.log('Showing optimized loading skeleton');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
         <AppHeader 
@@ -129,7 +130,7 @@ const Index = () => {
     );
   }
 
-  console.log('Rendering main app interface');
+  console.log('Rendering optimized main app interface');
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
@@ -146,7 +147,7 @@ const Index = () => {
             isOnline={isOnline}
             hasOfflineData={hasOfflineData}
             cases={cases}
-            loading={false} // Pass false since we handle loading above
+            loading={false} // Pass false since we handle loading above with skeleton
             isResyncing={isResyncing}
             displayName={displayName}
             onNavigate={handleNavigate}
