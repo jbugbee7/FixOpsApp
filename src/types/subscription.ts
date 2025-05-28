@@ -1,6 +1,4 @@
 
-import React from 'react';
-
 export interface Plan {
   id: string;
   name: string;
@@ -8,7 +6,7 @@ export interface Plan {
   interval: string;
   description: string;
   features: string[];
-  icon: React.ReactNode;
+  icon: string;
   popular?: boolean;
   current?: boolean;
 }

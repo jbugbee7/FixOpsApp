@@ -1,5 +1,4 @@
 
-import { Zap, Crown } from 'lucide-react';
 import { Plan } from '@/types/subscription';
 
 export const subscriptionPlans: Plan[] = [
@@ -9,7 +8,7 @@ export const subscriptionPlans: Plan[] = [
     price: 0,
     interval: 'forever',
     description: 'Perfect for individual repair technicians',
-    icon: <Zap className="h-6 w-6" />,
+    icon: 'Zap',
     current: true,
     features: [
       'Unlimited work orders',
@@ -26,7 +25,7 @@ export const subscriptionPlans: Plan[] = [
     price: 49,
     interval: 'month',
     description: 'Coming soon - Advanced features for growing businesses',
-    icon: <Crown className="h-6 w-6" />,
+    icon: 'Crown',
     popular: true,
     features: [
       'Everything in Free',

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check } from 'lucide-react';
+import { Check, Zap, Crown } from 'lucide-react';
 import { Plan } from '@/types/subscription';
 
 interface PlanCardProps {
@@ -12,6 +12,17 @@ interface PlanCardProps {
 }
 
 const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
+  const getIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'Zap':
+        return <Zap className="h-6 w-6" />;
+      case 'Crown':
+        return <Crown className="h-6 w-6" />;
+      default:
+        return <Zap className="h-6 w-6" />;
+    }
+  };
+
   return (
     <Card 
       className={`relative dark:bg-slate-800 dark:border-slate-700 ${
@@ -32,7 +43,7 @@ const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
       
       <CardHeader className="text-center pb-4">
         <div className="flex justify-center mb-4 text-blue-600 dark:text-blue-400">
-          {plan.icon}
+          {getIcon(plan.icon)}
         </div>
         <CardTitle className="dark:text-slate-100">{plan.name}</CardTitle>
         <div className="text-3xl font-bold dark:text-slate-100">
