@@ -29,19 +29,71 @@ export const useRepairSummaries = (user: any) => {
     }
 
     try {
-      console.log('Starting repair summaries fetch for user:', user.id);
+      console.log('=== REPAIR SUMMARIES FETCH START ===');
+      console.log('User ID:', user.id);
+      console.log('User object:', user);
+      
       setHasError(false);
       setErrorMessage('');
       
-      // Fetch all cases for the user with proper error handling
+      // First, let's test basic connection to Supabase
+      console.log('Testing Supabase connection...');
+      const { data: testData, error: testError } = await supabase
+        .from('cases')
+        .select('count')
+        .limit(1);
+      
+      console.log('Connection test result:', { testData, testError });
+      
+      if (testError) {
+        console.error('=== SUPABASE CONNECTION ERROR ===');
+        console.error('Error code:', testError.code);
+        console.error('Error message:', testError.message);
+        console.error('Error details:', testError.details);
+        console.error('Error hint:', testError.hint);
+        
+        setHasError(true);
+        
+        if (testError.code === '42P17' || testError.message.includes('infinite recursion')) {
+          setErrorMessage('Database policy configuration issue detected. This needs to be fixed in the database settings.');
+          console.log('=== INFINITE RECURSION DETECTED ===');
+        } else if (testError.message.includes('permission denied') || testError.code === 'PGRST301') {
+          setErrorMessage('Access denied. Your account may not have proper permissions to view case data.');
+          console.log('=== PERMISSION DENIED ===');
+        } else if (testError.message.includes('JWTError') || testError.message.includes('JWT')) {
+          setErrorMessage('Authentication error. Please sign out and sign back in.');
+          console.log('=== JWT ERROR ===');
+        } else {
+          setErrorMessage(`Database connection error: ${testError.message}`);
+          console.log('=== OTHER DATABASE ERROR ===');
+        }
+        
+        setRepairSummaries([]);
+        return;
+      }
+      
+      console.log('Supabase connection successful, proceeding with cases fetch...');
+      
+      // Now fetch cases for the specific user
+      console.log('Fetching cases for user:', user.id);
       const { data: cases, error } = await supabase
         .from('cases')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
+      console.log('=== CASES FETCH RESULT ===');
+      console.log('Cases data:', cases);
+      console.log('Cases error:', error);
+      console.log('Cases count:', cases?.length || 0);
+
       if (error) {
-        console.error('Error fetching cases for repair summaries:', error);
+        console.error('=== CASES FETCH ERROR ===');
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
+        
         setHasError(true);
         
         if (error.code === '42P17' || error.message.includes('infinite recursion')) {
@@ -54,24 +106,34 @@ export const useRepairSummaries = (user: any) => {
           setErrorMessage(`Database error: ${error.message}`);
         }
         
-        console.log('Setting empty summaries due to error');
         setRepairSummaries([]);
         return;
       }
 
-      console.log('Successfully fetched cases for analysis:', cases?.length || 0);
+      console.log('Cases fetch successful, processing data...');
 
       if (!cases || cases.length === 0) {
-        console.log('No cases found for analysis');
+        console.log('=== NO CASES FOUND ===');
+        console.log('User has no cases in the database');
         setRepairSummaries([]);
         setHasError(false);
         return;
       }
 
+      console.log('=== PROCESSING CASES ===');
+      console.log('Cases to process:', cases.length);
+
       // Group and analyze cases by appliance type
       const summariesByType: { [key: string]: RepairSummary } = {};
       
-      cases.forEach(case_ => {
+      cases.forEach((case_, index) => {
+        console.log(`Processing case ${index + 1}:`, {
+          id: case_.id,
+          appliance_type: case_.appliance_type,
+          problem_description: case_.problem_description,
+          status: case_.status
+        });
+        
         const applianceType = case_.appliance_type || 'Unknown';
         
         if (!summariesByType[applianceType]) {
@@ -128,11 +190,19 @@ export const useRepairSummaries = (user: any) => {
       });
 
       const summaries = Object.values(summariesByType);
+      console.log('=== FINAL SUMMARIES ===');
+      console.log('Generated summaries:', summaries);
+      console.log('Appliance types found:', Object.keys(summariesByType));
+      
       setRepairSummaries(summaries);
-      console.log('Analysis complete. Generated summaries for appliance types:', Object.keys(summariesByType));
+      setHasError(false);
       
     } catch (error: any) {
-      console.error('Unexpected error generating repair summaries:', error);
+      console.error('=== UNEXPECTED ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
       setHasError(true);
       setErrorMessage(`Unexpected error: ${error.message || 'Unknown error occurred'}`);
       setRepairSummaries([]);
@@ -142,6 +212,8 @@ export const useRepairSummaries = (user: any) => {
         description: "An unexpected error occurred while analyzing your repair data.",
         variant: "destructive",
       });
+    } finally {
+      console.log('=== REPAIR SUMMARIES FETCH END ===');
     }
   };
 
