@@ -1,9 +1,8 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bot, AlertTriangle, Lightbulb } from 'lucide-react';
 import { getSuccessRateColor } from "@/utils/colorUtils";
-import { RepairSummary } from "@/hooks/useRepairSummaries";
+import { RepairSummary } from "@/types/repairSummary";
 
 interface RepairSummaryCardProps {
   summary: RepairSummary;
