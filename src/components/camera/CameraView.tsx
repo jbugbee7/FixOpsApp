@@ -30,8 +30,12 @@ const CameraView = forwardRef<HTMLVideoElement, CameraViewProps>(
             ref={videoRef}
             autoPlay
             playsInline
+            webkit-playsinline="true"
             muted
             className="w-full h-full object-cover"
+            style={{ 
+              transform: 'scaleX(-1)', // Mirror the video for selfie-like experience
+            }}
           />
           
           {/* Live indicator */}
