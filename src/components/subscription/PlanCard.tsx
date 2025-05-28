@@ -27,17 +27,11 @@ const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
     <Card 
       className={`relative dark:bg-slate-800 dark:border-slate-700 ${
         plan.popular ? 'border-blue-500 dark:border-blue-400 scale-105' : ''
-      } ${plan.current ? 'border-green-500 dark:border-green-400' : ''}`}
+      }`}
     >
       {plan.popular && (
         <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white">
           Most Popular
-        </Badge>
-      )}
-      
-      {plan.current && (
-        <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white">
-          Current Plan
         </Badge>
       )}
       
