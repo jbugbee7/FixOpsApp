@@ -38,24 +38,48 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
-        // Don't process auth state changes if we're in the middle of signing out
+        // If we're in the middle of signing out, ignore any sign-in events
         if (isSigningOut && event === 'SIGNED_IN') {
           console.log('Ignoring sign-in event during sign-out process');
           return;
         }
         
+        // If this is a sign-out event, clear everything immediately
+        if (event === 'SIGNED_OUT') {
+          console.log('Processing sign-out event');
+          setSession(null);
+          setUser(null);
+          setUserProfile(null);
+          setLoading(false);
+          setIsSigningOut(false);
+          return;
+        }
+        
+        // For sign-in events, update state normally
+        if (event === 'SIGNED_IN' && session) {
+          console.log('Processing sign-in event');
+          setSession(session);
+          setUser(session.user);
+          setLoading(false);
+          
+          // Fetch user profile
+          if (session.user) {
+            setTimeout(() => {
+              fetchUserProfile(session.user.id);
+            }, 0);
+          }
+          return;
+        }
+        
+        // For initial session or token refresh
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Fetch user profile when user signs in
-        if (session?.user && event === 'SIGNED_IN') {
+        if (session?.user && !userProfile) {
           setTimeout(() => {
             fetchUserProfile(session.user.id);
           }, 0);
-        } else if (event === 'SIGNED_OUT') {
-          setUserProfile(null);
-          setIsSigningOut(false);
         }
       }
     );
@@ -63,17 +87,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
       
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
+      if (!isSigningOut) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        if (session?.user) {
+          fetchUserProfile(session.user.id);
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [isSigningOut]);
+  }, [isSigningOut, userProfile]);
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -95,21 +122,30 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signOut = async () => {
+    if (isSigningOut) {
+      console.log('Sign out already in progress, ignoring duplicate request');
+      return;
+    }
+
     try {
       console.log('Starting sign out process...');
       setIsSigningOut(true);
       
-      // Clear local state immediately
+      // Clear local state first
       setUser(null);
       setSession(null);
       setUserProfile(null);
       
-      // Clear any stored session data
-      await supabase.auth.signOut({ scope: 'global' });
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       
-      console.log('Successfully signed out');
+      if (error) {
+        console.error('Sign out error:', error);
+      } else {
+        console.log('Successfully signed out from Supabase');
+      }
       
-      // Small delay to ensure auth state is fully cleared
+      // Force redirect regardless of any errors
       setTimeout(() => {
         window.location.href = '/auth';
       }, 100);
