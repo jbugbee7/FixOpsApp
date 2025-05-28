@@ -7,33 +7,48 @@ export const subscriptionPlans: Plan[] = [
     name: 'Free',
     price: 0,
     interval: 'forever',
-    description: 'Perfect for individual repair technicians',
+    description: 'Perfect for getting started',
     icon: 'Zap',
     current: true,
     features: [
-      'Unlimited work orders',
-      'Customer contact storage',
+      'Up to 10 work orders per month',
+      'Basic customer contact storage',
       'Mobile access',
       'Basic appliance database',
-      'Parts tracking',
-      'Repair history'
+      'Email support'
+    ]
+  },
+  {
+    id: 'standard',
+    name: 'Standard',
+    price: 15,
+    interval: 'month',
+    description: 'Great for growing repair businesses',
+    icon: 'Crown',
+    popular: true,
+    features: [
+      'Everything in Free',
+      'Unlimited work orders',
+      'Advanced parts tracking',
+      'Customer repair history',
+      'Priority email support',
+      'Basic analytics'
     ]
   },
   {
     id: 'pro',
     name: 'Professional',
-    price: 49,
+    price: 29,
     interval: 'month',
-    description: 'Coming soon - Advanced features for growing businesses',
+    description: 'Advanced features for established technicians',
     icon: 'Crown',
-    popular: true,
     features: [
-      'Everything in Free',
+      'Everything in Standard',
       'AI-powered diagnostics',
       'Advanced analytics & insights',
-      'Priority email support',
       'Custom branding',
-      'API access'
+      'API access',
+      'Phone support'
     ]
   }
 ];

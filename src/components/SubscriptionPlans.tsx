@@ -11,30 +11,42 @@ const SubscriptionPlans = () => {
   const handleSubscribe = async (planId: string) => {
     if (planId === 'free') {
       toast({
-        title: "Current Plan",
-        description: "You're currently using FixOps with all core features included.",
+        title: "Free Plan",
+        description: "You're using the free plan with basic features included.",
         variant: "default"
       });
       return;
     }
 
-    toast({
-      title: "Coming Soon",
-      description: "Premium features are in development. Stay tuned for updates!",
-      variant: "default"
-    });
+    if (planId === 'standard') {
+      toast({
+        title: "Standard Plan",
+        description: "Standard plan subscription coming soon! This will include unlimited work orders and advanced features.",
+        variant: "default"
+      });
+      return;
+    }
+
+    if (planId === 'pro') {
+      toast({
+        title: "Professional Plan",
+        description: "Professional plan subscription coming soon! This will include AI diagnostics and premium support.",
+        variant: "default"
+      });
+      return;
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold dark:text-slate-100 mb-2">FixOps Plans</h2>
+        <h2 className="text-2xl font-bold dark:text-slate-100 mb-2">Choose Your Plan</h2>
         <p className="text-slate-600 dark:text-slate-400">
-          Professional repair management for individual technicians and growing businesses
+          Professional repair management for individual technicians
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 md:grid-cols-1 gap-6 max-w-4xl mx-auto">
+      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
         {subscriptionPlans.map((plan) => (
           <PlanCard 
             key={plan.id} 
@@ -45,8 +57,8 @@ const SubscriptionPlans = () => {
       </div>
 
       <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-        <p>FixOps is free to use with all core repair management features included.</p>
-        <p className="mt-1">Premium features for advanced businesses coming soon!</p>
+        <p>Start with our free plan and upgrade as your business grows.</p>
+        <p className="mt-1">All plans include mobile access and customer management.</p>
       </div>
     </div>
   );

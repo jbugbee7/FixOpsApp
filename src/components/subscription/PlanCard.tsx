@@ -31,7 +31,7 @@ const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
     >
       {plan.popular && (
         <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white">
-          Coming Soon
+          Most Popular
         </Badge>
       )}
       
@@ -79,10 +79,9 @@ const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
               : ''
           }`}
           variant={plan.current ? 'default' : plan.popular ? 'default' : 'outline'}
-          disabled={!plan.current && plan.id !== 'free'}
         >
           {plan.current ? 'Current Plan' : 
-           plan.id === 'free' ? 'Get Started Free' : 'Coming Soon'}
+           plan.id === 'free' ? 'Get Started Free' : 'Upgrade Now'}
         </Button>
       </CardContent>
     </Card>
