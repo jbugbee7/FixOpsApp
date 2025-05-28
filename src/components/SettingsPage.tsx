@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   const appVersion = "1.0.0"; // This would typically come from package.json or environment
 
   const handleSignOut = async () => {
@@ -29,6 +29,9 @@ const SettingsPage = () => {
     }
     return theme === 'dark' ? 'Dark' : 'Light';
   };
+
+  // Get display name - prioritize full name from profile, fallback to email
+  const displayName = userProfile?.full_name || user?.email || 'User';
 
   return (
     <div className="space-y-6">
@@ -67,8 +70,13 @@ const SettingsPage = () => {
               Signed in as:
             </p>
             <p className="font-medium dark:text-slate-100">
-              {user?.email}
+              {displayName}
             </p>
+            {userProfile?.full_name && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {user?.email}
+              </p>
+            )}
           </div>
           <Button 
             variant="destructive" 

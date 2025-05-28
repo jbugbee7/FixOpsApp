@@ -1,9 +1,9 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Send, User } from 'lucide-react';
+import AnimatedRepairBot from './AnimatedRepairBot';
 
 interface Message {
   id: string;
@@ -175,9 +175,9 @@ const AiAssistantPage = () => {
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Header */}
+      {/* Header with new repair bot */}
       <div className="text-center mb-6">
-        <AnimatedRobotIcon className="h-16 w-16 mx-auto mb-4" />
+        <AnimatedRepairBot className="h-16 w-16 mx-auto mb-4" />
         <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">FixBot</h2>
         <p className="text-lg text-slate-600 dark:text-slate-400">Get intelligent repair recommendations and troubleshooting help</p>
       </div>
@@ -215,7 +215,7 @@ const AiAssistantPage = () => {
                   {message.sender === 'user' ? (
                     <User className="h-4 w-4 text-white" />
                   ) : (
-                    <AnimatedRobotIcon className="h-5 w-5" />
+                    <AnimatedRepairBot className="h-5 w-5" />
                   )}
                 </div>
                 <Card

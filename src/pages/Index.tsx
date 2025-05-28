@@ -9,10 +9,11 @@ import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import AnalyticsPage from '@/components/AnalyticsPage';
+import AnimatedRepairBot from '@/components/AnimatedRepairBot';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
-  const { user, signOut } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   const [selectedCase, setSelectedCase] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   
@@ -49,6 +50,9 @@ const Index = () => {
     await signOut();
   };
 
+  // Get display name - prioritize full name from profile, fallback to email
+  const displayName = userProfile?.full_name || user?.email || 'User';
+
   if (selectedCase) {
     return (
       <CaseDetails 
@@ -70,10 +74,10 @@ const Index = () => {
               <Home className="h-6 w-6" />
             </Button>
             
-            {/* Center - Logo */}
+            {/* Center - Logo with new repair bot */}
             <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Wrench className="h-6 w-6 text-white" />
+              <div className="w-10 h-10">
+                <AnimatedRepairBot />
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -147,10 +151,10 @@ const Index = () => {
                 </Card>
               </div>
 
-              {/* User Info - Bottom Right */}
+              {/* User Info - Bottom Right with name instead of email */}
               <div className="fixed bottom-20 right-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{user?.email}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{displayName}</p>
                 </div>
               </div>
             </div>
