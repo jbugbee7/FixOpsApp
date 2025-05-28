@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "@/hooks/use-toast";
+import AiSummaryPage from './AiSummaryPage';
 
 interface RepairSummary {
   appliance_type: string;
@@ -22,6 +22,7 @@ const TrainingPage = () => {
   const [repairSummaries, setRepairSummaries] = useState<RepairSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedAppliance, setExpandedAppliance] = useState<string | null>(null);
+  const [selectedApplianceForAI, setSelectedApplianceForAI] = useState<string | null>(null);
 
   const applianceGuides = [
     {
@@ -262,10 +263,6 @@ const TrainingPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchRepairSummaries();
-  }, [user]);
-
   const getLikelihoodColor = (likelihood: string) => {
     switch (likelihood) {
       case 'Very High': return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
@@ -274,6 +271,23 @@ const TrainingPage = () => {
       default: return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
     }
   };
+
+  const handleInsightCardClick = (applianceType: string) => {
+    setSelectedApplianceForAI(applianceType);
+  };
+
+  if (selectedApplianceForAI) {
+    return (
+      <AiSummaryPage 
+        applianceType={selectedApplianceForAI}
+        onBack={() => setSelectedApplianceForAI(null)}
+      />
+    );
+  }
+
+  useEffect(() => {
+    fetchRepairSummaries();
+  }, [user]);
 
   return (
     <div className="space-y-8">
@@ -385,21 +399,21 @@ const TrainingPage = () => {
           ) : (
             <div className="grid gap-4">
               {repairSummaries.map((summary, index) => (
-                <Card key={index} className="dark:bg-slate-800 dark:border-slate-700">
+                <Card 
+                  key={index} 
+                  className="dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:bg-slate-50 dark:hover:bg-slate-700"
+                  onClick={() => handleInsightCardClick(summary.appliance_type)}
+                >
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between dark:text-slate-100">
                       <div className="flex items-center space-x-2">
                         <Lightbulb className="h-5 w-5 text-yellow-500" />
                         <span>{summary.appliance_type} Insights</span>
                       </div>
-                      <Button 
-                        onClick={() => generateAISummary(summary.appliance_type)}
-                        size="sm"
-                        variant="outline"
-                      >
-                        <Bot className="h-4 w-4 mr-2" />
-                        Generate AI Summary
-                      </Button>
+                      <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                        <Bot className="h-4 w-4 mr-1" />
+                        Click to generate AI summary
+                      </div>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
