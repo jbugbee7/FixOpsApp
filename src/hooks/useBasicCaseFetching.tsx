@@ -11,6 +11,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
   const fetchCases = async (useOfflineData = false) => {
     if (!user) {
+      console.log('No user found, skipping case fetch');
       setLoading(false);
       return;
     }
@@ -36,17 +37,28 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
       // Try to fetch from Supabase if online
       if (isOnline) {
-        console.log('Fetching cases for user:', user.id);
+        console.log('Fetching cases from Supabase for user:', user.id);
         
-        // First try to get cases by user_id (fallback approach)
+        // Query cases with RLS - this will automatically filter based on the user's permissions
         const { data, error } = await supabase
           .from('cases')
           .select('*')
-          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
           console.error('Error fetching cases:', error);
+          
+          // Check if it's an authentication error
+          if (error.message.includes('JWTError') || error.message.includes('JWT')) {
+            console.log('JWT error detected, user may need to re-authenticate');
+            toast({
+              title: "Authentication Error",
+              description: "Please sign out and sign back in to continue.",
+              variant: "destructive"
+            });
+            setLoading(false);
+            return;
+          }
           
           // Fallback to AsyncStorage if Supabase fails
           const offlineData = await AsyncStorage.getCases();
@@ -64,10 +76,11 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
               variant: "destructive"
             });
           }
+          setLoading(false);
           return;
         }
 
-        console.log('Fetched cases successfully:', data?.length || 0);
+        console.log('Cases fetched successfully:', data?.length || 0);
         setCases(data || []);
         
         // Store fresh data in AsyncStorage for offline use

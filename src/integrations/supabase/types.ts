@@ -416,6 +416,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: string
       }
+      get_user_company_id: {
+        Args: { user_id_param: string }
+        Returns: string
+      }
       has_feature_access: {
         Args: { _company_id: string; _feature_name: string }
         Returns: boolean

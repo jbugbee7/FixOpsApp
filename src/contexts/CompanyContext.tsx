@@ -45,6 +45,7 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
 
   const fetchCompanyData = async () => {
     if (!user) {
+      console.log('No user found, clearing company data');
       setCompany(null);
       setSubscription(null);
       setLoading(false);
@@ -52,7 +53,9 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
     }
 
     try {
-      // Get user's company
+      console.log('Fetching company data for user:', user.id);
+      
+      // Get user's company using the new RLS policies
       const { data: companyData, error: companyError } = await supabase
         .from('company_users')
         .select(`
@@ -73,23 +76,50 @@ export const CompanyProvider = ({ children }: { children: React.ReactNode }) => 
 
       if (companyError) {
         console.error('Error fetching company:', companyError);
+        
+        // Check if it's an authentication error
+        if (companyError.message.includes('JWTError') || companyError.message.includes('JWT')) {
+          console.log('JWT error detected in company fetch');
+          toast({
+            title: "Authentication Error",
+            description: "Please sign out and sign back in to continue.",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+        
+        // If no company found, that's okay for basic users
+        if (companyError.code === 'PGRST116') {
+          console.log('No company found for user, continuing without company context');
+          setCompany(null);
+          setSubscription(null);
+          setLoading(false);
+          return;
+        }
+        
+        setLoading(false);
         return;
       }
 
       const companyInfo = companyData.companies as Company;
+      console.log('Company fetched successfully:', companyInfo?.name);
       setCompany(companyInfo);
 
       // Get company's subscription
-      const { data: subData, error: subError } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('company_id', companyInfo.id)
-        .single();
+      if (companyInfo) {
+        const { data: subData, error: subError } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('company_id', companyInfo.id)
+          .single();
 
-      if (subError) {
-        console.error('Error fetching subscription:', subError);
-      } else {
-        setSubscription(subData);
+        if (subError) {
+          console.error('Error fetching subscription:', subError);
+        } else {
+          console.log('Subscription fetched successfully:', subData?.tier);
+          setSubscription(subData);
+        }
       }
     } catch (error) {
       console.error('Error in fetchCompanyData:', error);

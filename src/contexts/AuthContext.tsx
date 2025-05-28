@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
         // If we're in the middle of signing out, ignore any sign-in events
@@ -70,42 +70,38 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           console.log('Processing sign-in event');
           setSession(session);
           setUser(session.user);
-          setLoading(false);
           
-          // Fetch user profile
+          // Fetch user profile after successful sign-in
           if (session.user) {
-            setTimeout(() => {
-              fetchUserProfile(session.user.id);
-            }, 0);
+            await fetchUserProfile(session.user.id);
           }
+          setLoading(false);
           return;
         }
         
         // For initial session or token refresh
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
         
         if (session?.user && !userProfile) {
-          setTimeout(() => {
-            fetchUserProfile(session.user.id);
-          }, 0);
+          await fetchUserProfile(session.user.id);
         }
+        setLoading(false);
       }
     );
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       console.log('Initial session:', session?.user?.email);
       
       if (!isSigningOut) {
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
         
         if (session?.user) {
-          fetchUserProfile(session.user.id);
+          await fetchUserProfile(session.user.id);
         }
+        setLoading(false);
       }
     });
 
@@ -114,6 +110,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
+      console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
         .from('profiles')
         .select('full_name, policy_agreed, terms_agreed, agreements_date')
@@ -125,6 +122,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         return;
       }
       
+      console.log('Profile fetched successfully:', data);
       setUserProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
