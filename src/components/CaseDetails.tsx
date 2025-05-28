@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface CaseDetailsProps {
   case: any;
   onBack: () => void;
-  onStatusUpdate: (caseId: number, newStatus: string) => void;
+  onStatusUpdate: (caseId: string, newStatus: string) => void;
 }
 
 const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProps) => {
@@ -79,13 +79,13 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Customer Name</label>
-                  <p className="text-lg font-semibold dark:text-slate-100">{caseData.customer}</p>
+                  <p className="text-lg font-semibold dark:text-slate-100">{caseData.customer_name}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Phone Number</label>
                   <p className="text-lg dark:text-slate-100 flex items-center">
                     <Phone className="h-4 w-4 mr-2" />
-                    {caseData.phone}
+                    {caseData.customer_phone || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -93,7 +93,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
                 <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Service Address</label>
                 <p className="text-lg dark:text-slate-100 flex items-center">
                   <MapPin className="h-4 w-4 mr-2" />
-                  {caseData.address}
+                  {caseData.customer_address || 'N/A'}
                 </p>
               </div>
             </CardContent>
@@ -111,13 +111,13 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Appliance</label>
-                  <p className="text-lg font-semibold dark:text-slate-100">{caseData.appliance}</p>
+                  <p className="text-lg font-semibold dark:text-slate-100">{caseData.appliance_brand} {caseData.appliance_type}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Service Date</label>
                   <p className="text-lg dark:text-slate-100 flex items-center">
                     <Calendar className="h-4 w-4 mr-2" />
-                    {caseData.date}
+                    {new Date(caseData.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -135,11 +135,11 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
             <CardContent className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Problem Description</label>
-                <p className="text-lg dark:text-slate-100">{caseData.problemDescription}</p>
+                <p className="text-lg dark:text-slate-100">{caseData.problem_description}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Initial Diagnosis</label>
-                <p className="text-lg dark:text-slate-100">{caseData.initialDiagnosis}</p>
+                <p className="text-lg dark:text-slate-100">{caseData.initial_diagnosis || 'Not provided'}</p>
               </div>
             </CardContent>
           </Card>
