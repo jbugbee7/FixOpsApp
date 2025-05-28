@@ -1,11 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { Bot, RefreshCw, BarChart3, AlertCircle } from 'lucide-react';
+import { Bot, RefreshCw, BarChart3 } from 'lucide-react';
 import { useRepairSummaries } from "@/hooks/useRepairSummaries";
 import RepairSummaryCard from "./RepairSummaryCard";
 import ErrorStateCard from "./ErrorStateCard";
 import EmptyStateCard from "./EmptyStateCard";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface InsightsTabProps {
   user: any;
@@ -42,16 +41,6 @@ const InsightsTab = ({ user, onInsightCardClick }: InsightsTabProps) => {
           {refreshing ? 'Refreshing...' : 'Refresh Analysis'}
         </Button>
       </div>
-
-      {/* Debug info - only show in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Debug: User ID: {user?.id || 'No user'}, Cases found: {repairSummaries.length}, Loading: {loading.toString()}, Error: {hasError.toString()}
-          </AlertDescription>
-        </Alert>
-      )}
       
       {loading ? (
         <div className="text-center py-8">

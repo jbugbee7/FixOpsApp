@@ -31,50 +31,11 @@ export const useRepairSummaries = (user: any) => {
     try {
       console.log('=== REPAIR SUMMARIES FETCH START ===');
       console.log('User ID:', user.id);
-      console.log('User object:', user);
       
       setHasError(false);
       setErrorMessage('');
       
-      // First, let's test basic connection to Supabase
-      console.log('Testing Supabase connection...');
-      const { data: testData, error: testError } = await supabase
-        .from('cases')
-        .select('count')
-        .limit(1);
-      
-      console.log('Connection test result:', { testData, testError });
-      
-      if (testError) {
-        console.error('=== SUPABASE CONNECTION ERROR ===');
-        console.error('Error code:', testError.code);
-        console.error('Error message:', testError.message);
-        console.error('Error details:', testError.details);
-        console.error('Error hint:', testError.hint);
-        
-        setHasError(true);
-        
-        if (testError.code === '42P17' || testError.message.includes('infinite recursion')) {
-          setErrorMessage('Database policy configuration issue detected. This needs to be fixed in the database settings.');
-          console.log('=== INFINITE RECURSION DETECTED ===');
-        } else if (testError.message.includes('permission denied') || testError.code === 'PGRST301') {
-          setErrorMessage('Access denied. Your account may not have proper permissions to view case data.');
-          console.log('=== PERMISSION DENIED ===');
-        } else if (testError.message.includes('JWTError') || testError.message.includes('JWT')) {
-          setErrorMessage('Authentication error. Please sign out and sign back in.');
-          console.log('=== JWT ERROR ===');
-        } else {
-          setErrorMessage(`Database connection error: ${testError.message}`);
-          console.log('=== OTHER DATABASE ERROR ===');
-        }
-        
-        setRepairSummaries([]);
-        return;
-      }
-      
-      console.log('Supabase connection successful, proceeding with cases fetch...');
-      
-      // Now fetch cases for the specific user
+      // Fetch cases for the specific user
       console.log('Fetching cases for user:', user.id);
       const { data: cases, error } = await supabase
         .from('cases')
@@ -92,13 +53,10 @@ export const useRepairSummaries = (user: any) => {
         console.error('Error code:', error.code);
         console.error('Error message:', error.message);
         console.error('Error details:', error.details);
-        console.error('Error hint:', error.hint);
         
         setHasError(true);
         
-        if (error.code === '42P17' || error.message.includes('infinite recursion')) {
-          setErrorMessage('Database configuration issue detected. Please contact support.');
-        } else if (error.message.includes('JWTError') || error.message.includes('JWT')) {
+        if (error.message.includes('JWTError') || error.message.includes('JWT')) {
           setErrorMessage('Authentication error. Please sign out and sign back in.');
         } else if (error.message.includes('permission denied') || error.code === 'PGRST301') {
           setErrorMessage('Access denied. Please check your permissions.');

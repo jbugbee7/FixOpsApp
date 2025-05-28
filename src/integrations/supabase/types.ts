@@ -416,6 +416,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: string
       }
+      get_user_company_direct: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       get_user_company_id: {
         Args: { user_id_param: string }
         Returns: string
