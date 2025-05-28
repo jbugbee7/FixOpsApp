@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, TrendingUp, Clock, CheckCircle, AlertTriangle, Lightbulb } from 'lucide-react';
 
 const AnalyticsPage = () => {
@@ -13,19 +13,16 @@ const AnalyticsPage = () => {
   const improvementAreas = [
     {
       title: "Diagnostic Accuracy",
-      description: "FixBot suggests practicing with refrigeration systems diagnostics",
       severity: "medium",
       aiSuggestion: "Based on recent cases, consider reviewing compressor troubleshooting procedures. FixBot recommends completing the advanced refrigeration course."
     },
     {
       title: "Parts Identification",
-      description: "Improvement needed in washing machine component recognition",
       severity: "low",
       aiSuggestion: "FixBot analysis shows 15% slower identification time for washing machine parts. Suggested training: Use FixBot's visual part identification feature more frequently."
     },
     {
       title: "Time Management",
-      description: "Opportunity to optimize repair sequencing",
       severity: "high",
       aiSuggestion: "FixBot detected inefficient task ordering in 23% of cases. Recommendation: Follow FixBot's suggested repair workflow for better time management."
     }
@@ -45,8 +42,7 @@ const AnalyticsPage = () => {
       {/* Header */}
       <div className="text-center">
         <BarChart3 className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Performance Analytics</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400">Track your progress and get AI-powered insights from FixBot</p>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Analytics</h2>
       </div>
 
       {/* Performance Metrics */}
@@ -71,14 +67,11 @@ const AnalyticsPage = () => {
 
       {/* FixBot AI Insights */}
       <Card className="dark:bg-slate-800 dark:border-slate-700">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+        <CardHeader className="text-center">
+          <CardTitle className="flex items-center justify-center space-x-2 dark:text-slate-100">
             <Lightbulb className="h-5 w-5 text-yellow-500" />
             <span>FixBot AI Insights</span>
           </CardTitle>
-          <CardDescription className="dark:text-slate-400">
-            Personalized recommendations for skill improvement
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -97,7 +90,6 @@ const AnalyticsPage = () => {
                     {area.severity.toUpperCase()}
                   </span>
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-300 mb-3">{area.description}</p>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded border-l-4 border-blue-500">
                   <p className="text-sm text-blue-800 dark:text-blue-300">
                     <strong>FixBot Recommendation:</strong> {area.aiSuggestion}
@@ -111,11 +103,8 @@ const AnalyticsPage = () => {
 
       {/* Monthly Progress */}
       <Card className="dark:bg-slate-800 dark:border-slate-700">
-        <CardHeader>
+        <CardHeader className="text-center">
           <CardTitle className="dark:text-slate-100">Monthly Progress</CardTitle>
-          <CardDescription className="dark:text-slate-400">
-            Your improvement trajectory with FixBot assistance
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

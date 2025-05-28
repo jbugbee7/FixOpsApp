@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,8 +28,7 @@ const Index = () => {
 
   // Mock user data
   const user = {
-    name: "Alex Johnson",
-    loginTime: "Today 8:24 AM"
+    name: "Alex Johnson"
   };
 
   const updateCaseStatus = (caseId, newStatus) => {
@@ -154,7 +152,6 @@ const Index = () => {
               <div className="fixed bottom-20 right-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg">
                 <div className="text-right">
                   <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{user.loginTime}</p>
                 </div>
               </div>
             </div>
