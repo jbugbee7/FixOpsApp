@@ -319,7 +319,7 @@ const TrainingPage = () => {
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-semibold dark:text-slate-100 flex items-center">
               <BarChart3 className="h-5 w-5 mr-2" />
-              Data-Driven Repair Insights
+              Data Insights
             </h3>
             <Button onClick={fetchRepairSummaries} disabled={loading} variant="outline" size="sm">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -415,22 +415,6 @@ const TrainingPage = () => {
                         </div>
                       )}
                     </div>
-                    
-                    {summary.case_count > 0 && (
-                      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
-                        <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
-                          <span>
-                            📊 {summary.case_count} repair{summary.case_count !== 1 ? 's' : ''} analyzed
-                          </span>
-                          <span>
-                            🎯 {summary.success_rate}% completion rate
-                          </span>
-                          <span>
-                            🔧 {summary.common_issues.length} unique issue{summary.common_issues.length !== 1 ? 's' : ''}
-                          </span>
-                        </div>
-                      </div>
-                    )}
                   </CardContent>
                 </Card>
               ))}
