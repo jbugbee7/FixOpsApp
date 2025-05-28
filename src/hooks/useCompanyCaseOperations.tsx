@@ -41,6 +41,14 @@ export const useCompanyCaseOperations = (user: any, isOnline: boolean) => {
     }
   }, [isOnline, cases]);
 
+  // Helper function to ensure cases have company_id
+  const ensureCompanyId = (casesData: any[]): Case[] => {
+    return casesData.map(case_ => ({
+      ...case_,
+      company_id: case_.company_id || company?.id || ''
+    }));
+  };
+
   // Fetch cases from Supabase or AsyncStorage
   const fetchCases = async (useOfflineData = false) => {
     if (!user || !company) {
@@ -53,8 +61,9 @@ export const useCompanyCaseOperations = (user: any, isOnline: boolean) => {
       if (!isOnline || useOfflineData) {
         const offlineData = await AsyncStorage.getCases();
         if (offlineData) {
-          setCases(offlineData.cases || []);
-          console.log('Loaded cases from AsyncStorage:', offlineData.cases?.length || 0);
+          const casesWithCompanyId = ensureCompanyId(offlineData.cases || []);
+          setCases(casesWithCompanyId);
+          console.log('Loaded cases from AsyncStorage:', casesWithCompanyId.length);
           if (!isOnline) {
             toast({
               title: "Offline Mode",
@@ -81,7 +90,8 @@ export const useCompanyCaseOperations = (user: any, isOnline: boolean) => {
           // Fallback to AsyncStorage if Supabase fails
           const offlineData = await AsyncStorage.getCases();
           if (offlineData) {
-            setCases(offlineData.cases || []);
+            const casesWithCompanyId = ensureCompanyId(offlineData.cases || []);
+            setCases(casesWithCompanyId);
             toast({
               title: "Using Cached Data",
               description: "Unable to connect to server. Showing cached data.",
@@ -109,7 +119,8 @@ export const useCompanyCaseOperations = (user: any, isOnline: boolean) => {
       // Fallback to AsyncStorage on any error
       const offlineData = await AsyncStorage.getCases();
       if (offlineData) {
-        setCases(offlineData.cases || []);
+        const casesWithCompanyId = ensureCompanyId(offlineData.cases || []);
+        setCases(casesWithCompanyId);
         toast({
           title: "Using Cached Data",
           description: "Connection error. Showing cached data.",
@@ -214,7 +225,8 @@ export const useCompanyCaseOperations = (user: any, isOnline: boolean) => {
         // If offline, load from AsyncStorage
         const offlineData = await AsyncStorage.getCases();
         if (offlineData) {
-          setCases(offlineData.cases || []);
+          const casesWithCompanyId = ensureCompanyId(offlineData.cases || []);
+          setCases(casesWithCompanyId);
           toast({
             title: "Offline Data Loaded",
             description: "Loaded cached data. Connect to internet to sync with server.",
