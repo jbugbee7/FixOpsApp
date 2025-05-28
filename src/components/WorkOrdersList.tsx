@@ -1,19 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-interface Case {
-  id: string;
-  customer_name: string;
-  appliance_brand: string;
-  appliance_type: string;
-  status: string;
-  created_at: string;
-  customer_phone?: string;
-  customer_address?: string;
-  problem_description: string;
-  initial_diagnosis?: string;
-}
+import { Case } from '@/types/case';
 
 interface WorkOrdersListProps {
   cases: Case[];

@@ -1,21 +1,8 @@
-
-// AsyncStorage utility for offline data management
-interface StoredCase {
-  id: string;
-  customer_name: string;
-  appliance_brand: string;
-  appliance_type: string;
-  status: string;
-  created_at: string;
-  customer_phone?: string;
-  customer_address?: string;
-  problem_description: string;
-  initial_diagnosis?: string;
-}
+import { Case } from '@/types/case';
 
 export const AsyncStorage = {
   // Store cases data
-  storeCases: async (cases: StoredCase[]): Promise<void> => {
+  storeCases: async (cases: Case[]): Promise<void> => {
     try {
       const timestamp = new Date().toISOString();
       const dataToStore = {
@@ -31,7 +18,7 @@ export const AsyncStorage = {
   },
 
   // Retrieve stored cases
-  getCases: async (): Promise<{ cases: StoredCase[]; lastSync: string; offline: boolean } | null> => {
+  getCases: async (): Promise<{ cases: Case[]; lastSync: string; offline: boolean } | null> => {
     try {
       const stored = localStorage.getItem('fixops_cases_offline');
       if (!stored) return null;
