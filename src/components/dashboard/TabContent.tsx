@@ -5,6 +5,7 @@ import CaseForm from '@/components/CaseForm';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
+import FixChatPage from '@/components/FixChatPage';
 import DashboardMain from './DashboardMain';
 import type { Case } from '@/types/case';
 
@@ -33,6 +34,10 @@ const TabContent = (props: TabContentProps) => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <CaseForm />
         </div>
+      </TabsContent>
+
+      <TabsContent value="fixchat" className="m-0">
+        <FixChatPage />
       </TabsContent>
 
       <TabsContent value="ai-assistant" className="m-0">

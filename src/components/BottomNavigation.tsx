@@ -1,6 +1,6 @@
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Settings, Home, Bot, GraduationCap } from 'lucide-react';
+import { MessageCircle, Settings, Home, Bot, GraduationCap } from 'lucide-react';
 
 const BottomNavigation = () => {
   return (
@@ -14,11 +14,11 @@ const BottomNavigation = () => {
           <span className="text-xs">Dashboard</span>
         </TabsTrigger>
         <TabsTrigger 
-          value="add-case" 
+          value="fixchat" 
           className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
         >
-          <Plus className="h-5 w-5" />
-          <span className="text-xs">Add WO</span>
+          <MessageCircle className="h-5 w-5" />
+          <span className="text-xs">FixChat</span>
         </TabsTrigger>
         <TabsTrigger 
           value="ai-assistant" 

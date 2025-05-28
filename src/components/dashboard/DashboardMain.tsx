@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Plus } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
 import SearchBar from '@/components/SearchBar';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
@@ -47,6 +47,18 @@ const DashboardMain = React.memo(({
           onModelFound={onModelFound}
           onPartFound={onPartFound}
         />
+      </div>
+
+      {/* Add Work Order Button */}
+      <div className="flex justify-center mb-8">
+        <Button 
+          onClick={() => onNavigate('add-case')}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 text-lg font-semibold"
+          size="lg"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Add Work Order
+        </Button>
       </div>
 
       {/* Connection Status Banner */}
