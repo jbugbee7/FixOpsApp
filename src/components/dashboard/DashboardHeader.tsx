@@ -2,10 +2,10 @@
 import { useCompany } from '@/contexts/CompanyContext';
 
 const DashboardHeader = () => {
-  const { company, loading, error } = useCompany();
+  const { company, loading } = useCompany();
 
-  // Don't render anything while loading or if there's an error
-  if (loading || error || !company) {
+  // Don't render anything while loading or if there's no company
+  if (loading || !company) {
     return (
       <div className="mb-6 text-center">
         <div className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
