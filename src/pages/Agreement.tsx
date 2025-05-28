@@ -16,6 +16,8 @@ import TermsContent from '@/components/TermsContent';
 const Agreement = () => {
   const [policyAgreed, setPolicyAgreed] = useState(false);
   const [termsAgreed, setTermsAgreed] = useState(false);
+  const [policyViewed, setPolicyViewed] = useState(false);
+  const [termsViewed, setTermsViewed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -28,6 +30,15 @@ const Agreement = () => {
       toast({
         title: "Agreement Required",
         description: "Please agree to both the Privacy Policy and Terms of Service to continue.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!policyViewed || !termsViewed) {
+      toast({
+        title: "Documents Must Be Reviewed",
+        description: "Please read both the Privacy Policy and Terms of Service before proceeding.",
         variant: "destructive",
       });
       return;
@@ -82,6 +93,28 @@ const Agreement = () => {
     }
   };
 
+  const handlePolicyModalClose = () => {
+    setShowPolicyModal(false);
+    setPolicyViewed(true);
+  };
+
+  const handleTermsModalClose = () => {
+    setShowTermsModal(false);
+    setTermsViewed(true);
+  };
+
+  const handlePolicyAccept = () => {
+    setPolicyAgreed(true);
+    setPolicyViewed(true);
+  };
+
+  const handleTermsAccept = () => {
+    setTermsAgreed(true);
+    setTermsViewed(true);
+  };
+
+  const canProceed = policyAgreed && termsAgreed && policyViewed && termsViewed;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
       <div className="w-full max-w-2xl">
@@ -103,7 +136,7 @@ const Agreement = () => {
             <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
               <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-blue-800 dark:text-blue-300">
-                Before you can access FixOps, please review and agree to our Privacy Policy and Terms of Service.
+                Before you can access FixOps, you must read and agree to our Privacy Policy and Terms of Service by clicking the links below.
               </AlertDescription>
             </Alert>
 
@@ -113,28 +146,29 @@ const Agreement = () => {
                   id="privacy-policy"
                   checked={policyAgreed}
                   onCheckedChange={(checked) => setPolicyAgreed(checked as boolean)}
+                  disabled={!policyViewed}
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
                     <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <label
                       htmlFor="privacy-policy"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200"
+                      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200 ${!policyViewed ? 'text-muted-foreground' : ''}`}
                     >
                       I have read and agree to the Privacy Policy
                     </label>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-2">
-                    Learn how we collect, use, and protect your personal information.
+                    {policyViewed ? 'Document reviewed ✓' : 'You must read this document first'}
                   </p>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowPolicyModal(true)}
-                    className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700"
+                    className={`text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 ${policyViewed ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
                   >
                     <FileText className="h-3 w-3 mr-1" />
-                    Read Privacy Policy
+                    {policyViewed ? 'Privacy Policy (Reviewed)' : 'Read Privacy Policy *Required'}
                   </Button>
                 </div>
               </div>
@@ -144,36 +178,46 @@ const Agreement = () => {
                   id="terms-of-service"
                   checked={termsAgreed}
                   onCheckedChange={(checked) => setTermsAgreed(checked as boolean)}
+                  disabled={!termsViewed}
                 />
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
                     <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <label
                       htmlFor="terms-of-service"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200"
+                      className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200 ${!termsViewed ? 'text-muted-foreground' : ''}`}
                     >
                       I have read and agree to the Terms of Service
                     </label>
                   </div>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-2">
-                    Understand the rules and guidelines for using FixOps.
+                    {termsViewed ? 'Document reviewed ✓' : 'You must read this document first'}
                   </p>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowTermsModal(true)}
-                    className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700"
+                    className={`text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700 ${termsViewed ? 'bg-green-50 dark:bg-green-900/20' : ''}`}
                   >
                     <FileText className="h-3 w-3 mr-1" />
-                    Read Terms of Service
+                    {termsViewed ? 'Terms of Service (Reviewed)' : 'Read Terms of Service *Required'}
                   </Button>
                 </div>
               </div>
             </div>
 
+            {(!policyViewed || !termsViewed) && (
+              <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800">
+                <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <AlertDescription className="text-amber-800 dark:text-amber-300">
+                  You must click and read both documents above before you can proceed.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <Button
               onClick={handleSubmit}
-              disabled={!policyAgreed || !termsAgreed || loading}
+              disabled={!canProceed || loading}
               className="w-full"
             >
               {loading ? "Saving..." : "Continue to FixOps"}
@@ -184,8 +228,8 @@ const Agreement = () => {
         {/* Privacy Policy Modal */}
         <ScrollableDocumentModal
           isOpen={showPolicyModal}
-          onClose={() => setShowPolicyModal(false)}
-          onAccept={() => setPolicyAgreed(true)}
+          onClose={handlePolicyModalClose}
+          onAccept={handlePolicyAccept}
           title="Privacy Policy"
           isAccepted={policyAgreed}
         >
@@ -195,8 +239,8 @@ const Agreement = () => {
         {/* Terms of Service Modal */}
         <ScrollableDocumentModal
           isOpen={showTermsModal}
-          onClose={() => setShowTermsModal(false)}
-          onAccept={() => setTermsAgreed(true)}
+          onClose={handleTermsModalClose}
+          onAccept={handleTermsAccept}
           title="Terms of Service"
           isAccepted={termsAgreed}
         >
