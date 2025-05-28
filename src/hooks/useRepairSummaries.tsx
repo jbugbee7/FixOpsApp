@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { RepairSummary } from "@/types/repairSummary";
@@ -6,7 +5,7 @@ import { fetchUserCases } from "@/services/casesService";
 import { processCasesIntoSummaries } from "@/utils/repairSummaryProcessor";
 import { getErrorMessage, validateUser } from "@/utils/repairSummaryErrorHandler";
 
-export { RepairSummary } from "@/types/repairSummary";
+export type { RepairSummary } from "@/types/repairSummary";
 
 export const useRepairSummaries = (user: any) => {
   const [repairSummaries, setRepairSummaries] = useState<RepairSummary[]>([]);
