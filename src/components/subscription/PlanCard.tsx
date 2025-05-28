@@ -70,9 +70,11 @@ const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
               ? 'bg-green-600 hover:bg-green-700 text-white' 
               : plan.popular 
               ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+              : plan.id === 'pro'
+              ? 'bg-blue-600 hover:bg-blue-700 text-white'
               : ''
           }`}
-          variant={plan.current ? 'default' : plan.popular ? 'default' : 'outline'}
+          variant={plan.current ? 'default' : (plan.popular || plan.id === 'pro') ? 'default' : 'outline'}
         >
           {plan.current ? 'Current Plan' : 
            plan.id === 'free' ? 'Get Started Free' : 'Upgrade Now'}
