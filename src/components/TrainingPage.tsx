@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, Wrench, Lightbulb, ChevronDown, ChevronRight, Bot, RefreshCw } from 'lucide-react';
+import { GraduationCap, Wrench, Lightbulb, ChevronDown, ChevronRight, Bot, RefreshCw, BarChart3, AlertTriangle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,9 +12,11 @@ import AiSummaryPage from './AiSummaryPage';
 
 interface RepairSummary {
   appliance_type: string;
+  case_count: number;
   common_issues: string[];
   recent_solutions: string[];
-  parts_frequency: { part: string; count: number }[];
+  success_rate: number;
+  last_updated: string;
 }
 
 const TrainingPage = () => {
@@ -28,72 +30,81 @@ const TrainingPage = () => {
     if (!user) return;
 
     try {
-      // Fetch recent cases for AI analysis
+      setLoading(true);
+      
+      // Fetch all cases to analyze by appliance type
       const { data: cases, error } = await supabase
         .from('cases')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching cases:', error);
+        toast({
+          title: "Data Load Error",
+          description: "Failed to load repair data for analysis.",
+          variant: "destructive"
+        });
         return;
       }
 
-      // Generate AI summaries by appliance type
+      // Group and analyze cases by appliance type
       const summariesByType: { [key: string]: RepairSummary } = {};
       
       cases?.forEach(case_ => {
         if (!summariesByType[case_.appliance_type]) {
           summariesByType[case_.appliance_type] = {
             appliance_type: case_.appliance_type,
+            case_count: 0,
             common_issues: [],
             recent_solutions: [],
-            parts_frequency: []
+            success_rate: 0,
+            last_updated: new Date().toISOString()
           };
         }
 
-        if (case_.problem_description) {
-          summariesByType[case_.appliance_type].common_issues.push(case_.problem_description);
+        const summary = summariesByType[case_.appliance_type];
+        summary.case_count++;
+
+        if (case_.problem_description && !summary.common_issues.includes(case_.problem_description)) {
+          summary.common_issues.push(case_.problem_description);
         }
 
-        if (case_.initial_diagnosis) {
-          summariesByType[case_.appliance_type].recent_solutions.push(case_.initial_diagnosis);
+        if (case_.initial_diagnosis && !summary.recent_solutions.includes(case_.initial_diagnosis)) {
+          summary.recent_solutions.push(case_.initial_diagnosis);
         }
+      });
+
+      // Calculate success rates
+      Object.keys(summariesByType).forEach(type => {
+        const typeCases = cases?.filter(c => c.appliance_type === type) || [];
+        const completedCases = typeCases.filter(c => c.status === 'Completed');
+        summariesByType[type].success_rate = typeCases.length > 0 
+          ? Math.round((completedCases.length / typeCases.length) * 100)
+          : 0;
+        
+        // Limit arrays to most recent/common items
+        summariesByType[type].common_issues = summariesByType[type].common_issues.slice(0, 5);
+        summariesByType[type].recent_solutions = summariesByType[type].recent_solutions.slice(0, 3);
       });
 
       setRepairSummaries(Object.values(summariesByType));
+      
+      if (Object.keys(summariesByType).length > 0) {
+        toast({
+          title: "Repair Data Loaded",
+          description: `Analyzed ${cases?.length || 0} cases across ${Object.keys(summariesByType).length} appliance types.`,
+        });
+      }
     } catch (error) {
       console.error('Error generating repair summaries:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateAISummary = async (applianceType: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { 
-          message: `Based on the recent repair data for ${applianceType} appliances, provide a brief summary of the most common issues and recommended preventive maintenance steps. Keep it concise and practical for technicians.` 
-        }
-      });
-
-      if (error) throw error;
-
       toast({
-        title: "AI Summary Generated",
-        description: `Generated insights for ${applianceType} repairs.`,
-      });
-
-      return data.response;
-    } catch (error) {
-      console.error('Error generating AI summary:', error);
-      toast({
-        title: "AI Summary Error",
-        description: "Failed to generate AI insights. Please try again.",
+        title: "Analysis Error",
+        description: "Failed to analyze repair data. Please try again.",
         variant: "destructive"
       });
-      return null;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,6 +115,12 @@ const TrainingPage = () => {
       case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
       default: return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
     }
+  };
+
+  const getSuccessRateColor = (rate: number) => {
+    if (rate >= 80) return 'text-green-600 dark:text-green-400';
+    if (rate >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const handleInsightCardClick = (applianceType: string) => {
@@ -295,14 +312,137 @@ const TrainingPage = () => {
       <div className="text-center">
         <GraduationCap className="h-16 w-16 text-blue-500 mx-auto mb-4" />
         <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Training Center</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400">Interactive appliance troubleshooting guides and repair insights</p>
+        <p className="text-lg text-slate-600 dark:text-slate-400">AI-powered insights from your repair data and interactive troubleshooting guides</p>
       </div>
 
-      <Tabs defaultValue="guides" className="w-full">
+      <Tabs defaultValue="insights" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="guides">Troubleshooting Guides</TabsTrigger>
           <TabsTrigger value="insights">AI Repair Insights</TabsTrigger>
+          <TabsTrigger value="guides">Troubleshooting Guides</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="insights" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-semibold dark:text-slate-100 flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2" />
+              Data-Driven Repair Insights
+            </h3>
+            <Button onClick={fetchRepairSummaries} disabled={loading} variant="outline" size="sm">
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh Analysis
+            </Button>
+          </div>
+          
+          {loading ? (
+            <div className="text-center py-8">
+              <Bot className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-pulse" />
+              <p className="text-slate-600 dark:text-slate-400">Analyzing your repair data...</p>
+            </div>
+          ) : repairSummaries.length === 0 ? (
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardContent className="text-center py-12">
+                <GraduationCap className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Start Building Your Knowledge Base
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
+                  Complete some work orders to unlock AI-powered insights based on your actual repair data.
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-500">
+                  The more cases you complete, the better the AI insights become!
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {repairSummaries.map((summary, index) => (
+                <Card 
+                  key={index} 
+                  className="dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-lg transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700 border-l-4 border-l-blue-500"
+                  onClick={() => handleInsightCardClick(summary.appliance_type)}
+                >
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between dark:text-slate-100">
+                      <div className="flex items-center space-x-3">
+                        <Bot className="h-6 w-6 text-blue-500" />
+                        <div>
+                          <span className="text-lg">{summary.appliance_type} Analysis</span>
+                          <div className="flex items-center space-x-4 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {summary.case_count} Cases
+                            </Badge>
+                            <span className={`text-sm font-semibold ${getSuccessRateColor(summary.success_rate)}`}>
+                              {summary.success_rate}% Success Rate
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                          Click for AI Analysis →
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Powered by your repair data
+                        </p>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {summary.common_issues.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center">
+                            <AlertTriangle className="h-4 w-4 mr-2 text-orange-500" />
+                            Most Common Issues
+                          </h4>
+                          <div className="space-y-2">
+                            {summary.common_issues.slice(0, 3).map((issue, issueIndex) => (
+                              <div key={issueIndex} className="p-2 bg-orange-50 dark:bg-orange-900/20 rounded border-l-4 border-orange-500 text-sm">
+                                {issue}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {summary.recent_solutions.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center">
+                            <Lightbulb className="h-4 w-4 mr-2 text-green-500" />
+                            Successful Solutions
+                          </h4>
+                          <div className="space-y-2">
+                            {summary.recent_solutions.slice(0, 3).map((solution, solutionIndex) => (
+                              <div key={solutionIndex} className="p-2 bg-green-50 dark:bg-green-900/20 rounded border-l-4 border-green-500 text-sm">
+                                {solution}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {summary.case_count > 0 && (
+                      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600">
+                        <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                          <span>
+                            📊 {summary.case_count} repair{summary.case_count !== 1 ? 's' : ''} analyzed
+                          </span>
+                          <span>
+                            🎯 {summary.success_rate}% completion rate
+                          </span>
+                          <span>
+                            🔧 {summary.common_issues.length} unique issue{summary.common_issues.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="guides" className="space-y-4">
           <div className="grid gap-4">
@@ -374,81 +514,6 @@ const TrainingPage = () => {
               </Card>
             ))}
           </div>
-        </TabsContent>
-
-        <TabsContent value="insights" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold dark:text-slate-100">AI-Generated Repair Insights</h3>
-            <Button onClick={fetchRepairSummaries} disabled={loading} variant="outline" size="sm">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh Data
-            </Button>
-          </div>
-          
-          {loading ? (
-            <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">Loading repair insights...</p>
-            </div>
-          ) : repairSummaries.length === 0 ? (
-            <Card className="dark:bg-slate-800 dark:border-slate-700">
-              <CardContent className="text-center py-8">
-                <Bot className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-600 dark:text-slate-400">No repair data available yet. Complete some work orders to see AI insights.</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {repairSummaries.map((summary, index) => (
-                <Card 
-                  key={index} 
-                  className="dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-lg transition-shadow duration-200 hover:bg-slate-50 dark:hover:bg-slate-700"
-                  onClick={() => handleInsightCardClick(summary.appliance_type)}
-                >
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between dark:text-slate-100">
-                      <div className="flex items-center space-x-2">
-                        <Lightbulb className="h-5 w-5 text-yellow-500" />
-                        <span>{summary.appliance_type} Insights</span>
-                      </div>
-                      <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                        <Bot className="h-4 w-4 mr-1" />
-                        Click to generate AI summary
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {summary.common_issues.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Recent Issues:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {summary.common_issues.slice(0, 3).map((issue, issueIndex) => (
-                              <Badge key={issueIndex} variant="secondary" className="text-xs">
-                                {issue.substring(0, 50)}...
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {summary.recent_solutions.length > 0 && (
-                        <div>
-                          <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Recent Solutions:</h4>
-                          <div className="space-y-2">
-                            {summary.recent_solutions.slice(0, 3).map((solution, solutionIndex) => (
-                              <div key={solutionIndex} className="text-sm bg-blue-50 dark:bg-blue-900/20 p-2 rounded border-l-4 border-blue-500">
-                                {solution}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
         </TabsContent>
       </Tabs>
     </div>
