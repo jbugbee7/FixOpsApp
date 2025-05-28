@@ -39,13 +39,15 @@ const ScrollableDocumentModal = ({
     }
   };
 
-  const handleAccept = () => {
-    onAccept();
+  const handleClose = () => {
+    if (hasScrolledToBottom) {
+      onAccept(); // Mark as viewed when closing after reading
+    }
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl">{title}</DialogTitle>
@@ -68,19 +70,13 @@ const ScrollableDocumentModal = ({
         <DialogFooter className="flex flex-col space-y-4 sm:flex-col sm:space-x-0">
           {!hasScrolledToBottom && (
             <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
-              Please scroll to the bottom to read the complete document before agreeing.
+              Please scroll to the bottom to read the complete document.
             </p>
           )}
 
-          <div className="flex space-x-2 justify-center">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleAccept}
-              disabled={!hasScrolledToBottom}
-            >
-              Accept
+          <div className="flex justify-center">
+            <Button variant="outline" onClick={handleClose}>
+              {hasScrolledToBottom ? "Close" : "Cancel"}
             </Button>
           </div>
         </DialogFooter>
