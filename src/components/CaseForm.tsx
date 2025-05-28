@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 
 const CaseForm = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     // Appliance Information
@@ -182,11 +181,14 @@ const CaseForm = () => {
         savePartsData()
       ]);
 
+      // Use technician name from profile or email as customer name
+      const customerName = userProfile?.full_name || user?.email?.split('@')[0] || 'Technician';
+
       const { error } = await supabase
         .from('cases')
         .insert({
           user_id: user.id,
-          customer_name: 'TBD', // Placeholder since field is required but not collected
+          customer_name: customerName,
           appliance_brand: formData.applianceBrand,
           appliance_model: formData.applianceModel,
           appliance_type: formData.applianceType,

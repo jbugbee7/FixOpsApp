@@ -1,15 +1,14 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, BarChart3, Settings, Wrench, RefreshCw, Home, LogOut, Bot } from 'lucide-react';
+import { Plus, BarChart3, Settings, Wrench, RefreshCw, Home, LogOut, Bot, GraduationCap } from 'lucide-react';
 import CaseForm from '@/components/CaseForm';
 import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
-import AnalyticsPage from '@/components/AnalyticsPage';
+import TrainingPage from '@/components/TrainingPage';
 import SearchBar from '@/components/SearchBar';
 import ModelDetails from '@/components/ModelDetails';
 import PartDetails from '@/components/PartDetails';
@@ -345,7 +344,7 @@ const Index = () => {
 
           <TabsContent value="analytics" className="m-0">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <AnalyticsPage />
+              <TrainingPage />
             </div>
           </TabsContent>
 
@@ -389,8 +388,8 @@ const Index = () => {
               value="analytics" 
               className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
             >
-              <BarChart3 className="h-5 w-5" />
-              <span className="text-xs">Analytics</span>
+              <GraduationCap className="h-5 w-5" />
+              <span className="text-xs">Training</span>
             </TabsTrigger>
             <TabsTrigger 
               value="settings" 
