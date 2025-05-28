@@ -17,7 +17,7 @@ const SettingsPage = () => {
   const { userProfile, user } = useAuth();
 
   const canCustomizeProfile = hasFeatureAccess('custom_branding');
-  const currentTier: 'free' | 'basic' | 'professional' | 'enterprise' = subscription?.tier || 'free';
+  const currentTier = (subscription?.tier || 'free') as 'free' | 'basic' | 'professional' | 'enterprise';
 
   return (
     <div className="max-w-6xl mx-auto">
