@@ -12,6 +12,7 @@ import { useCompanyCaseOperations } from '@/hooks/useCompanyCaseOperations';
 import { useBasicCaseOperations } from '@/hooks/useBasicCaseOperations';
 import { useIndexState } from '@/hooks/useIndexState';
 import { useCompany } from '@/contexts/CompanyContext';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { Case } from '@/types/case';
 
 const Index = () => {
@@ -60,6 +61,9 @@ const Index = () => {
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
 
+  // Show loading skeleton while company is loading OR cases are loading
+  const isLoading = companyLoading || loading;
+
   if (selectedCase) {
     return (
       <CaseDetails 
@@ -88,6 +92,31 @@ const Index = () => {
     );
   }
 
+  // Show loading skeleton only for initial loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
+        <AppHeader 
+          isOnline={isOnline} 
+          onHomeClick={handleHomeClick} 
+          onSignOut={handleSignOut} 
+        />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-8 w-3/4" />
+            <div className="space-y-4">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
@@ -103,7 +132,7 @@ const Index = () => {
             isOnline={isOnline}
             hasOfflineData={hasOfflineData}
             cases={cases}
-            loading={loading}
+            loading={false} // Pass false since we handle loading above
             isResyncing={isResyncing}
             displayName={displayName}
             onNavigate={handleNavigate}

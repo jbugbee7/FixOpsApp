@@ -16,6 +16,8 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       return;
     }
     
+    setLoading(true);
+    
     try {
       // If offline or explicitly requesting offline data, try AsyncStorage first
       if (!isOnline || useOfflineData) {
@@ -56,36 +58,30 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
               description: "Please sign out and sign back in to continue.",
               variant: "destructive"
             });
-            setLoading(false);
-            return;
-          }
-          
-          // Fallback to AsyncStorage if Supabase fails
-          const offlineData = await AsyncStorage.getCases();
-          if (offlineData) {
-            setCases(offlineData.cases || []);
-            toast({
-              title: "Using Cached Data",
-              description: "Unable to connect to server. Showing cached data.",
-              variant: "default"
-            });
           } else {
-            toast({
-              title: "Error Loading Work Orders",
-              description: "Failed to load work orders and no cached data available.",
-              variant: "destructive"
-            });
+            // For any other error, try to fallback to AsyncStorage
+            const offlineData = await AsyncStorage.getCases();
+            if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+              setCases(offlineData.cases);
+              toast({
+                title: "Using Cached Data",
+                description: "Unable to connect to server. Showing cached data.",
+                variant: "default"
+              });
+            } else {
+              // No cached data available, show empty state
+              setCases([]);
+              console.log('No cached data available, showing empty state');
+            }
           }
-          setLoading(false);
-          return;
-        }
-
-        console.log('Cases fetched successfully:', data?.length || 0);
-        setCases(data || []);
-        
-        // Store fresh data in AsyncStorage for offline use
-        if (data && data.length > 0) {
-          await AsyncStorage.storeCases(data);
+        } else {
+          console.log('Cases fetched successfully:', data?.length || 0);
+          setCases(data || []);
+          
+          // Store fresh data in AsyncStorage for offline use
+          if (data && data.length > 0) {
+            await AsyncStorage.storeCases(data);
+          }
         }
       }
     } catch (error) {
@@ -93,19 +89,17 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       
       // Fallback to AsyncStorage on any error
       const offlineData = await AsyncStorage.getCases();
-      if (offlineData) {
-        setCases(offlineData.cases || []);
+      if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+        setCases(offlineData.cases);
         toast({
           title: "Using Cached Data",
           description: "Connection error. Showing cached data.",
           variant: "default"
         });
       } else {
-        toast({
-          title: "Error Loading Work Orders", 
-          description: "An unexpected error occurred and no cached data is available.",
-          variant: "destructive"
-        });
+        // No cached data available
+        setCases([]);
+        console.log('No cached data available after error');
       }
     } finally {
       setLoading(false);
