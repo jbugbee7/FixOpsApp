@@ -5,19 +5,7 @@ import { useOfflineData } from './useOfflineData';
 import { useCaseFetching } from './useCaseFetching';
 import { useCaseStatusUpdate } from './useCaseStatusUpdate';
 import { useResyncOperations } from './useResyncOperations';
-
-interface Case {
-  id: string;
-  customer_name: string;
-  appliance_brand: string;
-  appliance_type: string;
-  status: string;
-  created_at: string;
-  customer_phone?: string;
-  customer_address?: string;
-  problem_description: string;
-  initial_diagnosis?: string;
-}
+import { Case } from '@/types/case';
 
 export const useCaseOperations = (user: any, isOnline: boolean) => {
   const { cases, setCases, loading, fetchCases } = useCaseFetching(user, isOnline);

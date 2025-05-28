@@ -1,19 +1,7 @@
 
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
-
-interface Case {
-  id: string;
-  customer_name: string;
-  appliance_brand: string;
-  appliance_type: string;
-  status: string;
-  created_at: string;
-  customer_phone?: string;
-  customer_address?: string;
-  problem_description: string;
-  initial_diagnosis?: string;
-}
+import { Case } from '@/types/case';
 
 export const useResyncOperations = (
   isOnline: boolean, 
