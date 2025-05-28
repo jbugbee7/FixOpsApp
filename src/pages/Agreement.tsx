@@ -5,15 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Wrench, ExternalLink, AlertCircle } from 'lucide-react';
+import { Wrench, FileText, Shield, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import ScrollableDocumentModal from '@/components/ScrollableDocumentModal';
+import PolicyContent from '@/components/PolicyContent';
+import TermsContent from '@/components/TermsContent';
 
 const Agreement = () => {
   const [policyAgreed, setPolicyAgreed] = useState(false);
   const [termsAgreed, setTermsAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -110,23 +115,27 @@ const Agreement = () => {
                   onCheckedChange={(checked) => setPolicyAgreed(checked as boolean)}
                 />
                 <div className="flex-1">
-                  <label
-                    htmlFor="privacy-policy"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200"
-                  >
-                    I have read and agree to the{' '}
-                    <Button
-                      variant="link"
-                      className="p-0 h-auto text-blue-600 dark:text-blue-400"
-                      onClick={() => window.open('/policy', '_blank')}
+                  <div className="flex items-center space-x-2">
+                    <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <label
+                      htmlFor="privacy-policy"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200"
                     >
-                      Privacy Policy
-                      <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
-                  </label>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                      I have read and agree to the Privacy Policy
+                    </label>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-2">
                     Learn how we collect, use, and protect your personal information.
                   </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPolicyModal(true)}
+                    className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700"
+                  >
+                    <FileText className="h-3 w-3 mr-1" />
+                    Read Privacy Policy
+                  </Button>
                 </div>
               </div>
 
@@ -137,23 +146,27 @@ const Agreement = () => {
                   onCheckedChange={(checked) => setTermsAgreed(checked as boolean)}
                 />
                 <div className="flex-1">
-                  <label
-                    htmlFor="terms-of-service"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200"
-                  >
-                    I have read and agree to the{' '}
-                    <Button
-                      variant="link"
-                      className="p-0 h-auto text-blue-600 dark:text-blue-400"
-                      onClick={() => window.open('/terms', '_blank')}
+                  <div className="flex items-center space-x-2">
+                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <label
+                      htmlFor="terms-of-service"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200"
                     >
-                      Terms of Service
-                      <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
-                  </label>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                      I have read and agree to the Terms of Service
+                    </label>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 mb-2">
                     Understand the rules and guidelines for using FixOps.
                   </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowTermsModal(true)}
+                    className="text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-700"
+                  >
+                    <FileText className="h-3 w-3 mr-1" />
+                    Read Terms of Service
+                  </Button>
                 </div>
               </div>
             </div>
@@ -167,6 +180,28 @@ const Agreement = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Privacy Policy Modal */}
+        <ScrollableDocumentModal
+          isOpen={showPolicyModal}
+          onClose={() => setShowPolicyModal(false)}
+          onAccept={() => setPolicyAgreed(true)}
+          title="Privacy Policy"
+          isAccepted={policyAgreed}
+        >
+          <PolicyContent />
+        </ScrollableDocumentModal>
+
+        {/* Terms of Service Modal */}
+        <ScrollableDocumentModal
+          isOpen={showTermsModal}
+          onClose={() => setShowTermsModal(false)}
+          onAccept={() => setTermsAgreed(true)}
+          title="Terms of Service"
+          isAccepted={termsAgreed}
+        >
+          <TermsContent />
+        </ScrollableDocumentModal>
       </div>
     </div>
   );
