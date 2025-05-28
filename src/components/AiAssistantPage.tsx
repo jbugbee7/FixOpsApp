@@ -1,8 +1,9 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Send, User, Loader2 } from 'lucide-react';
+import { Send, User, Loader2, AlertTriangle } from 'lucide-react';
 import AnimatedRepairBot from './AnimatedRepairBot';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
@@ -93,6 +94,7 @@ const AiAssistantPage = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasConnectionError, setHasConnectionError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -160,6 +162,7 @@ const AiAssistantPage = () => {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setHasConnectionError(false);
 
     try {
       // Get the current session for auth
@@ -197,21 +200,36 @@ const AiAssistantPage = () => {
 
     } catch (error) {
       console.error('Error calling AI chat:', error);
+      setHasConnectionError(true);
+      
+      let errorText = "I'm having trouble connecting to my intelligent systems right now. ";
+      
+      // Check for specific error types
+      if (error.message?.includes('infinite recursion') || error.message?.includes('Failed to fetch')) {
+        errorText += "This appears to be a temporary database configuration issue. Please try again in a few minutes.";
+      } else if (error.message?.includes('Not authenticated')) {
+        errorText += "Please make sure you're properly signed in and try again.";
+      } else {
+        errorText += "Please try again in a moment.";
+      }
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I'm having trouble connecting to my intelligent systems right now. Please try again in a moment, or check if you're properly signed in.",
+        text: errorText,
         sender: 'ai',
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, errorMessage]);
       
-      toast({
-        title: "FixBot Error",
-        description: "Failed to get AI response. Please try again.",
-        variant: "destructive"
-      });
+      // Only show toast for unexpected errors
+      if (!error.message?.includes('infinite recursion') && !error.message?.includes('Failed to fetch')) {
+        toast({
+          title: "FixBot Error",
+          description: "Failed to get AI response. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -230,6 +248,16 @@ const AiAssistantPage = () => {
         <AnimatedRepairBot className="h-16 w-16 mx-auto mb-4" />
         <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">FixBot AI</h2>
         <p className="text-lg text-slate-600 dark:text-slate-400">Intelligent repair assistant with access to your real data</p>
+        
+        {/* Connection status indicator */}
+        {hasConnectionError && (
+          <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <div className="flex items-center justify-center space-x-2 text-yellow-800 dark:text-yellow-200">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="text-sm">Connection issues detected - responses may be limited</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Chat Container */}
@@ -330,7 +358,10 @@ const AiAssistantPage = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask FixBot about repairs, parts, troubleshooting, or specific work orders..."
+            placeholder={hasConnectionError 
+              ? "AI features temporarily limited - basic responses only..." 
+              : "Ask FixBot about repairs, parts, troubleshooting, or specific work orders..."
+            }
             className="flex-1"
             disabled={isLoading}
           />

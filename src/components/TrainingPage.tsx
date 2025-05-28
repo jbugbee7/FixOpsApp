@@ -26,12 +26,14 @@ const TrainingPage = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [expandedAppliance, setExpandedAppliance] = useState<string | null>(null);
   const [selectedApplianceForAI, setSelectedApplianceForAI] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
 
   const fetchRepairSummaries = async () => {
     if (!user) return;
 
     try {
       console.log('Starting repair summaries fetch for user:', user.id);
+      setHasError(false);
       
       // Fetch all cases to analyze by appliance type
       const { data: cases, error } = await supabase
@@ -41,11 +43,15 @@ const TrainingPage = () => {
 
       if (error) {
         console.error('Error fetching cases:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch repair data. Please try again.",
-          variant: "destructive",
-        });
+        setHasError(true);
+        // Don't show toast for policy errors - they're expected during setup
+        if (!error.message?.includes('infinite recursion')) {
+          toast({
+            title: "Error",
+            description: "Failed to fetch repair data. Please try again.",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
@@ -95,11 +101,15 @@ const TrainingPage = () => {
       console.log('Analysis complete. Found summaries for:', Object.keys(summariesByType));
     } catch (error) {
       console.error('Error generating repair summaries:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while analyzing data.",
-        variant: "destructive",
-      });
+      setHasError(true);
+      // Don't show toast for network/policy errors during initial setup
+      if (!error.message?.includes('infinite recursion') && !error.message?.includes('Failed to fetch')) {
+        toast({
+          title: "Error",
+          description: "An unexpected error occurred while analyzing data.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -114,10 +124,12 @@ const TrainingPage = () => {
     
     try {
       await fetchRepairSummaries();
-      toast({
-        title: "Analysis Updated",
-        description: "Your repair data has been refreshed successfully.",
-      });
+      if (!hasError) {
+        toast({
+          title: "Analysis Updated",
+          description: "Your repair data has been refreshed successfully.",
+        });
+      }
     } catch (error) {
       console.error('Error during manual refresh:', error);
     } finally {
@@ -342,8 +354,8 @@ const TrainingPage = () => {
               <BarChart3 className="h-5 w-5 mr-2" />
               Data Insights
             </h3>
-            <Button onClick={handleRefreshAnalysis} disabled={loading} variant="outline" size="sm">
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <Button onClick={handleRefreshAnalysis} disabled={loading || refreshing} variant="outline" size="sm">
+              <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
               Refresh Analysis
             </Button>
           </div>
@@ -353,6 +365,25 @@ const TrainingPage = () => {
               <Bot className="h-12 w-12 text-blue-500 mx-auto mb-4 animate-pulse" />
               <p className="text-slate-600 dark:text-slate-400">Analyzing your repair data...</p>
             </div>
+          ) : hasError ? (
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardContent className="text-center py-12">
+                <AlertTriangle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  Data Loading Issue
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
+                  We're having trouble connecting to your repair data. This might be due to database setup in progress.
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-500 mb-4">
+                  Please try refreshing or check back in a few minutes.
+                </p>
+                <Button onClick={handleRefreshAnalysis} disabled={refreshing} variant="outline">
+                  <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                  Try Again
+                </Button>
+              </CardContent>
+            </Card>
           ) : repairSummaries.length === 0 ? (
             <Card className="dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="text-center py-12">

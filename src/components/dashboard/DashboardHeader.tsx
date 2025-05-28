@@ -2,9 +2,23 @@
 import { useCompany } from '@/contexts/CompanyContext';
 
 const DashboardHeader = () => {
-  const { company } = useCompany();
+  const { company, loading, error } = useCompany();
 
-  if (!company) return null;
+  // Don't render anything while loading or if there's an error
+  if (loading || error || !company) {
+    return (
+      <div className="mb-6 text-center">
+        <div className="p-6 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+          <h1 className="text-3xl font-bold text-purple-800 dark:text-purple-200 mb-2">
+            Welcome to FixOps
+          </h1>
+          <p className="text-purple-600 dark:text-purple-300">
+            Your comprehensive repair management solution
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mb-6 text-center">
