@@ -7,14 +7,26 @@ import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 const CompanyBranding = () => {
-  const { company, subscription, refreshCompany, hasFeatureAccess } = useCompany();
+  const { company, subscription, loading, refreshCompany, hasFeatureAccess } = useCompany();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: company?.name || '',
     primary_color: company?.primary_color || '#3B82F6',
     secondary_color: company?.secondary_color || '#1E40AF',
+  });
+
+  // Update form data when company data loads
+  useState(() => {
+    if (company) {
+      setFormData({
+        name: company.name || '',
+        primary_color: company.primary_color || '#3B82F6',
+        secondary_color: company.secondary_color || '#1E40AF',
+      });
+    }
   });
 
   const canCustomizeBranding = hasFeatureAccess('custom_branding');
@@ -71,11 +83,22 @@ const CompanyBranding = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-6 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin mr-2" />
+          <p className="text-gray-500">Loading company information...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!company) {
     return (
       <Card>
         <CardContent className="p-6">
-          <p className="text-gray-500">Loading company information...</p>
+          <p className="text-gray-500">Company information not available.</p>
         </CardContent>
       </Card>
     );
@@ -154,7 +177,14 @@ const CompanyBranding = () => {
               disabled={!canCustomizeBranding || isLoading}
               className="w-full"
             >
-              {isLoading ? 'Updating...' : 'Update Branding'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Updating...
+                </>
+              ) : (
+                'Update Branding'
+              )}
             </Button>
           </div>
         </form>
@@ -162,7 +192,7 @@ const CompanyBranding = () => {
         <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <h4 className="font-medium mb-2">Current Plan: {subscription?.tier || 'Free'}</h4>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            Your current subscription: <span className="capitalize">{subscription?.tier}</span>
+            Your current subscription: <span className="capitalize">{subscription?.tier || 'free'}</span>
           </p>
         </div>
       </CardContent>
