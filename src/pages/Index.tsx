@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, BarChart3, Settings, Wrench, RefreshCw, Home, LogOut, Bot, GraduationCap } from 'lucide-react';
+import { Plus, BarChart3, Settings, Wrench, RefreshCw, Home, LogOut, Bot, GraduationCap, Wifi, WifiOff } from 'lucide-react';
 import CaseForm from '@/components/CaseForm';
 import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
@@ -13,9 +12,11 @@ import TrainingPage from '@/components/TrainingPage';
 import SearchBar from '@/components/SearchBar';
 import ModelDetails from '@/components/ModelDetails';
 import PartDetails from '@/components/PartDetails';
+import CustomToast from '@/components/CustomToast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { AsyncStorage } from '@/utils/asyncStorage';
 
 interface Case {
   id: string;
@@ -39,35 +40,128 @@ const Index = () => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [isResyncing, setIsResyncing] = useState(false);
+  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [hasOfflineData, setHasOfflineData] = useState(false);
 
-  // Fetch cases from Supabase
-  const fetchCases = async () => {
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      console.log('App is online');
+    };
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      console.log('App is offline');
+      // Store current cases when going offline
+      if (cases.length > 0) {
+        AsyncStorage.storeCases(cases);
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [cases]);
+
+  // Check for offline data on mount
+  useEffect(() => {
+    const checkOfflineData = async () => {
+      const hasData = await AsyncStorage.hasOfflineData();
+      setHasOfflineData(hasData);
+    };
+    checkOfflineData();
+  }, []);
+
+  // Show welcome toast when user signs in
+  useEffect(() => {
+    if (user && !loading) {
+      setShowWelcomeToast(true);
+    }
+  }, [user, loading]);
+
+  // Fetch cases from Supabase or AsyncStorage
+  const fetchCases = async (useOfflineData = false) => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from('cases')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching cases:', error);
-        toast({
-          title: "Error Loading Work Orders",
-          description: "Failed to load work orders from database.",
-          variant: "destructive"
-        });
-        return;
+      // If offline or explicitly requesting offline data, try AsyncStorage first
+      if (!isOnline || useOfflineData) {
+        const offlineData = await AsyncStorage.getCases();
+        if (offlineData) {
+          setCases(offlineData.cases || []);
+          console.log('Loaded cases from AsyncStorage:', offlineData.cases?.length || 0);
+          if (!isOnline) {
+            toast({
+              title: "Offline Mode",
+              description: "Loading cached data. Connect to internet to sync latest changes.",
+              variant: "default"
+            });
+            setLoading(false);
+            return;
+          }
+        }
       }
 
-      setCases(data || []);
+      // Try to fetch from Supabase if online
+      if (isOnline) {
+        const { data, error } = await supabase
+          .from('cases')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching cases:', error);
+          
+          // Fallback to AsyncStorage if Supabase fails
+          const offlineData = await AsyncStorage.getCases();
+          if (offlineData) {
+            setCases(offlineData.cases || []);
+            toast({
+              title: "Using Cached Data",
+              description: "Unable to connect to server. Showing cached data.",
+              variant: "default"
+            });
+          } else {
+            toast({
+              title: "Error Loading Work Orders",
+              description: "Failed to load work orders and no cached data available.",
+              variant: "destructive"
+            });
+          }
+          return;
+        }
+
+        setCases(data || []);
+        // Store fresh data in AsyncStorage for offline use
+        if (data && data.length > 0) {
+          await AsyncStorage.storeCases(data);
+        }
+      }
     } catch (error) {
       console.error('Error fetching cases:', error);
-      toast({
-        title: "Error Loading Work Orders", 
-        description: "An unexpected error occurred while loading work orders.",
-        variant: "destructive"
-      });
+      
+      // Fallback to AsyncStorage on any error
+      const offlineData = await AsyncStorage.getCases();
+      if (offlineData) {
+        setCases(offlineData.cases || []);
+        toast({
+          title: "Using Cached Data",
+          description: "Connection error. Showing cached data.",
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Error Loading Work Orders", 
+          description: "An unexpected error occurred and no cached data is available.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -79,30 +173,41 @@ const Index = () => {
 
     fetchCases();
 
-    // Subscribe to real-time changes
-    const channel = supabase
-      .channel('cases-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'cases'
-        },
-        (payload) => {
-          console.log('Real-time change received:', payload);
-          fetchCases(); // Refetch cases when changes occur
-        }
-      )
-      .subscribe();
+    // Subscribe to real-time changes only if online
+    if (isOnline) {
+      const channel = supabase
+        .channel('cases-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'cases'
+          },
+          (payload) => {
+            console.log('Real-time change received:', payload);
+            fetchCases(); // Refetch cases when changes occur
+          }
+        )
+        .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, isOnline]);
 
   const updateCaseStatus = async (caseId: string, newStatus: string) => {
     try {
+      if (!isOnline) {
+        toast({
+          title: "Offline Mode",
+          description: "Cannot update work orders while offline. Changes will be lost.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('cases')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
@@ -119,9 +224,13 @@ const Index = () => {
       }
 
       // Update local state
-      setCases(cases.map(case_ => 
+      const updatedCases = cases.map(case_ => 
         case_.id === caseId ? { ...case_, status: newStatus } : case_
-      ));
+      );
+      setCases(updatedCases);
+
+      // Update AsyncStorage with new data
+      await AsyncStorage.storeCases(updatedCases);
 
       toast({
         title: "Work Order Updated",
@@ -171,11 +280,32 @@ const Index = () => {
   const handleResync = async () => {
     setIsResyncing(true);
     try {
-      await fetchCases();
-      toast({
-        title: "Resync Complete",
-        description: "All data has been synchronized with the server.",
-      });
+      if (!isOnline) {
+        // If offline, load from AsyncStorage
+        const offlineData = await AsyncStorage.getCases();
+        if (offlineData) {
+          setCases(offlineData.cases || []);
+          toast({
+            title: "Offline Data Loaded",
+            description: "Loaded cached data. Connect to internet to sync with server.",
+          });
+        } else {
+          toast({
+            title: "No Offline Data",
+            description: "No cached data available. Connect to internet to load data.",
+            variant: "destructive"
+          });
+        }
+      } else {
+        // If online, fetch fresh data from Supabase
+        await fetchCases();
+        await AsyncStorage.clearCases(); // Clear old cache
+        setHasOfflineData(false);
+        toast({
+          title: "Resync Complete",
+          description: "All data has been synchronized with the server.",
+        });
+      }
     } catch (error) {
       toast({
         title: "Resync Failed",
@@ -244,8 +374,17 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Right - Sign Out Icon */}
-            <div className="flex items-center">
+            {/* Right - Connection Status and Sign Out Icon */}
+            <div className="flex items-center space-x-2">
+              {/* Connection Status */}
+              <div className="flex items-center">
+                {isOnline ? (
+                  <Wifi className="h-5 w-5 text-green-600" />
+                ) : (
+                  <WifiOff className="h-5 w-5 text-red-600" />
+                )}
+              </div>
+              
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center">
                 <LogOut className="h-6 w-6" />
               </Button>
@@ -266,6 +405,23 @@ const Index = () => {
                   onPartFound={handlePartFound}
                 />
               </div>
+
+              {/* Connection Status Banner */}
+              {!isOnline && (
+                <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                  <div className="flex items-center space-x-2">
+                    <WifiOff className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                    <span className="text-yellow-800 dark:text-yellow-200 font-medium">
+                      You're offline. Showing cached data.
+                    </span>
+                    {hasOfflineData && (
+                      <span className="text-yellow-600 dark:text-yellow-400 text-sm">
+                        (Use Resync to load cached data)
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Recent Work Orders - Centered */}
               <div className="flex justify-center">
@@ -317,7 +473,14 @@ const Index = () => {
                   className="flex items-center space-x-2"
                 >
                   <RefreshCw className={`h-4 w-4 ${isResyncing ? 'animate-spin' : ''}`} />
-                  <span>{isResyncing ? 'Resyncing...' : 'Resync Data'}</span>
+                  <span>
+                    {isResyncing 
+                      ? 'Resyncing...' 
+                      : isOnline 
+                        ? 'Resync Data' 
+                        : 'Load Cached Data'
+                    }
+                  </span>
                 </Button>
               </div>
 
@@ -401,6 +564,15 @@ const Index = () => {
           </TabsList>
         </div>
       </Tabs>
+
+      {/* Custom Welcome Toast */}
+      {showWelcomeToast && (
+        <CustomToast
+          message="Welcome back!"
+          onClose={() => setShowWelcomeToast(false)}
+          duration={3000}
+        />
+      )}
     </div>
   );
 };

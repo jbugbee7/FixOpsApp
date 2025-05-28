@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,10 +114,7 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
+        // Don't show toast here - let the custom toast in Index handle it
         navigate('/');
       }
     } catch (err) {
