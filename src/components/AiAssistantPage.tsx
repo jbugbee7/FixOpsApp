@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Send, User } from 'lucide-react';
+import { Send, User, Loader2 } from 'lucide-react';
 import AnimatedRepairBot from './AnimatedRepairBot';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
@@ -78,16 +81,18 @@ const AnimatedRobotIcon = ({ className }: { className?: string }) => (
 );
 
 const AiAssistantPage = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm FixBot, your AI repair assistant. I can help you with troubleshooting, part identification, and repair recommendations. What can I help you with today?",
+      text: "Hello! I'm FixBot, your intelligent AI repair assistant. I have access to your work orders, parts database, and appliance models to provide you with specific, data-driven repair recommendations. What can I help you troubleshoot today?",
       sender: 'ai',
       timestamp: new Date()
     }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -142,8 +147,8 @@ const AiAssistantPage = () => {
     };
   }, []);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -154,32 +159,77 @@ const AiAssistantPage = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
+    setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Get the current session for auth
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
+      // Call the AI chat function
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { message: inputMessage },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      // Add AI response
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I understand your concern. Let me help you with that. Based on your description, here are some troubleshooting steps you can try...",
+        text: data.response,
         sender: 'ai',
         timestamp: new Date()
       };
+      
       setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
+
+    } catch (error) {
+      console.error('Error calling AI chat:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting to my intelligent systems right now. Please try again in a moment, or check if you're properly signed in.",
+        sender: 'ai',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "FixBot Error",
+        description: "Failed to get AI response. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isLoading) {
       handleSendMessage();
     }
   };
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Header with new repair bot */}
+      {/* Header with repair bot */}
       <div className="text-center mb-6">
         <AnimatedRepairBot className="h-16 w-16 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">FixBot</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400">Get intelligent repair recommendations and troubleshooting help</p>
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">FixBot AI</h2>
+        <p className="text-lg text-slate-600 dark:text-slate-400">Intelligent repair assistant with access to your real data</p>
       </div>
 
       {/* Chat Container */}
@@ -226,7 +276,7 @@ const AiAssistantPage = () => {
                   }`}
                 >
                   <CardContent className="p-3">
-                    <p className="text-sm">{message.text}</p>
+                    <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                     <p
                       className={`text-xs mt-1 ${
                         message.sender === 'user'
@@ -244,6 +294,26 @@ const AiAssistantPage = () => {
               </div>
             </div>
           ))}
+          
+          {/* Loading indicator */}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="flex items-start space-x-2 max-w-[80%]">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-200 dark:bg-slate-700">
+                  <AnimatedRepairBot className="h-5 w-5" />
+                </div>
+                <Card className="bg-white dark:bg-slate-800 dark:border-slate-700">
+                  <CardContent className="p-3">
+                    <div className="flex items-center space-x-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <p className="text-sm">FixBot is thinking...</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )}
+          
           <div ref={messagesEndRef} />
         </div>
       </div>
@@ -260,11 +330,20 @@ const AiAssistantPage = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask FixBot about repairs, troubleshooting, or parts..."
+            placeholder="Ask FixBot about repairs, parts, troubleshooting, or specific work orders..."
             className="flex-1"
+            disabled={isLoading}
           />
-          <Button onClick={handleSendMessage} size="icon">
-            <Send className="h-4 w-4" />
+          <Button 
+            onClick={handleSendMessage} 
+            size="icon"
+            disabled={isLoading || !inputMessage.trim()}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>
