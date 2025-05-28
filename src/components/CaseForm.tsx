@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Wrench } from 'lucide-react';
+import { Calendar, Wrench, Search, ExternalLink } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -52,6 +52,92 @@ const CaseForm = () => {
     }));
   };
 
+  const handleModelSearch = () => {
+    if (formData.applianceBrand && formData.applianceModel) {
+      const searchQuery = `${formData.applianceBrand} ${formData.applianceModel} manual specifications`;
+      const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+      window.open(googleSearchUrl, '_blank');
+    } else {
+      toast({
+        title: "Missing Information",
+        description: "Please enter both brand and model number before searching.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePartsSearch = () => {
+    if (formData.partsNeeded.trim()) {
+      const searchQuery = `${formData.applianceBrand} ${formData.applianceType} ${formData.partsNeeded} part number`;
+      const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+      window.open(googleSearchUrl, '_blank');
+    } else {
+      toast({
+        title: "Missing Information",
+        description: "Please enter part information before searching.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const saveApplianceModel = async () => {
+    if (!user || !formData.applianceBrand || !formData.applianceModel || !formData.applianceType) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('appliance_models')
+        .upsert({
+          brand: formData.applianceBrand,
+          model: formData.applianceModel,
+          appliance_type: formData.applianceType,
+          serial_number: formData.serialNumber || null,
+          user_id: user.id
+        }, {
+          onConflict: 'brand,model,serial_number'
+        });
+
+      if (error) {
+        console.error('Error saving appliance model:', error);
+      }
+    } catch (error) {
+      console.error('Error saving appliance model:', error);
+    }
+  };
+
+  const savePartsData = async () => {
+    if (!user || !formData.partsNeeded.trim()) {
+      return;
+    }
+
+    try {
+      // Split parts by comma or newline and save each part
+      const partsList = formData.partsNeeded.split(/[,\n]/).map(part => part.trim()).filter(part => part);
+      
+      for (const part of partsList) {
+        // Try to extract part number from the description (looking for patterns like alphanumeric codes)
+        const partNumberMatch = part.match(/\b([A-Z0-9]{3,})\b/i);
+        const partNumber = partNumberMatch ? partNumberMatch[1] : part;
+        
+        await supabase
+          .from('parts')
+          .upsert({
+            part_name: part,
+            part_number: partNumber,
+            appliance_brand: formData.applianceBrand || null,
+            appliance_model: formData.applianceModel || null,
+            appliance_type: formData.applianceType || null,
+            user_id: user.id
+          }, {
+            onConflict: 'part_number,appliance_brand,appliance_model'
+          });
+      }
+    } catch (error) {
+      console.error('Error saving parts data:', error);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       applianceBrand: '',
@@ -94,6 +180,12 @@ const CaseForm = () => {
     setIsSubmitting(true);
 
     try {
+      // Save appliance model and parts data to database
+      await Promise.all([
+        saveApplianceModel(),
+        savePartsData()
+      ]);
+
       const { error } = await supabase
         .from('cases')
         .insert({
@@ -127,7 +219,7 @@ const CaseForm = () => {
 
       toast({
         title: "Case Created Successfully",
-        description: "The repair case has been logged and assigned.",
+        description: "The repair case has been logged and assigned. Appliance and parts data saved to database.",
       });
 
       resetForm();
@@ -186,12 +278,25 @@ const CaseForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="applianceModel">Model Number</Label>
-                <Input
-                  id="applianceModel"
-                  value={formData.applianceModel}
-                  onChange={(e) => handleInputChange('applianceModel', e.target.value)}
-                  placeholder="Model number"
-                />
+                <div className="flex space-x-2">
+                  <Input
+                    id="applianceModel"
+                    value={formData.applianceModel}
+                    onChange={(e) => handleInputChange('applianceModel', e.target.value)}
+                    placeholder="Model number"
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleModelSearch}
+                    className="flex items-center space-x-1"
+                  >
+                    <Search className="h-4 w-4" />
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
               <div>
                 <Label htmlFor="serialNumber">Serial Number</Label>
@@ -256,13 +361,30 @@ const CaseForm = () => {
             </div>
             <div>
               <Label htmlFor="partsNeeded">Parts Needed</Label>
-              <Textarea
-                id="partsNeeded"
-                value={formData.partsNeeded}
-                onChange={(e) => handleInputChange('partsNeeded', e.target.value)}
-                placeholder="List required parts and part numbers"
-                className="min-h-[80px]"
-              />
+              <div className="space-y-2">
+                <div className="flex space-x-2">
+                  <Textarea
+                    id="partsNeeded"
+                    value={formData.partsNeeded}
+                    onChange={(e) => handleInputChange('partsNeeded', e.target.value)}
+                    placeholder="List required parts and part numbers (one per line or comma-separated)"
+                    className="min-h-[80px] flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePartsSearch}
+                    className="flex items-center space-x-1 self-start mt-1"
+                  >
+                    <Search className="h-4 w-4" />
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Tip: Use the search button to find parts online. Parts data will be automatically saved for future reference.
+                </p>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>

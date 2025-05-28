@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      appliance_models: {
+        Row: {
+          appliance_type: string
+          brand: string
+          created_at: string
+          id: string
+          model: string
+          serial_number: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appliance_type: string
+          brand: string
+          created_at?: string
+          id?: string
+          model: string
+          serial_number?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appliance_type?: string
+          brand?: string
+          created_at?: string
+          id?: string
+          model?: string
+          serial_number?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cases: {
         Row: {
           appliance_brand: string
@@ -78,6 +111,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           warranty_status?: string | null
+        }
+        Relationships: []
+      }
+      parts: {
+        Row: {
+          appliance_brand: string | null
+          appliance_model: string | null
+          appliance_type: string | null
+          created_at: string
+          id: string
+          part_name: string
+          part_number: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appliance_brand?: string | null
+          appliance_model?: string | null
+          appliance_type?: string | null
+          created_at?: string
+          id?: string
+          part_name: string
+          part_number: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appliance_brand?: string | null
+          appliance_model?: string | null
+          appliance_type?: string | null
+          created_at?: string
+          id?: string
+          part_name?: string
+          part_number?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
