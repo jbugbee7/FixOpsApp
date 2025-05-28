@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [showVerificationSuccess, setShowVerificationSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -33,11 +33,14 @@ const Auth = () => {
     };
     checkUser();
 
-    // Check if this is a verification success page
+    // Check for email verification success
     const type = searchParams.get('type');
     if (type === 'signup') {
-      // This is the verification success page
-      return;
+      setShowVerificationSuccess(true);
+      setActiveTab('signin');
+      // Clear the URL parameters after showing the message
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
     }
 
     // Check for verification message from signup
@@ -186,6 +189,16 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {/* Email Verification Success Message */}
+            {showVerificationSuccess && (
+              <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <AlertDescription className="text-green-800 dark:text-green-300">
+                  Thanks for verifying your email! You can now sign in to your account.
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Verification Email Sent Message */}
             {showVerificationMessage && (
               <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
