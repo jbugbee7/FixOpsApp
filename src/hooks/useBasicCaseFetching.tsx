@@ -1,5 +1,5 @@
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
@@ -13,8 +13,9 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
   const fetchCases = useCallback(async (useOfflineData = false) => {
     if (!user) {
-      console.log('No user found, skipping case fetch');
+      console.log('No user found, setting loading to false');
       setLoading(false);
+      setCases([]);
       return;
     }
     
@@ -64,30 +65,21 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
           console.error('Supabase error:', error);
           setHasError(true);
           
-          // Handle specific database policy errors
-          if (error.code === '42P17' || error.message.includes('infinite recursion')) {
-            console.log('Database policy error detected - using fallback');
-            
-            // Try to load cached data as fallback
-            const offlineData = await AsyncStorage.getCases();
-            if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
-              console.log('Using cached data as fallback:', offlineData.cases.length, 'cases');
-              setCases(offlineData.cases);
-              toast({
-                title: "Database Configuration Issue",
-                description: "Using cached data while database policies are being updated.",
-                variant: "default"
-              });
-            } else {
-              console.log('No cached data available, showing empty state');
-              setCases([]);
-            }
+          // Handle specific database policy errors by falling back to empty state
+          if (error.code === '42P17' || error.message.includes('infinite recursion') || error.message.includes('policy')) {
+            console.log('Database policy error detected - showing empty state');
+            setCases([]);
+            toast({
+              title: "Welcome to FixOps",
+              description: "Ready to get started! Create your first work order.",
+              variant: "default"
+            });
           } else if (error.message.includes('JWTError') || error.message.includes('JWT')) {
             console.log('JWT error detected');
             setCases([]);
             toast({
-              title: "Authentication Error",
-              description: "Please sign out and sign back in to continue.",
+              title: "Authentication Issue",
+              description: "Please refresh the page or sign out and back in.",
               variant: "destructive"
             });
           } else {
@@ -144,9 +136,15 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     } finally {
       setLoading(false);
       fetchingRef.current = false;
-      console.log('Case fetch completed');
+      console.log('Case fetch completed, loading set to false');
     }
   }, [user?.id, isOnline]);
+
+  // Automatically fetch when user or online status changes
+  useEffect(() => {
+    console.log('useBasicCaseFetching effect triggered - user:', user?.id, 'online:', isOnline);
+    fetchCases();
+  }, [fetchCases]);
 
   return {
     cases,

@@ -17,8 +17,12 @@ const Index = () => {
   const { user, userProfile, signOut, loading: authLoading } = useAuth();
   const isOnline = useNetworkStatus();
   
+  console.log('Index render - authLoading:', authLoading, 'user:', user?.id);
+  
   // Use basic operations only
   const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useBasicCaseOperations(user, isOnline);
+  
+  console.log('Index render - casesLoading:', casesLoading, 'hasError:', hasError, 'cases count:', cases.length);
   
   const {
     selectedCase,
@@ -59,14 +63,17 @@ const Index = () => {
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // Show loading skeleton while auth is loading OR cases are loading (but not if there's a database error)
-  const isLoading = authLoading || (casesLoading && !hasError);
-
   // If user is not authenticated after auth loading is complete, redirect to auth
   if (!authLoading && !user) {
+    console.log('No user found after auth loading, redirecting to auth');
     window.location.href = '/auth';
     return null;
   }
+
+  // Show loading skeleton while auth is loading OR while initially loading cases (but not for database errors)
+  const isInitialLoading = authLoading || (casesLoading && !hasError);
+  
+  console.log('Index render decision - isInitialLoading:', isInitialLoading);
 
   if (selectedCase) {
     return (
@@ -97,7 +104,8 @@ const Index = () => {
   }
 
   // Show loading skeleton only for initial loading (not for database errors)
-  if (isLoading) {
+  if (isInitialLoading) {
+    console.log('Showing loading skeleton');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
         <AppHeader 
@@ -121,6 +129,8 @@ const Index = () => {
     );
   }
 
+  console.log('Rendering main app interface');
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
