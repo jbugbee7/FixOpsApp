@@ -6,7 +6,6 @@ import DashboardHeader from './DashboardHeader';
 import SearchBar from '@/components/SearchBar';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
-import UserInfoCard from '@/components/UserInfoCard';
 import type { Case } from '@/types/case';
 
 interface DashboardMainProps {
@@ -90,9 +89,6 @@ const DashboardMain = React.memo(({
           </span>
         </Button>
       </div>
-
-      {/* User Info - Bottom Right with name instead of email */}
-      <UserInfoCard displayName={displayName} />
     </div>
   );
 });
