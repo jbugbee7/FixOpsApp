@@ -126,8 +126,8 @@ export const useForumMessages = () => {
       )
       .subscribe((status) => {
         console.log('Real-time subscription status:', status);
-        if (status === 'SUBSCRIPTION_ERROR') {
-          console.error('Real-time subscription failed');
+        if (status !== 'SUBSCRIBED') {
+          console.error('Real-time subscription failed with status:', status);
           setHasConnectionError(true);
         }
       });
