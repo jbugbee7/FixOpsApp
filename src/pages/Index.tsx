@@ -17,8 +17,9 @@ import WorkOrdersList from '@/components/WorkOrdersList';
 import UserInfoCard from '@/components/UserInfoCard';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { useCaseOperations } from '@/hooks/useCaseOperations';
+import { useCompanyCaseOperations } from '@/hooks/useCompanyCaseOperations';
 
 interface Case {
   id: string;
@@ -31,12 +32,14 @@ interface Case {
   customer_address?: string;
   problem_description: string;
   initial_diagnosis?: string;
+  company_id: string;
 }
 
 const Index = () => {
   const { user, userProfile, signOut } = useAuth();
+  const { company } = useCompany();
   const isOnline = useNetworkStatus();
-  const { cases, loading, hasOfflineData, updateCaseStatus, handleResync } = useCaseOperations(user, isOnline);
+  const { cases, loading, hasOfflineData, updateCaseStatus, handleResync } = useCompanyCaseOperations(user, isOnline);
   
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [selectedModel, setSelectedModel] = useState<any | null>(null);
@@ -128,6 +131,20 @@ const Index = () => {
         <div className="flex-1">
           <TabsContent value="dashboard" className="m-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+              {/* Company Context Display */}
+              {company && (
+                <div className="mb-4 p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-medium">{company.name}</span>
+                    {company.primary_color !== '#3B82F6' && (
+                      <span className="ml-2 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 rounded">
+                        Custom Branding
+                      </span>
+                    )}
+                  </p>
+                </div>
+              )}
+
               {/* Search Bar */}
               <div className="mb-8">
                 <SearchBar 

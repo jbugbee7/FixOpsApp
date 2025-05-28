@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           appliance_type: string
           brand: string
+          company_id: string | null
           created_at: string
           id: string
           model: string
@@ -23,6 +24,7 @@ export type Database = {
         Insert: {
           appliance_type: string
           brand: string
+          company_id?: string | null
           created_at?: string
           id?: string
           model: string
@@ -33,6 +35,7 @@ export type Database = {
         Update: {
           appliance_type?: string
           brand?: string
+          company_id?: string | null
           created_at?: string
           id?: string
           model?: string
@@ -40,13 +43,22 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "appliance_models_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cases: {
         Row: {
           appliance_brand: string
           appliance_model: string | null
           appliance_type: string
+          company_id: string | null
           created_at: string
           customer_address: string | null
           customer_name: string
@@ -70,6 +82,7 @@ export type Database = {
           appliance_brand: string
           appliance_model?: string | null
           appliance_type: string
+          company_id?: string | null
           created_at?: string
           customer_address?: string | null
           customer_name: string
@@ -93,6 +106,7 @@ export type Database = {
           appliance_brand?: string
           appliance_model?: string | null
           appliance_type?: string
+          company_id?: string | null
           created_at?: string
           customer_address?: string | null
           customer_name?: string
@@ -112,13 +126,128 @@ export type Database = {
           user_id?: string
           warranty_status?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "cases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      companies: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          updated_at?: string
+        }
         Relationships: []
+      }
+      company_users: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["company_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["company_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["company_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_usage: {
+        Row: {
+          company_id: string
+          created_at: string
+          feature_name: string
+          id: string
+          reset_date: string
+          updated_at: string
+          usage_count: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          feature_name: string
+          id?: string
+          reset_date?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          feature_name?: string
+          id?: string
+          reset_date?: string
+          updated_at?: string
+          usage_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_usage_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       parts: {
         Row: {
           appliance_brand: string | null
           appliance_model: string | null
           appliance_type: string | null
+          company_id: string | null
           created_at: string
           id: string
           part_name: string
@@ -130,6 +259,7 @@ export type Database = {
           appliance_brand?: string | null
           appliance_model?: string | null
           appliance_type?: string | null
+          company_id?: string | null
           created_at?: string
           id?: string
           part_name: string
@@ -141,6 +271,7 @@ export type Database = {
           appliance_brand?: string | null
           appliance_model?: string | null
           appliance_type?: string | null
+          company_id?: string | null
           created_at?: string
           id?: string
           part_name?: string
@@ -148,7 +279,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "parts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -183,15 +322,112 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_features: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          feature_limit: number | null
+          feature_name: string
+          id: string
+          tier: Database["public"]["Enums"]["subscription_tier"]
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          feature_limit?: number | null
+          feature_name: string
+          id?: string
+          tier: Database["public"]["Enums"]["subscription_tier"]
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          feature_limit?: number | null
+          feature_name?: string
+          id?: string
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          company_id: string
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          trial_end: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_usage_limit: {
+        Args: { _company_id: string; _feature_name: string }
+        Returns: boolean
+      }
+      get_feature_limit: {
+        Args: { _company_id: string; _feature_name: string }
+        Returns: number
+      }
+      get_user_company: {
+        Args: { _user_id: string }
+        Returns: string
+      }
+      has_feature_access: {
+        Args: { _company_id: string; _feature_name: string }
+        Returns: boolean
+      }
+      increment_usage: {
+        Args: { _company_id: string; _feature_name: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      company_role: "owner" | "admin" | "member"
+      subscription_tier: "free" | "basic" | "professional" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -306,6 +542,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      company_role: ["owner", "admin", "member"],
+      subscription_tier: ["free", "basic", "professional", "enterprise"],
+    },
   },
 } as const
