@@ -6,7 +6,7 @@ import { useBasicResyncOperations } from './useBasicResyncOperations';
 import { useBasicRealtimeSubscription } from './useBasicRealtimeSubscription';
 
 export const useBasicCaseOperations = (user: any, isOnline: boolean) => {
-  const { cases, setCases, loading, fetchCases } = useBasicCaseFetching(user, isOnline);
+  const { cases, setCases, loading, hasError, fetchCases } = useBasicCaseFetching(user, isOnline);
   const { hasOfflineData, setHasOfflineData } = useOfflineData(isOnline, cases);
   const { updateCaseStatus } = useBasicCaseStatusUpdate(user, isOnline, cases, setCases);
   const { handleResync } = useBasicResyncOperations(isOnline, setCases, setHasOfflineData, fetchCases);
@@ -17,6 +17,7 @@ export const useBasicCaseOperations = (user: any, isOnline: boolean) => {
   return {
     cases,
     loading,
+    hasError,
     hasOfflineData,
     updateCaseStatus,
     handleResync

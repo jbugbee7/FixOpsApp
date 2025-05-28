@@ -8,6 +8,7 @@ import { Case } from '@/types/case';
 export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const fetchCases = async (useOfflineData = false) => {
     if (!user) {
@@ -16,7 +17,14 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       return;
     }
     
+    // Prevent multiple simultaneous fetch attempts
+    if (loading && !useOfflineData) {
+      console.log('Fetch already in progress, skipping');
+      return;
+    }
+    
     setLoading(true);
+    setHasError(false);
     
     try {
       // If offline or explicitly requesting offline data, try AsyncStorage first
@@ -50,9 +58,25 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
         if (error) {
           console.error('Error fetching cases:', error);
+          setHasError(true);
           
-          // Check if it's an authentication error
-          if (error.message.includes('JWTError') || error.message.includes('JWT')) {
+          // Check for specific database policy errors
+          if (error.code === '42P17' || error.message.includes('infinite recursion')) {
+            console.log('Database policy error detected, using cached data only');
+            toast({
+              title: "Database Configuration Issue",
+              description: "Using cached data while database policies are being updated.",
+              variant: "default"
+            });
+            
+            // Fallback to AsyncStorage without showing error
+            const offlineData = await AsyncStorage.getCases();
+            if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+              setCases(offlineData.cases);
+            } else {
+              setCases([]);
+            }
+          } else if (error.message.includes('JWTError') || error.message.includes('JWT')) {
             console.log('JWT error detected, user may need to re-authenticate');
             toast({
               title: "Authentication Error",
@@ -78,6 +102,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
         } else {
           console.log('Cases fetched successfully:', data?.length || 0);
           setCases(data || []);
+          setHasError(false);
           
           // Store fresh data in AsyncStorage for offline use
           if (data && data.length > 0) {
@@ -87,6 +112,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       }
     } catch (error) {
       console.error('Error fetching cases:', error);
+      setHasError(true);
       
       // Fallback to AsyncStorage on any error
       try {
@@ -116,6 +142,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     cases,
     setCases,
     loading,
+    hasError,
     fetchCases
   };
 };

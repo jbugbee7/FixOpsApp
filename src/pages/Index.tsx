@@ -18,7 +18,7 @@ const Index = () => {
   const isOnline = useNetworkStatus();
   
   // Use basic operations only
-  const { cases, loading: casesLoading, hasOfflineData, updateCaseStatus, handleResync } = useBasicCaseOperations(user, isOnline);
+  const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useBasicCaseOperations(user, isOnline);
   
   const {
     selectedCase,
@@ -59,8 +59,8 @@ const Index = () => {
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // Show loading skeleton while auth is loading OR cases are loading
-  const isLoading = authLoading || casesLoading;
+  // Show loading skeleton while auth is loading OR cases are loading (but not if there's a database error)
+  const isLoading = authLoading || (casesLoading && !hasError);
 
   // If user is not authenticated after auth loading is complete, redirect to auth
   if (!authLoading && !user) {
@@ -96,7 +96,7 @@ const Index = () => {
     );
   }
 
-  // Show loading skeleton only for initial loading
+  // Show loading skeleton only for initial loading (not for database errors)
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
