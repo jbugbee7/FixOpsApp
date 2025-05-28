@@ -8,27 +8,17 @@ import BottomNavigation from '@/components/BottomNavigation';
 import TabContent from '@/components/dashboard/TabContent';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { useCompanyCaseOperations } from '@/hooks/useCompanyCaseOperations';
 import { useBasicCaseOperations } from '@/hooks/useBasicCaseOperations';
 import { useIndexState } from '@/hooks/useIndexState';
-import { useCompany } from '@/contexts/CompanyContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Case } from '@/types/case';
 
 const Index = () => {
   const { user, userProfile, signOut, loading: authLoading } = useAuth();
-  const { company, loading: companyLoading } = useCompany();
   const isOnline = useNetworkStatus();
   
-  // Use company operations if company is available, otherwise fall back to basic operations
-  const companyOperations = useCompanyCaseOperations(user, isOnline);
-  const basicOperations = useBasicCaseOperations(user, isOnline);
-  
-  // Choose which operations to use based on company availability
-  const useCompanyOps = !companyLoading && company;
-  const { cases, loading: casesLoading, hasOfflineData, updateCaseStatus, handleResync } = useCompanyOps 
-    ? companyOperations 
-    : basicOperations;
+  // Use basic operations only
+  const { cases, loading: casesLoading, hasOfflineData, updateCaseStatus, handleResync } = useBasicCaseOperations(user, isOnline);
   
   const {
     selectedCase,
@@ -69,8 +59,8 @@ const Index = () => {
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // Show loading skeleton while auth is loading OR company is loading OR cases are loading
-  const isLoading = authLoading || companyLoading || casesLoading;
+  // Show loading skeleton while auth is loading OR cases are loading
+  const isLoading = authLoading || casesLoading;
 
   // If user is not authenticated after auth loading is complete, redirect to auth
   if (!authLoading && !user) {

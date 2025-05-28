@@ -41,10 +41,11 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       if (isOnline) {
         console.log('Fetching cases from Supabase for user:', user.id);
         
-        // Query cases with RLS - this will automatically filter based on the user's permissions
+        // Query cases for the current user only
         const { data, error } = await supabase
           .from('cases')
           .select('*')
+          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (error) {
