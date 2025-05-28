@@ -1,14 +1,15 @@
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, Wrench } from 'lucide-react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Wrench, CheckCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -16,8 +17,11 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
+  const [activeTab, setActiveTab] = useState('signin');
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     // Check if user is already logged in
@@ -28,7 +32,53 @@ const Auth = () => {
       }
     };
     checkUser();
-  }, [navigate]);
+
+    // Check if this is a verification success page
+    const type = searchParams.get('type');
+    if (type === 'signup') {
+      // This is the verification success page
+      return;
+    }
+
+    // Check for verification message from signup
+    const verified = searchParams.get('verified');
+    if (verified === 'true') {
+      setShowVerificationMessage(true);
+      setActiveTab('signin');
+    }
+  }, [navigate, searchParams]);
+
+  // Check if this is the verification success page
+  const isVerificationPage = searchParams.get('type') === 'signup';
+
+  if (isVerificationPage) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="dark:bg-slate-800 dark:border-slate-700">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="h-8 w-8 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+                Thank You for Signing Up!
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mb-6">
+                Your email has been verified successfully. Welcome to FixOps!
+              </p>
+              <Button 
+                onClick={() => navigate('/auth')} 
+                className="w-full"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Sign In
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,14 +141,14 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
-        toast({
-          title: "Account Created!",
-          description: "Your account has been created successfully. You can now sign in.",
-        });
         // Clear form
         setEmail('');
         setPassword('');
         setFullName('');
+        
+        // Show verification message and switch to sign in tab
+        setShowVerificationMessage(true);
+        setActiveTab('signin');
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -136,7 +186,17 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
+            {/* Verification Email Sent Message */}
+            {showVerificationMessage && (
+              <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <AlertDescription className="text-green-800 dark:text-green-300">
+                  A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.
+                </AlertDescription>
+              </Alert>
+            )}
+
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>

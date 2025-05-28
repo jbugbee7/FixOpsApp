@@ -40,11 +40,6 @@ const TrainingPage = () => {
 
       if (error) {
         console.error('Error fetching cases:', error);
-        toast({
-          title: "Data Load Error",
-          description: "Failed to load repair data for analysis.",
-          variant: "destructive"
-        });
         return;
       }
 
@@ -89,20 +84,8 @@ const TrainingPage = () => {
       });
 
       setRepairSummaries(Object.values(summariesByType));
-      
-      if (Object.keys(summariesByType).length > 0) {
-        toast({
-          title: "Repair Data Loaded",
-          description: `Analyzed ${cases?.length || 0} cases across ${Object.keys(summariesByType).length} appliance types.`,
-        });
-      }
     } catch (error) {
       console.error('Error generating repair summaries:', error);
-      toast({
-        title: "Analysis Error",
-        description: "Failed to analyze repair data. Please try again.",
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
