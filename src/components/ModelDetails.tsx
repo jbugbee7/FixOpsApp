@@ -46,13 +46,14 @@ const ModelDetails = ({ model, onBack }: ModelDetailsProps) => {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle className="dark:text-slate-100 flex items-center justify-between">
-              <span>{model.brand} {model.model}</span>
-              <Button onClick={handleGoogleSearch} size="sm" className="flex items-center space-x-2">
-                <ExternalLink className="h-4 w-4" />
-                <span>Search Online</span>
+            <div className="flex items-start justify-between">
+              <CardTitle className="dark:text-slate-100 flex-1">
+                {model.brand} {model.model}
+              </CardTitle>
+              <Button onClick={handleGoogleSearch} size="sm" variant="outline" className="ml-4 shrink-0">
+                <ExternalLink className="h-3 w-3" />
               </Button>
-            </CardTitle>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
