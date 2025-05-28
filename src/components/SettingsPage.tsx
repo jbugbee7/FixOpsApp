@@ -1,4 +1,3 @@
-
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,7 @@ const SettingsPage = () => {
   const { userProfile, user } = useAuth();
 
   const canCustomizeProfile = hasFeatureAccess('custom_branding');
-  const currentTier = subscription?.tier || 'free';
+  const currentTier: 'free' | 'basic' | 'professional' | 'enterprise' = subscription?.tier || 'free';
 
   return (
     <div className="max-w-6xl mx-auto">
