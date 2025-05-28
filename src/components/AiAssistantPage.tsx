@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -261,14 +260,12 @@ const AiAssistantPage = () => {
         )}
       </div>
 
-      {/* Chat Container */}
+      {/* Chat Container - now with bottom padding to account for input */}
       <div 
         ref={chatContainerRef}
-        className={`flex flex-col flex-1 transition-all duration-300 ${
-          isKeyboardVisible ? 'pb-32' : 'pb-24'
-        }`}
+        className="flex flex-col flex-1 pb-32"
         style={{
-          maxHeight: isKeyboardVisible ? 'calc(100vh - 280px)' : 'calc(100vh - 240px)',
+          maxHeight: 'calc(100vh - 240px)',
           minHeight: '400px'
         }}
       >
@@ -347,10 +344,10 @@ const AiAssistantPage = () => {
         </div>
       </div>
 
-      {/* Chat Input - Fixed at bottom */}
+      {/* Chat Input - Fixed positioning relative to viewport, not tabs */}
       <div 
-        className={`fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4 transition-all duration-300 ${
-          isKeyboardVisible ? 'bottom-16 z-[60]' : 'bottom-16 z-[45]'
+        className={`fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 p-4 transition-all duration-300 z-[60] ${
+          isKeyboardVisible ? 'bottom-0' : 'bottom-20'
         }`}
       >
         <div className="max-w-4xl mx-auto flex space-x-2">
