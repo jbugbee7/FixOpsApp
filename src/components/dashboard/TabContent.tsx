@@ -6,20 +6,7 @@ import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
 import DashboardMain from './DashboardMain';
-
-interface Case {
-  id: string;
-  customer_name: string;
-  appliance_brand: string;
-  appliance_type: string;
-  status: string;
-  created_at: string;
-  customer_phone?: string;
-  customer_address?: string;
-  problem_description: string;
-  initial_diagnosis?: string;
-  company_id: string;
-}
+import type { Case } from '@/types/case';
 
 interface TabContentProps {
   isOnline: boolean;
