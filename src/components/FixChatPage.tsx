@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Send } from 'lucide-react';
+import { MessageCircle, Send, Loader2 } from 'lucide-react';
 import { useForumMessages } from '@/hooks/useForumMessages';
 import ForumMessage from '@/components/forum/ForumMessage';
 import ConnectionStatus from '@/components/chat/ConnectionStatus';
@@ -15,6 +15,7 @@ const FixChatPage = () => {
     inputMessage,
     setInputMessage,
     isLoading,
+    isFetching,
     hasConnectionError,
     sendMessage,
   } = useForumMessages();
@@ -32,7 +33,7 @@ const FixChatPage = () => {
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center justify-between dark:text-slate-100">
             <span className="text-sm text-slate-500 dark:text-slate-400">
-              {messages.length} messages
+              {isFetching ? 'Loading...' : `${messages.length} messages`}
             </span>
             <ConnectionStatus hasConnectionError={hasConnectionError} />
           </CardTitle>
@@ -41,7 +42,14 @@ const FixChatPage = () => {
         <CardContent className="flex-1 flex flex-col p-0">
           <ScrollArea className="flex-1 px-6">
             <div className="space-y-4 pb-4">
-              {messages.length === 0 ? (
+              {isFetching ? (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 text-slate-400 mx-auto mb-4 animate-spin" />
+                  <p className="text-slate-500 dark:text-slate-400">
+                    Loading forum messages...
+                  </p>
+                </div>
+              ) : messages.length === 0 ? (
                 <div className="text-center py-8">
                   <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
                   <p className="text-slate-500 dark:text-slate-400">
@@ -78,14 +86,18 @@ const FixChatPage = () => {
                 onKeyPress={handleKeyPress}
                 placeholder="Share your repair tips, ask questions, or help fellow technicians..."
                 className="flex-1"
-                disabled={isLoading}
+                disabled={isLoading || isFetching}
               />
               <Button 
                 onClick={sendMessage}
-                disabled={!inputMessage.trim() || isLoading}
+                disabled={!inputMessage.trim() || isLoading || isFetching}
                 className="bg-blue-500 hover:bg-blue-600"
               >
-                <Send className="h-4 w-4" />
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
