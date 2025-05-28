@@ -1,36 +1,12 @@
 
-import { useCompany } from '@/contexts/CompanyContext';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Crown, Users, Zap, Sparkles, Loader2, Building2, CheckCircle, XCircle } from 'lucide-react';
+import { Crown, Users, Zap, Sparkles, Building2, CheckCircle, XCircle } from 'lucide-react';
 
 const SubscriptionInfo = () => {
-  const { company, subscription, loading, hasFeatureAccess, getFeatureLimit } = useCompany();
-
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="p-8 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin mr-3 text-blue-600" />
-          <p className="text-gray-500 text-lg">Loading subscription information...</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!company) {
-    return (
-      <Card>
-        <CardContent className="p-8">
-          <p className="text-gray-500 text-center">Company information not available.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Default to free tier if no subscription is found
-  const currentSubscription = subscription || {
+  // Simplified subscription info without company context
+  const currentSubscription = {
     tier: 'free' as const,
     status: 'active',
     current_period_end: null
@@ -62,55 +38,23 @@ const SubscriptionInfo = () => {
   const features = [
     {
       name: 'Work Orders per Month',
-      key: 'work_orders_per_month',
-      format: (limit: number | null) => {
-        if (currentSubscription.tier === 'free') return '5';
-        if (currentSubscription.tier === 'basic') return '50';
-        return 'Unlimited';
-      }
-    },
-    {
-      name: 'Team Members',
-      key: 'team_members',
-      format: (limit: number | null) => {
-        if (currentSubscription.tier === 'free') return '1';
-        if (currentSubscription.tier === 'basic') return '5';
-        if (currentSubscription.tier === 'professional') return '25';
-        return 'Unlimited';
-      }
+      value: '5',
+      available: true
     },
     {
       name: 'AI Assistance',
-      key: 'ai_assistance',
-      format: (limit: number | null) => {
-        if (currentSubscription.tier === 'free') return 'Not Available';
-        if (currentSubscription.tier === 'basic') return '10 per month';
-        return 'Unlimited';
-      }
-    },
-    {
-      name: 'Custom Branding',
-      key: 'custom_branding',
-      format: () => {
-        const hasAccess = currentSubscription.tier === 'professional' || currentSubscription.tier === 'enterprise';
-        return hasAccess ? 'Available' : 'Not Available';
-      }
+      value: 'Not Available',
+      available: false
     },
     {
       name: 'Advanced Analytics',
-      key: 'advanced_analytics',
-      format: () => {
-        const hasAccess = currentSubscription.tier !== 'free';
-        return hasAccess ? 'Available' : 'Not Available';
-      }
+      value: 'Not Available',
+      available: false
     },
     {
       name: 'Priority Support',
-      key: 'priority_support',
-      format: () => {
-        const hasAccess = currentSubscription.tier === 'professional' || currentSubscription.tier === 'enterprise';
-        return hasAccess ? 'Available' : 'Email Support Only';
-      }
+      value: 'Email Support Only',
+      available: false
     }
   ];
 
@@ -130,10 +74,7 @@ const SubscriptionInfo = () => {
                 </Badge>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                {currentSubscription.tier === 'free' && 'Perfect for individual repair technicians'}
-                {currentSubscription.tier === 'basic' && 'Ideal for small repair shops'}
-                {currentSubscription.tier === 'professional' && 'For growing repair businesses'}
-                {currentSubscription.tier === 'enterprise' && 'For large operations & franchises'}
+                Perfect for individual repair technicians
               </p>
             </div>
           </CardTitle>
@@ -145,10 +86,7 @@ const SubscriptionInfo = () => {
                 FixOps {currentSubscription.tier.charAt(0).toUpperCase() + currentSubscription.tier.slice(1)}
               </h3>
               <p className="text-slate-600 dark:text-slate-400 mt-1">
-                {currentSubscription.tier === 'free' && 'Essential features for getting started'}
-                {currentSubscription.tier === 'basic' && 'Advanced tools for growing businesses'}
-                {currentSubscription.tier === 'professional' && 'Professional features and priority support'}
-                {currentSubscription.tier === 'enterprise' && 'Enterprise-grade solution with dedicated support'}
+                Essential features for getting started
               </p>
             </div>
             <div className="text-right">
@@ -163,51 +101,28 @@ const SubscriptionInfo = () => {
 
           <div className="grid gap-4">
             <h4 className="font-semibold text-lg mb-2">Plan Features</h4>
-            {features.map((feature) => {
-              const hasAccess = hasFeatureAccess(feature.key) || feature.key === 'work_orders_per_month' || feature.key === 'team_members';
-              const value = feature.format(getFeatureLimit(feature.key));
-              const isAvailable = value !== 'Not Available' && value !== 'Email Support Only';
-              
-              return (
-                <div key={feature.key} className="flex justify-between items-center p-4 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center space-x-3">
-                    {isAvailable ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-gray-400" />
-                    )}
-                    <span className="font-medium">{feature.name}</span>
-                  </div>
-                  <span className={`font-medium ${isAvailable ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
-                    {value}
-                  </span>
+            {features.map((feature, index) => (
+              <div key={index} className="flex justify-between items-center p-4 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center space-x-3">
+                  {feature.available ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-gray-400" />
+                  )}
+                  <span className="font-medium">{feature.name}</span>
                 </div>
-              );
-            })}
-          </div>
-
-          {currentSubscription.current_period_end && (
-            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
-              <div className="flex justify-between items-center text-sm">
-                <span className="font-medium">Next Billing Date:</span>
-                <span className="text-gray-600 dark:text-gray-400">
-                  {new Date(currentSubscription.current_period_end).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                <span className={`font-medium ${feature.available ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}`}>
+                  {feature.value}
                 </span>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
 
-          {currentSubscription.tier === 'free' && (
-            <div className="mt-6">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium">
-                Upgrade to Basic - $29/month
-              </Button>
-            </div>
-          )}
+          <div className="mt-6">
+            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium">
+              Upgrade to Basic - $29/month
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

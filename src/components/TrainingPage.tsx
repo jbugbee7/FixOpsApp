@@ -22,7 +22,6 @@ interface RepairSummary {
 
 const TrainingPage = () => {
   const { user } = useAuth();
-  const { company } = useCompany();
   const [repairSummaries, setRepairSummaries] = useState<RepairSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -32,23 +31,23 @@ const TrainingPage = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const fetchRepairSummaries = async () => {
-    if (!user || !company) {
-      console.log('No user or company available for fetching data');
+    if (!user) {
+      console.log('No user available for fetching data');
       setHasError(true);
       setErrorMessage('Authentication required. Please log in to view your repair data.');
       return;
     }
 
     try {
-      console.log('Starting repair summaries fetch for company:', company.id);
+      console.log('Starting repair summaries fetch for user:', user.id);
       setHasError(false);
       setErrorMessage('');
       
-      // Fetch all cases for the company
+      // Fetch all cases for the user
       const { data: cases, error } = await supabase
         .from('cases')
         .select('*')
-        .eq('company_id', company.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -182,7 +181,7 @@ const TrainingPage = () => {
     fetchRepairSummaries().finally(() => {
       setLoading(false);
     });
-  }, [user, company]);
+  }, [user]);
 
   const applianceGuides = [
     {
