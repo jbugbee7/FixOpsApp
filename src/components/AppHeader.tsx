@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, User, Wrench } from 'lucide-react';
+import { LogOut, User, Wrench, Home, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AppHeaderProps {
@@ -18,45 +18,61 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
   const displayName = userProfile?.full_name || 'User';
 
   return (
-    <header className="bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg">
+    <header className="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 shadow-lg border-b border-slate-200 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left side - Logo */}
-          <div className="flex items-center space-x-4">
+          {/* Left side - Home Button */}
+          <div className="flex items-center">
             <Button 
               onClick={onHomeClick} 
               variant="ghost" 
               size="sm"
-              className="text-white hover:bg-white/20 flex items-center space-x-3"
+              className="text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center space-x-2"
             >
-              <div className="p-2 bg-white/20 rounded-lg">
-                <Wrench className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <div className="text-xl font-bold">FixOps</div>
-                <div className="text-xs text-purple-100">Repair Management</div>
-              </div>
+              <Home className="h-5 w-5" />
+              <span className="hidden sm:inline">Home</span>
             </Button>
           </div>
 
-          {/* Center - Connection Status */}
-          <div className="flex items-center">
-            <Badge 
-              variant={isOnline ? "default" : "destructive"}
-              className={`text-xs ${isOnline ? 'bg-green-500 hover:bg-green-600' : ''}`}
-            >
-              {isOnline ? "Online" : "Offline"}
-            </Badge>
+          {/* Center - FixOps Logo */}
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md">
+              <Wrench className="h-6 w-6 text-white" />
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                FixOps
+              </div>
+              <div className="text-xs text-slate-600 dark:text-slate-400">
+                Repair Management
+              </div>
+            </div>
           </div>
 
-          {/* Right side - User menu */}
-          <div className="flex items-center space-x-2">
+          {/* Right side - WiFi Status and User menu */}
+          <div className="flex items-center space-x-3">
+            {/* WiFi Status */}
+            <div className="flex items-center space-x-2">
+              {isOnline ? (
+                <Wifi className="h-4 w-4 text-green-600 dark:text-green-400" />
+              ) : (
+                <WifiOff className="h-4 w-4 text-red-600 dark:text-red-400" />
+              )}
+              <Badge 
+                variant={isOnline ? "default" : "destructive"}
+                className={`text-xs ${isOnline ? 'bg-green-500 hover:bg-green-600' : ''}`}
+              >
+                {isOnline ? "Online" : "Offline"}
+              </Badge>
+            </div>
+
+            {/* User menu */}
             <div className="relative">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="text-white hover:bg-white/20 flex items-center space-x-2"
+                className="text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center space-x-2"
               >
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">{displayName}</span>
