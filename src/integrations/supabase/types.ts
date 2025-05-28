@@ -123,6 +123,33 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_messages: {
+        Row: {
+          author_name: string
+          created_at: string
+          id: string
+          message: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name: string
+          created_at?: string
+          id?: string
+          message: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          created_at?: string
+          id?: string
+          message?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       parts: {
         Row: {
           appliance_brand: string | null
