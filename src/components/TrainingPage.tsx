@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GraduationCap, Wrench, Lightbulb, ChevronDown, ChevronRight, Bot, RefreshCw, BarChart3, AlertTriangle } from 'lucide-react';
+import { GraduationCap, Wrench, Lightbulb, ChevronDown, ChevronRight, Bot, RefreshCw, BarChart3, AlertTriangle, Database } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
+import { useCompany } from '@/contexts/CompanyContext';
 import { toast } from "@/hooks/use-toast";
 import AiSummaryPage from './AiSummaryPage';
 
@@ -21,46 +22,63 @@ interface RepairSummary {
 
 const TrainingPage = () => {
   const { user } = useAuth();
+  const { company } = useCompany();
   const [repairSummaries, setRepairSummaries] = useState<RepairSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [expandedAppliance, setExpandedAppliance] = useState<string | null>(null);
   const [selectedApplianceForAI, setSelectedApplianceForAI] = useState<string | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const fetchRepairSummaries = async () => {
-    if (!user) return;
+    if (!user || !company) {
+      console.log('No user or company available for fetching data');
+      setHasError(true);
+      setErrorMessage('Authentication required. Please log in to view your repair data.');
+      return;
+    }
 
     try {
-      console.log('Starting repair summaries fetch for user:', user.id);
+      console.log('Starting repair summaries fetch for company:', company.id);
       setHasError(false);
+      setErrorMessage('');
       
-      // Fetch all cases to analyze by appliance type
+      // Fetch all cases for the company
       const { data: cases, error } = await supabase
         .from('cases')
         .select('*')
+        .eq('company_id', company.id)
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching cases:', error);
         setHasError(true);
-        // Don't show toast for policy errors - they're expected during setup
-        if (!error.message?.includes('infinite recursion')) {
+        setErrorMessage(`Database error: ${error.message}`);
+        
+        // Only show toast for unexpected errors
+        if (!error.message?.includes('infinite recursion') && !error.message?.includes('policy')) {
           toast({
-            title: "Error",
-            description: "Failed to fetch repair data. Please try again.",
+            title: "Database Error",
+            description: `Failed to fetch repair data: ${error.message}`,
             variant: "destructive",
           });
         }
         return;
       }
 
-      console.log('Fetched cases:', cases?.length || 0);
+      console.log('Successfully fetched cases:', cases?.length || 0);
+
+      if (!cases || cases.length === 0) {
+        console.log('No cases found for analysis');
+        setRepairSummaries([]);
+        return;
+      }
 
       // Group and analyze cases by appliance type
       const summariesByType: { [key: string]: RepairSummary } = {};
       
-      cases?.forEach(case_ => {
+      cases.forEach(case_ => {
         if (!summariesByType[case_.appliance_type]) {
           summariesByType[case_.appliance_type] = {
             appliance_type: case_.appliance_type,
@@ -75,6 +93,7 @@ const TrainingPage = () => {
         const summary = summariesByType[case_.appliance_type];
         summary.case_count++;
 
+        // Add unique issues and solutions
         if (case_.problem_description && !summary.common_issues.includes(case_.problem_description)) {
           summary.common_issues.push(case_.problem_description);
         }
@@ -84,9 +103,9 @@ const TrainingPage = () => {
         }
       });
 
-      // Calculate success rates
+      // Calculate success rates and limit arrays
       Object.keys(summariesByType).forEach(type => {
-        const typeCases = cases?.filter(c => c.appliance_type === type) || [];
+        const typeCases = cases.filter(c => c.appliance_type === type);
         const completedCases = typeCases.filter(c => c.status === 'Completed');
         summariesByType[type].success_rate = typeCases.length > 0 
           ? Math.round((completedCases.length / typeCases.length) * 100)
@@ -97,19 +116,20 @@ const TrainingPage = () => {
         summariesByType[type].recent_solutions = summariesByType[type].recent_solutions.slice(0, 3);
       });
 
-      setRepairSummaries(Object.values(summariesByType));
-      console.log('Analysis complete. Found summaries for:', Object.keys(summariesByType));
-    } catch (error) {
-      console.error('Error generating repair summaries:', error);
+      const summaries = Object.values(summariesByType);
+      setRepairSummaries(summaries);
+      console.log('Analysis complete. Generated summaries for:', Object.keys(summariesByType));
+      
+    } catch (error: any) {
+      console.error('Unexpected error generating repair summaries:', error);
       setHasError(true);
-      // Don't show toast for network/policy errors during initial setup
-      if (!error.message?.includes('infinite recursion') && !error.message?.includes('Failed to fetch')) {
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred while analyzing data.",
-          variant: "destructive",
-        });
-      }
+      setErrorMessage(`Unexpected error: ${error.message || 'Unknown error occurred'}`);
+      
+      toast({
+        title: "Analysis Error",
+        description: "An unexpected error occurred while analyzing your repair data.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -162,7 +182,7 @@ const TrainingPage = () => {
     fetchRepairSummaries().finally(() => {
       setLoading(false);
     });
-  }, [user]);
+  }, [user, company]);
 
   const applianceGuides = [
     {
@@ -368,16 +388,21 @@ const TrainingPage = () => {
           ) : hasError ? (
             <Card className="dark:bg-slate-800 dark:border-slate-700">
               <CardContent className="text-center py-12">
-                <AlertTriangle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+                <Database className="h-16 w-16 text-red-500 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                  Data Loading Issue
+                  Data Access Issue
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-4">
-                  We're having trouble connecting to your repair data. This might be due to database setup in progress.
+                  {errorMessage || 'Unable to access your repair data at this time.'}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-500 mb-4">
-                  Please try refreshing or check back in a few minutes.
-                </p>
+                <div className="space-y-2 text-sm text-slate-500 dark:text-slate-500 mb-4">
+                  <p>This could be due to:</p>
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>Database connectivity issues</li>
+                    <li>Authentication problems</li>
+                    <li>Row-level security policies</li>
+                  </ul>
+                </div>
                 <Button onClick={handleRefreshAnalysis} disabled={refreshing} variant="outline">
                   <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                   Try Again

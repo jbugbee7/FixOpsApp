@@ -205,7 +205,7 @@ const SettingsPage = () => {
       <Card className="border-0 shadow-lg">
         <CardContent className="p-0">
           <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 px-6 py-4 rounded-t-lg">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Subscription & Billing</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-1">Subscriptions</h2>
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Manage your subscription plan and billing information
             </p>
