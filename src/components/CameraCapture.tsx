@@ -21,14 +21,22 @@ const CameraCapture = ({ onPhotosChange, photos }: CameraCaptureProps) => {
   };
 
   return (
-    <Card className="dark:bg-slate-800 dark:border-slate-700">
-      <CardHeader>
+    <Card className="dark:bg-slate-800 dark:border-slate-700 overflow-hidden">
+      <CardHeader className="pb-4">
         <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-          <Camera className="h-5 w-5" />
-          <span>Photos</span>
+          <Camera className="h-5 w-5 text-blue-600" />
+          <span>Camera</span>
         </CardTitle>
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          Capture photos to document the case
+        </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      
+      <CardContent className="space-y-6">
+        {/* Camera View */}
+        <CameraView isCapturing={isCapturing} ref={videoRef} />
+        
+        {/* Camera Controls */}
         <CameraControls
           isCapturing={isCapturing}
           uploading={uploading}
@@ -37,9 +45,10 @@ const CameraCapture = ({ onPhotosChange, photos }: CameraCaptureProps) => {
           onStopCamera={stopCamera}
         />
 
-        <CameraView isCapturing={isCapturing} ref={videoRef} />
+        {/* Hidden canvas for photo capture */}
         <canvas ref={canvasRef} className="hidden" />
 
+        {/* Photo Gallery */}
         <PhotoGallery photos={photos} onRemovePhoto={removePhoto} />
       </CardContent>
     </Card>
