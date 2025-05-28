@@ -26,38 +26,41 @@ const Agreement = () => {
     setLoading(true);
 
     try {
-      console.log('Updating agreements for user:', user.id);
+      console.log('Saving agreements for user:', user.id);
+      
+      // Use upsert to handle both insert and update cases
       const { error } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           policy_agreed: true,
           terms_agreed: true,
           agreements_date: new Date().toISOString(),
-        })
-        .eq('id', user.id);
+          email: user.email,
+        }, {
+          onConflict: 'id'
+        });
 
       if (error) {
-        console.error('Error updating agreements:', error);
+        console.error('Error saving agreements:', error);
         toast({
-          title: "Update Failed",
+          title: "Save Failed",
           description: "Failed to save your agreements. Please try again.",
           variant: "destructive",
         });
         return;
       }
 
-      console.log('Agreements updated successfully');
+      console.log('Agreements saved successfully');
       toast({
         title: "Welcome to FixOps!",
-        description: "Your agreements have been saved. You can now access the dashboard.",
+        description: "Your agreements have been saved. Redirecting to dashboard...",
       });
 
-      // Small delay to ensure the database update is processed
-      setTimeout(() => {
-        navigate('/', { replace: true });
-      }, 500);
+      // Navigate immediately to prevent multiple submissions
+      navigate('/', { replace: true });
     } catch (err) {
-      console.error('Unexpected error:', err);
+      console.error('Unexpected error saving agreements:', err);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",

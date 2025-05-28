@@ -23,6 +23,7 @@ const TrainingPage = () => {
   const { user } = useAuth();
   const [repairSummaries, setRepairSummaries] = useState<RepairSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [expandedAppliance, setExpandedAppliance] = useState<string | null>(null);
   const [selectedApplianceForAI, setSelectedApplianceForAI] = useState<string | null>(null);
 
@@ -30,7 +31,7 @@ const TrainingPage = () => {
     if (!user) return;
 
     try {
-      setLoading(true);
+      console.log('Starting repair summaries fetch for user:', user.id);
       
       // Fetch all cases to analyze by appliance type
       const { data: cases, error } = await supabase
@@ -40,8 +41,15 @@ const TrainingPage = () => {
 
       if (error) {
         console.error('Error fetching cases:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch repair data. Please try again.",
+          variant: "destructive",
+        });
         return;
       }
+
+      console.log('Fetched cases:', cases?.length || 0);
 
       // Group and analyze cases by appliance type
       const summariesByType: { [key: string]: RepairSummary } = {};
@@ -84,10 +92,37 @@ const TrainingPage = () => {
       });
 
       setRepairSummaries(Object.values(summariesByType));
+      console.log('Analysis complete. Found summaries for:', Object.keys(summariesByType));
     } catch (error) {
       console.error('Error generating repair summaries:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while analyzing data.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRefreshAnalysis = async () => {
+    if (refreshing) {
+      console.log('Refresh already in progress, ignoring click');
+      return;
+    }
+
+    console.log('Starting manual refresh analysis');
+    setRefreshing(true);
+    
+    try {
+      await fetchRepairSummaries();
+      toast({
+        title: "Analysis Updated",
+        description: "Your repair data has been refreshed successfully.",
+      });
+    } catch (error) {
+      console.error('Error during manual refresh:', error);
     } finally {
-      setLoading(false);
+      setRefreshing(false);
+      console.log('Manual refresh complete');
     }
   };
 
@@ -111,7 +146,10 @@ const TrainingPage = () => {
   };
 
   useEffect(() => {
-    fetchRepairSummaries();
+    console.log('TrainingPage mounted, fetching initial data');
+    fetchRepairSummaries().finally(() => {
+      setLoading(false);
+    });
   }, [user]);
 
   const applianceGuides = [
@@ -304,7 +342,7 @@ const TrainingPage = () => {
               <BarChart3 className="h-5 w-5 mr-2" />
               Data Insights
             </h3>
-            <Button onClick={fetchRepairSummaries} disabled={loading} variant="outline" size="sm">
+            <Button onClick={handleRefreshAnalysis} disabled={loading} variant="outline" size="sm">
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh Analysis
             </Button>

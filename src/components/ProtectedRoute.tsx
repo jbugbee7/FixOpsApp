@@ -14,12 +14,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const [checkingAgreements, setCheckingAgreements] = useState(true);
   const [agreementsComplete, setAgreementsComplete] = useState(false);
-  const [hasChecked, setHasChecked] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const checkUserAgreements = async () => {
-      if (!user || hasChecked) {
+      if (!user) {
+        console.log('No user found, skipping agreement check');
         setCheckingAgreements(false);
         return;
       }
@@ -28,40 +28,38 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
         console.log('Checking user agreements for:', user.id);
         const { data, error } = await supabase
           .from('profiles')
-          .select('policy_agreed, terms_agreed')
+          .select('policy_agreed, terms_agreed, agreements_date')
           .eq('id', user.id)
           .single();
 
         if (error) {
           console.error('Error checking agreements:', error);
+          // If profile doesn't exist, user needs to agree to terms
           setAgreementsComplete(false);
         } else {
-          const isComplete = data?.policy_agreed && data?.terms_agreed;
-          console.log('Agreements status:', { policy: data?.policy_agreed, terms: data?.terms_agreed, complete: isComplete });
+          const isComplete = data?.policy_agreed === true && data?.terms_agreed === true;
+          console.log('Agreements status:', { 
+            policy: data?.policy_agreed, 
+            terms: data?.terms_agreed, 
+            complete: isComplete,
+            agreementsDate: data?.agreements_date 
+          });
           setAgreementsComplete(isComplete);
         }
       } catch (error) {
-        console.error('Error checking agreements:', error);
+        console.error('Unexpected error checking agreements:', error);
         setAgreementsComplete(false);
       } finally {
         setCheckingAgreements(false);
-        setHasChecked(true);
       }
     };
 
-    if (user && !hasChecked) {
+    if (user && !loading) {
       checkUserAgreements();
-    } else if (!user) {
+    } else {
       setCheckingAgreements(false);
-      setHasChecked(false);
     }
-  }, [user, hasChecked]);
-
-  // Reset check when user changes
-  useEffect(() => {
-    setHasChecked(false);
-    setAgreementsComplete(false);
-  }, [user?.id]);
+  }, [user, loading]);
 
   if (loading || checkingAgreements) {
     return (
@@ -79,13 +77,20 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
+    console.log('User not authenticated, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
   // If user hasn't agreed to terms and is not already on the agreement page
   if (!agreementsComplete && location.pathname !== '/agreement') {
-    console.log('Redirecting to agreement page');
+    console.log('User has not completed agreements, redirecting to agreement page');
     return <Navigate to="/agreement" replace />;
+  }
+
+  // If user has completed agreements but is on agreement page, redirect to dashboard
+  if (agreementsComplete && location.pathname === '/agreement') {
+    console.log('User has completed agreements, redirecting to dashboard');
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
