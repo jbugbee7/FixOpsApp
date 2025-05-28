@@ -9,10 +9,12 @@ import { toast } from "@/hooks/use-toast";
 import { Calendar, Wrench, Search, ExternalLink } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
+import CameraCapture from './CameraCapture';
 
 const CaseForm = () => {
   const { user, userProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     // Appliance Information
     applianceBrand: '',
@@ -149,6 +151,7 @@ const CaseForm = () => {
       estimatedTime: '',
       technicianNotes: '',
     });
+    setPhotos([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -200,6 +203,7 @@ const CaseForm = () => {
           parts_needed: formData.partsNeeded,
           estimated_time: formData.estimatedTime,
           technician_notes: formData.technicianNotes,
+          photos: photos.length > 0 ? photos : null,
           status: 'Scheduled'
         });
 
@@ -215,7 +219,7 @@ const CaseForm = () => {
 
       toast({
         title: "Work Order Created Successfully",
-        description: "The work order has been logged and assigned. Appliance and parts data saved to database.",
+        description: `The work order has been logged and assigned.${photos.length > 0 ? ` ${photos.length} photos attached.` : ''}`,
       });
 
       resetForm();
@@ -396,6 +400,9 @@ const CaseForm = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Camera/Photos Section */}
+        <CameraCapture photos={photos} onPhotosChange={setPhotos} />
 
         {/* Additional Notes */}
         <Card className="dark:bg-slate-800 dark:border-slate-700">

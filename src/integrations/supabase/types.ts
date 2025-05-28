@@ -61,6 +61,7 @@ export type Database = {
           labor_cost: string | null
           parts_cost: string | null
           parts_needed: string | null
+          photos: string[] | null
           problem_description: string
           serial_number: string | null
           service_type: string | null
@@ -85,6 +86,7 @@ export type Database = {
           labor_cost?: string | null
           parts_cost?: string | null
           parts_needed?: string | null
+          photos?: string[] | null
           problem_description: string
           serial_number?: string | null
           service_type?: string | null
@@ -109,6 +111,7 @@ export type Database = {
           labor_cost?: string | null
           parts_cost?: string | null
           parts_needed?: string | null
+          photos?: string[] | null
           problem_description?: string
           serial_number?: string | null
           service_type?: string | null
