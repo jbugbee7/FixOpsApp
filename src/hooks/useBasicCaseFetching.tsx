@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
@@ -11,7 +11,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [hasError, setHasError] = useState(false);
   const fetchingRef = useRef(false);
 
-  const fetchCases = async (useOfflineData = false) => {
+  const fetchCases = useCallback(async (useOfflineData = false) => {
     if (!user) {
       console.log('No user found, skipping case fetch');
       setLoading(false);
@@ -52,7 +52,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
       // Try to fetch from Supabase if online
       if (isOnline) {
-        console.log('Attempting to fetch from Supabase...');
+        console.log('Attempting to fetch cases from Supabase for user:', user.id);
         
         const { data, error } = await supabase
           .from('cases')
@@ -114,6 +114,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
           // Store fresh data for offline use
           if (data && data.length > 0) {
             await AsyncStorage.storeCases(data);
+            console.log('Stored fresh data to AsyncStorage');
           }
         }
       }
@@ -145,7 +146,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       fetchingRef.current = false;
       console.log('Case fetch completed');
     }
-  };
+  }, [user?.id, isOnline]);
 
   return {
     cases,

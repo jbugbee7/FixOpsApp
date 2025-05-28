@@ -8,17 +8,15 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
   const lastFetchRef = useRef(0);
 
   useEffect(() => {
-    if (!user) {
-      console.log('No user for realtime subscription');
+    if (!user?.id) {
+      console.log('No user ID for realtime subscription');
       return;
     }
 
-    // Only fetch once on mount, but add a small delay to ensure other hooks are ready
+    // Only fetch once on mount - call immediately without delay
     if (!hasFetchedRef.current) {
-      console.log('Initial fetch for realtime subscription');
-      setTimeout(() => {
-        fetchCases();
-      }, 100);
+      console.log('Initial fetch for realtime subscription for user:', user.id);
+      fetchCases();
       hasFetchedRef.current = true;
     }
 
@@ -73,5 +71,5 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
         subscriptionRef.current = null;
       }
     };
-  }, [user?.id, isOnline]); // Only depend on user ID and online status
+  }, [user?.id, isOnline, fetchCases]); // Add fetchCases to dependencies
 };
