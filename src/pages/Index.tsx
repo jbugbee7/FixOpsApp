@@ -12,6 +12,7 @@ import { useCompanyCaseOperations } from '@/hooks/useCompanyCaseOperations';
 import { useBasicCaseOperations } from '@/hooks/useBasicCaseOperations';
 import { useIndexState } from '@/hooks/useIndexState';
 import { useCompany } from '@/contexts/CompanyContext';
+import type { Case } from '@/types/case';
 
 const Index = () => {
   const { user, userProfile, signOut } = useAuth();

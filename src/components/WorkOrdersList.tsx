@@ -1,6 +1,7 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Case } from '@/types/case';
+import type { Case } from '@/types/case';
 
 interface WorkOrdersListProps {
   cases: Case[];

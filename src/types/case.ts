@@ -10,6 +10,6 @@ export interface Case {
   customer_address?: string;
   problem_description: string;
   initial_diagnosis?: string;
-  company_id?: string; // Optional to support both company and basic operations
-  user_id?: string; // Optional for basic operations
+  company_id?: string;
+  user_id?: string;
 }

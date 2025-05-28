@@ -6,7 +6,7 @@ import SearchBar from '@/components/SearchBar';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
 import UserInfoCard from '@/components/UserInfoCard';
-import { Case } from '@/types/case';
+import type { Case } from '@/types/case';
 
 interface DashboardMainProps {
   isOnline: boolean;
