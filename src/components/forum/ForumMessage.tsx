@@ -9,8 +9,13 @@ interface ForumMessageProps {
 }
 
 const ForumMessage = ({ message }: ForumMessageProps) => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const isOwnMessage = user?.id === message.user_id;
+  
+  // Use the user's full name for their own messages, fallback to the stored author_name
+  const displayName = isOwnMessage 
+    ? (userProfile?.full_name || user?.email || message.author_name)
+    : message.author_name;
 
   return (
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
@@ -22,7 +27,7 @@ const ForumMessage = ({ message }: ForumMessageProps) => {
           <CardContent className="p-3">
             <div className="flex items-center justify-between mb-1">
               <p className={`text-sm font-semibold ${isOwnMessage ? 'text-blue-100' : 'text-slate-900 dark:text-slate-100'}`}>
-                {message.author_name}
+                {displayName}
               </p>
               <p className={`text-xs ${isOwnMessage ? 'text-blue-100' : 'text-slate-500 dark:text-slate-400'}`}>
                 {new Date(message.created_at).toLocaleTimeString([], {
