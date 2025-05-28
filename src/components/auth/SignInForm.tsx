@@ -1,13 +1,12 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import GoogleSignInButton from './GoogleSignInButton';
 
 interface SignInFormProps {
   error: string;
@@ -17,83 +16,97 @@ interface SignInFormProps {
 const SignInForm = ({ error, setError }: SignInFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    if (!email || !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
     setError('');
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      console.log('Attempting to sign in user:', email);
+      
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password,
       });
 
-      if (error) {
-        setError(error.message);
-        toast({
-          title: "Sign In Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
+      if (signInError) {
+        console.error('Sign in error:', signInError);
+        if (signInError.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else if (signInError.message.includes('Email not confirmed')) {
+          setError('Please check your email and click the verification link before signing in.');
+        } else {
+          setError(signInError.message);
+        }
+        return;
+      }
+
+      if (data.user) {
+        console.log('Sign in successful for user:', data.user.email);
+        // Navigate immediately without showing any toast
         navigate('/');
       }
     } catch (err) {
-      setError('An unexpected error occurred');
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+      console.error('Unexpected error during sign in:', err);
+      setError('An unexpected error occurred. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <>
+      {error && (
+        <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+          <AlertDescription className="text-red-800 dark:text-red-300">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <form onSubmit={handleSignIn} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="signin-email">Email</Label>
+          <Label htmlFor="email" className="dark:text-slate-200">Email</Label>
           <Input
-            id="signin-email"
+            id="email"
             type="email"
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={loading}
+            disabled={isLoading}
+            className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="signin-password">Password</Label>
+          <Label htmlFor="password" className="dark:text-slate-200">Password</Label>
           <Input
-            id="signin-password"
+            id="password"
             type="password"
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
+            disabled={isLoading}
+            className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
           />
         </div>
-        {error && (
-          <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
-            <AlertCircle className="h-4 w-4" />
-            <span className="text-sm">{error}</span>
-          </div>
-        )}
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Signing in..." : "Sign In"}
+        <Button 
+          type="submit" 
+          className="w-full" 
+          disabled={isLoading}
+        >
+          {isLoading ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
-
-      <GoogleSignInButton loading={loading} setLoading={setLoading} setError={setError} />
-    </div>
+    </>
   );
 };
 
