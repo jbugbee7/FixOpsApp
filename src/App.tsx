@@ -9,6 +9,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Policy from "./pages/Policy";
+import Terms from "./pages/Terms";
+import Agreement from "./pages/Agreement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +26,9 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/policy" element={<Policy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/agreement" element={<Agreement />} />
               <Route 
                 path="/" 
                 element={

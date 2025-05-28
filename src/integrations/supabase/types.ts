@@ -152,24 +152,33 @@ export type Database = {
       }
       profiles: {
         Row: {
+          agreements_date: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          policy_agreed: boolean | null
+          terms_agreed: boolean | null
           updated_at: string
         }
         Insert: {
+          agreements_date?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          policy_agreed?: boolean | null
+          terms_agreed?: boolean | null
           updated_at?: string
         }
         Update: {
+          agreements_date?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          policy_agreed?: boolean | null
+          terms_agreed?: boolean | null
           updated_at?: string
         }
         Relationships: []

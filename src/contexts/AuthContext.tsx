@@ -8,7 +8,12 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  userProfile: { full_name?: string } | null;
+  userProfile: { 
+    full_name?: string;
+    policy_agreed?: boolean;
+    terms_agreed?: boolean;
+    agreements_date?: string;
+  } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,7 +34,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<{ full_name?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ 
+    full_name?: string;
+    policy_agreed?: boolean;
+    terms_agreed?: boolean;
+    agreements_date?: string;
+  } | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
@@ -106,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, policy_agreed, terms_agreed, agreements_date')
         .eq('id', userId)
         .single();
       
