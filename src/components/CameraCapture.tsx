@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Trash2, X } from 'lucide-react';
@@ -20,54 +20,120 @@ const CameraCapture = ({ onPhotosChange, photos }: CameraCaptureProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  // Cleanup stream when component unmounts
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
   const startCamera = async () => {
     try {
+      console.log('Starting camera...');
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } // Use back camera if available
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        } 
       });
+      
+      console.log('Camera stream obtained:', stream);
       streamRef.current = stream;
+      
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        
+        // Wait for video to be ready
+        await new Promise((resolve) => {
+          const video = videoRef.current;
+          if (video) {
+            video.onloadedmetadata = () => {
+              console.log('Video metadata loaded');
+              video.play().then(() => {
+                console.log('Video playing');
+                resolve(true);
+              }).catch((error) => {
+                console.error('Error playing video:', error);
+              });
+            };
+          }
+        });
+        
         setIsCapturing(true);
+        console.log('Camera started successfully');
       }
     } catch (error) {
       console.error('Error accessing camera:', error);
       toast({
         title: "Camera Error",
-        description: "Unable to access camera. Please check permissions.",
+        description: "Unable to access camera. Please check permissions and try again.",
         variant: "destructive"
       });
     }
   };
 
   const stopCamera = () => {
+    console.log('Stopping camera...');
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        console.log('Track stopped:', track.kind);
+      });
       streamRef.current = null;
     }
+    
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    
     setIsCapturing(false);
+    console.log('Camera stopped');
   };
 
   const capturePhoto = async () => {
-    if (!videoRef.current || !canvasRef.current || !user) return;
+    if (!videoRef.current || !canvasRef.current || !user) {
+      console.error('Missing required elements for photo capture');
+      return;
+    }
 
     const canvas = canvasRef.current;
     const video = videoRef.current;
+    
+    console.log('Video dimensions:', video.videoWidth, 'x', video.videoHeight);
+    
+    if (video.videoWidth === 0 || video.videoHeight === 0) {
+      toast({
+        title: "Camera Error",
+        description: "Camera feed not ready. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
     
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      console.error('Unable to get canvas context');
+      return;
+    }
 
     ctx.drawImage(video, 0, 0);
+    console.log('Photo captured to canvas');
     
     canvas.toBlob(async (blob) => {
-      if (!blob) return;
+      if (!blob) {
+        console.error('Failed to create blob from canvas');
+        return;
+      }
 
       setUploading(true);
       try {
         const fileName = `${user.id}/${Date.now()}.jpg`;
+        console.log('Uploading photo:', fileName);
         
         const { data, error } = await supabase.storage
           .from('case-photos')
@@ -85,11 +151,14 @@ const CameraCapture = ({ onPhotosChange, photos }: CameraCaptureProps) => {
           return;
         }
 
+        console.log('Photo uploaded successfully:', data);
+
         // Get public URL for the uploaded photo
         const { data: { publicUrl } } = supabase.storage
           .from('case-photos')
           .getPublicUrl(fileName);
 
+        console.log('Public URL generated:', publicUrl);
         onPhotosChange([...photos, publicUrl]);
         
         toast({
@@ -185,14 +254,20 @@ const CameraCapture = ({ onPhotosChange, photos }: CameraCaptureProps) => {
 
         {/* Camera View */}
         {isCapturing && (
-          <div className="relative">
+          <div className="relative w-full">
             <video
               ref={videoRef}
               autoPlay
               playsInline
-              className="w-full max-w-md mx-auto rounded-lg"
+              muted
+              className="w-full max-w-md mx-auto rounded-lg bg-black"
+              style={{ maxHeight: '400px' }}
             />
             <canvas ref={canvasRef} className="hidden" />
+            {/* Status indicator */}
+            <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
+              LIVE
+            </div>
           </div>
         )}
 
