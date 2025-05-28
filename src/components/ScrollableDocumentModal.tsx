@@ -33,7 +33,8 @@ const ScrollableDocumentModal = ({
   }, [isOpen, isAccepted]);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
+    const target = event.target as HTMLDivElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
     const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
     
     if (isAtBottom && !hasScrolledToBottom) {
@@ -67,14 +68,16 @@ const ScrollableDocumentModal = ({
           </p>
         </DialogHeader>
         
-        <ScrollArea 
-          className="flex-1 pr-4" 
-          onScrollCapture={handleScroll}
-        >
-          <div className="text-sm leading-relaxed">
-            {children}
-          </div>
-        </ScrollArea>
+        <div className="flex-1 border rounded-md">
+          <ScrollArea className="h-[400px] w-full p-4">
+            <div 
+              className="text-sm leading-relaxed pr-4"
+              onScroll={handleScroll}
+            >
+              {children}
+            </div>
+          </ScrollArea>
+        </div>
 
         <DialogFooter className="flex flex-col space-y-4 sm:flex-col sm:space-x-0">
           {!hasScrolledToBottom && (
