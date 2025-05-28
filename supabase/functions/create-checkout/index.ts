@@ -46,11 +46,11 @@ serve(async (req) => {
     const { planId } = await req.json();
     logStep("Plan ID received", { planId });
 
-    // Define pricing for different plans
+    // Define pricing for different plans - updated with your specified prices
     const planPrices: Record<string, { amount: number; name: string }> = {
-      basic: { amount: 999, name: "Basic Plan" }, // $9.99
-      pro: { amount: 1999, name: "Professional Plan" }, // $19.99
-      enterprise: { amount: 3999, name: "Enterprise Plan" } // $39.99
+      standard: { amount: 2900, name: "FixOps Standard Plan" }, // $29.00
+      pro: { amount: 4900, name: "FixOps Professional Plan" }, // $49.00
+      company: { amount: 9900, name: "FixOps Company Plan" } // $99.00
     };
 
     const selectedPlan = planPrices[planId];
@@ -81,7 +81,7 @@ serve(async (req) => {
             currency: "usd",
             product_data: { 
               name: selectedPlan.name,
-              description: `FixOps ${selectedPlan.name} - Monthly Subscription`
+              description: `${selectedPlan.name} - Monthly Subscription for repair business management`
             },
             unit_amount: selectedPlan.amount,
             recurring: { interval: "month" },

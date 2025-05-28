@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Crown, Zap, Star } from 'lucide-react';
+import { Check, Crown, Zap, Star, Building2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "@/hooks/use-toast";
@@ -26,59 +26,87 @@ const SubscriptionPlans = () => {
 
   const plans: Plan[] = [
     {
-      id: 'basic',
-      name: 'Basic',
-      price: 9.99,
-      interval: 'month',
-      description: 'Perfect for small repair shops',
+      id: 'free',
+      name: 'Free',
+      price: 0,
+      interval: 'forever',
+      description: 'Perfect for individual repair technicians',
       icon: <Zap className="h-6 w-6" />,
       features: [
-        'Up to 50 work orders per month',
-        'Basic analytics',
-        'Email support',
+        'Up to 5 work orders per month',
+        '1 team member',
+        'Basic work order management',
+        'Customer contact storage',
         'Mobile access',
-        'Customer management'
+        'Basic appliance database'
+      ]
+    },
+    {
+      id: 'standard',
+      name: 'Standard',
+      price: 29,
+      interval: 'month',
+      description: 'Ideal for small repair shops',
+      icon: <Star className="h-6 w-6" />,
+      popular: true,
+      features: [
+        'Up to 50 work orders per month',
+        'Up to 5 team members',
+        'AI-powered diagnostics (10 per month)',
+        'Advanced analytics & insights',
+        'Priority email support',
+        'Parts inventory tracking',
+        'Customer history tracking'
       ]
     },
     {
       id: 'pro',
       name: 'Professional',
-      price: 19.99,
+      price: 49,
       interval: 'month',
-      description: 'Ideal for growing businesses',
-      icon: <Star className="h-6 w-6" />,
-      popular: true,
+      description: 'For growing repair businesses',
+      icon: <Crown className="h-6 w-6" />,
       features: [
         'Unlimited work orders',
-        'Advanced analytics & insights',
-        'AI-powered diagnostics',
+        'Up to 25 team members',
+        'Unlimited AI assistance',
+        'Custom branding & colors',
+        'Advanced reporting & analytics',
         'Priority support',
-        'Custom branding',
-        'Parts inventory tracking',
-        'Advanced reporting'
+        'Custom workflows',
+        'API access'
       ]
     },
     {
-      id: 'enterprise',
-      name: 'Enterprise',
-      price: 39.99,
+      id: 'company',
+      name: 'Company',
+      price: 99,
       interval: 'month',
-      description: 'For large operations',
-      icon: <Crown className="h-6 w-6" />,
+      description: 'For large operations & franchises',
+      icon: <Building2 className="h-6 w-6" />,
       features: [
         'Everything in Professional',
+        'Unlimited team members',
         'Multi-location support',
+        'White-label solution',
         'Custom integrations',
         'Dedicated account manager',
         'Advanced security features',
-        'Custom training',
-        'API access',
-        'White-label solution'
+        'Custom training & onboarding'
       ]
     }
   ];
 
   const handleSubscribe = async (planId: string) => {
+    if (planId === 'free') {
+      toast({
+        title: "Already on Free Plan",
+        description: "You're currently using the free tier of FixOps.",
+        variant: "default"
+      });
+      return;
+    }
+
     if (!user) {
       toast({
         title: "Authentication Required",
@@ -119,18 +147,18 @@ const SubscriptionPlans = () => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold dark:text-slate-100 mb-2">Choose Your Plan</h2>
+        <h2 className="text-2xl font-bold dark:text-slate-100 mb-2">FixOps Subscription Plans</h2>
         <p className="text-slate-600 dark:text-slate-400">
           Unlock powerful features to grow your repair business
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-6">
         {plans.map((plan) => (
           <Card 
             key={plan.id} 
             className={`relative dark:bg-slate-800 dark:border-slate-700 ${
-              plan.popular ? 'border-blue-500 dark:border-blue-400' : ''
+              plan.popular ? 'border-blue-500 dark:border-blue-400 scale-105' : ''
             }`}
           >
             {plan.popular && (
@@ -145,10 +173,12 @@ const SubscriptionPlans = () => {
               </div>
               <CardTitle className="dark:text-slate-100">{plan.name}</CardTitle>
               <div className="text-3xl font-bold dark:text-slate-100">
-                ${plan.price}
-                <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
-                  /{plan.interval}
-                </span>
+                {plan.price === 0 ? 'Free' : `$${plan.price}`}
+                {plan.price > 0 && (
+                  <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
+                    /{plan.interval}
+                  </span>
+                )}
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 {plan.description}
@@ -171,11 +201,14 @@ const SubscriptionPlans = () => {
                 className={`w-full ${
                   plan.popular 
                     ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : plan.id === 'free'
+                    ? 'bg-gray-500 hover:bg-gray-600 text-white'
                     : ''
                 }`}
-                variant={plan.popular ? 'default' : 'outline'}
+                variant={plan.popular ? 'default' : plan.id === 'free' ? 'secondary' : 'outline'}
               >
-                {loading === plan.id ? 'Processing...' : `Subscribe to ${plan.name}`}
+                {loading === plan.id ? 'Processing...' : 
+                 plan.id === 'free' ? 'Current Plan' : `Upgrade to ${plan.name}`}
               </Button>
             </CardContent>
           </Card>
@@ -183,7 +216,7 @@ const SubscriptionPlans = () => {
       </div>
 
       <div className="text-center text-sm text-slate-600 dark:text-slate-400">
-        <p>All plans include a 14-day free trial. Cancel anytime.</p>
+        <p>All paid plans include a 14-day free trial. Cancel anytime.</p>
         <p className="mt-1">Secure payments powered by Stripe</p>
       </div>
     </div>
