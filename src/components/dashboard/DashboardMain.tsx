@@ -6,20 +6,7 @@ import SearchBar from '@/components/SearchBar';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
 import UserInfoCard from '@/components/UserInfoCard';
-
-interface Case {
-  id: string;
-  customer_name: string;
-  appliance_brand: string;
-  appliance_type: string;
-  status: string;
-  created_at: string;
-  customer_phone?: string;
-  customer_address?: string;
-  problem_description: string;
-  initial_diagnosis?: string;
-  company_id: string;
-}
+import { Case } from '@/types/case';
 
 interface DashboardMainProps {
   isOnline: boolean;
