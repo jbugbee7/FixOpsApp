@@ -9,6 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cases: {
+        Row: {
+          appliance_brand: string
+          appliance_model: string | null
+          appliance_type: string
+          created_at: string
+          customer_address: string | null
+          customer_name: string
+          customer_phone: string | null
+          estimated_time: string | null
+          id: string
+          initial_diagnosis: string | null
+          labor_cost: string | null
+          parts_cost: string | null
+          parts_needed: string | null
+          problem_description: string
+          serial_number: string | null
+          service_type: string | null
+          status: string
+          technician_notes: string | null
+          updated_at: string
+          user_id: string
+          warranty_status: string | null
+        }
+        Insert: {
+          appliance_brand: string
+          appliance_model?: string | null
+          appliance_type: string
+          created_at?: string
+          customer_address?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          estimated_time?: string | null
+          id?: string
+          initial_diagnosis?: string | null
+          labor_cost?: string | null
+          parts_cost?: string | null
+          parts_needed?: string | null
+          problem_description: string
+          serial_number?: string | null
+          service_type?: string | null
+          status?: string
+          technician_notes?: string | null
+          updated_at?: string
+          user_id: string
+          warranty_status?: string | null
+        }
+        Update: {
+          appliance_brand?: string
+          appliance_model?: string | null
+          appliance_type?: string
+          created_at?: string
+          customer_address?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          estimated_time?: string | null
+          id?: string
+          initial_diagnosis?: string | null
+          labor_cost?: string | null
+          parts_cost?: string | null
+          parts_needed?: string | null
+          problem_description?: string
+          serial_number?: string | null
+          service_type?: string | null
+          status?: string
+          technician_notes?: string | null
+          updated_at?: string
+          user_id?: string
+          warranty_status?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

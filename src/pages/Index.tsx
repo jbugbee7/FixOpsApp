@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,33 +11,134 @@ import AiAssistantPage from '@/components/AiAssistantPage';
 import AnalyticsPage from '@/components/AnalyticsPage';
 import AnimatedRepairBot from '@/components/AnimatedRepairBot';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+
+interface Case {
+  id: string;
+  customer_name: string;
+  appliance_brand: string;
+  appliance_type: string;
+  status: string;
+  created_at: string;
+  customer_phone?: string;
+  customer_address?: string;
+  problem_description: string;
+  initial_diagnosis?: string;
+}
 
 const Index = () => {
   const { user, userProfile, signOut } = useAuth();
-  const [selectedCase, setSelectedCase] = useState(null);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  
-  // Mock user data
-  const [cases, setCases] = useState([
-    { id: 1, customer: "John Smith", appliance: "Whirlpool Dishwasher", status: "In Progress", date: "2024-05-27", phone: "(555) 123-4567", address: "123 Main St", problemDescription: "Dishwasher not draining properly", initialDiagnosis: "Likely clogged drain hose" },
-    { id: 2, customer: "Sarah Johnson", appliance: "GE Refrigerator", status: "Completed", date: "2024-05-26", phone: "(555) 987-6543", address: "456 Oak Ave", problemDescription: "Refrigerator not cooling", initialDiagnosis: "Faulty compressor" },
-    { id: 3, customer: "Mike Davis", appliance: "Maytag Washer", status: "Scheduled", date: "2024-05-28", phone: "(555) 456-7890", address: "789 Pine St", problemDescription: "Washer making loud noise", initialDiagnosis: "Worn drum bearings" },
-  ]);
+  const [cases, setCases] = useState<Case[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const stats = [
-    { label: "Cases This Week", value: "12", icon: <FileText className="h-5 w-5" /> },
+    { label: "Cases This Week", value: cases.length.toString(), icon: <FileText className="h-5 w-5" /> },
     { label: "Completion Rate", value: "94%", icon: <CheckCircle className="h-5 w-5" /> },
     { label: "Avg. Repair Time", value: "2.3h", icon: <Clock className="h-5 w-5" /> },
     { label: "Next Appointment", value: "2:00 PM", icon: <Calendar className="h-5 w-5" /> },
   ];
 
-  const updateCaseStatus = (caseId, newStatus) => {
-    setCases(cases.map(case_ => 
-      case_.id === caseId ? { ...case_, status: newStatus } : case_
-    ));
+  // Fetch cases from Supabase
+  const fetchCases = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('cases')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching cases:', error);
+        toast({
+          title: "Error Loading Cases",
+          description: "Failed to load cases from database.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setCases(data || []);
+    } catch (error) {
+      console.error('Error fetching cases:', error);
+      toast({
+        title: "Error Loading Cases", 
+        description: "An unexpected error occurred while loading cases.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleCaseClick = (case_) => {
+  // Set up real-time subscription for cases
+  useEffect(() => {
+    if (!user) return;
+
+    fetchCases();
+
+    // Subscribe to real-time changes
+    const channel = supabase
+      .channel('cases-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cases'
+        },
+        (payload) => {
+          console.log('Real-time change received:', payload);
+          fetchCases(); // Refetch cases when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const updateCaseStatus = async (caseId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('cases')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', caseId);
+
+      if (error) {
+        console.error('Error updating case status:', error);
+        toast({
+          title: "Error Updating Case",
+          description: "Failed to update case status.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Update local state
+      setCases(cases.map(case_ => 
+        case_.id === caseId ? { ...case_, status: newStatus } : case_
+      ));
+
+      toast({
+        title: "Case Updated",
+        description: `Case status updated to ${newStatus}.`,
+      });
+    } catch (error) {
+      console.error('Error updating case status:', error);
+      toast({
+        title: "Error Updating Case",
+        description: "An unexpected error occurred while updating the case.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleCaseClick = (case_: Case) => {
     setSelectedCase(case_);
   };
 
@@ -52,6 +153,11 @@ const Index = () => {
 
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
+
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString();
+  };
 
   if (selectedCase) {
     return (
@@ -125,26 +231,36 @@ const Index = () => {
                     <CardTitle className="dark:text-slate-100">Recent Cases</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {cases.map((case_) => (
-                        <div 
-                          key={case_.id} 
-                          className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
-                          onClick={() => handleCaseClick(case_)}
-                        >
-                          <div className="flex-1">
-                            <h4 className="font-medium text-slate-900 dark:text-slate-100">{case_.customer}</h4>
-                            <p className="text-sm text-slate-600 dark:text-slate-300">{case_.appliance}</p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">{case_.date}</p>
-                          </div>
-                          <Badge 
-                            variant={case_.status === 'Completed' ? 'default' : case_.status === 'In Progress' ? 'secondary' : 'outline'}
+                    {loading ? (
+                      <div className="text-center py-8">
+                        <p className="text-slate-600 dark:text-slate-400">Loading cases...</p>
+                      </div>
+                    ) : cases.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-slate-600 dark:text-slate-400">No cases found. Create your first case using the Add Case tab.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {cases.map((case_) => (
+                          <div 
+                            key={case_.id} 
+                            className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                            onClick={() => handleCaseClick(case_)}
                           >
-                            {case_.status}
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-slate-900 dark:text-slate-100">{case_.customer_name}</h4>
+                              <p className="text-sm text-slate-600 dark:text-slate-300">{case_.appliance_brand} {case_.appliance_type}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(case_.created_at)}</p>
+                            </div>
+                            <Badge 
+                              variant={case_.status === 'Completed' ? 'default' : case_.status === 'In Progress' ? 'secondary' : 'outline'}
+                            >
+                              {case_.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

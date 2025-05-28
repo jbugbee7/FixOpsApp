@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Calendar, Wrench } from 'lucide-react';
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/contexts/AuthContext';
 
 const CaseForm = () => {
+  const { user } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
+    // Customer Information
+    customerName: '',
+    customerPhone: '',
+    customerAddress: '',
+    
     // Appliance Information
     applianceBrand: '',
     applianceModel: '',
@@ -48,25 +56,11 @@ const CaseForm = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
-      toast({
-        title: "Required Fields Missing",
-        description: "Please fill in appliance brand, type, and problem description.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    toast({
-      title: "Case Created Successfully",
-      description: "The repair case has been logged and assigned.",
-    });
-
-    // Reset form
+  const resetForm = () => {
     setFormData({
+      customerName: '',
+      customerPhone: '',
+      customerAddress: '',
       applianceBrand: '',
       applianceModel: '',
       applianceType: '',
@@ -83,9 +77,126 @@ const CaseForm = () => {
     });
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to create cases.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!formData.customerName || !formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
+      toast({
+        title: "Required Fields Missing",
+        description: "Please fill in customer name, appliance brand, type, and problem description.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from('cases')
+        .insert({
+          user_id: user.id,
+          customer_name: formData.customerName,
+          customer_phone: formData.customerPhone,
+          customer_address: formData.customerAddress,
+          appliance_brand: formData.applianceBrand,
+          appliance_model: formData.applianceModel,
+          appliance_type: formData.applianceType,
+          serial_number: formData.serialNumber,
+          warranty_status: formData.warrantyStatus,
+          service_type: formData.serviceType,
+          problem_description: formData.problemDescription,
+          initial_diagnosis: formData.initialDiagnosis,
+          parts_needed: formData.partsNeeded,
+          estimated_time: formData.estimatedTime,
+          labor_cost: formData.laborCost,
+          parts_cost: formData.partsCost,
+          technician_notes: formData.technicianNotes,
+          status: 'Scheduled'
+        });
+
+      if (error) {
+        console.error('Error creating case:', error);
+        toast({
+          title: "Error Creating Case",
+          description: "There was an error creating the case. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Case Created Successfully",
+        description: "The repair case has been logged and assigned.",
+      });
+
+      resetForm();
+    } catch (error) {
+      console.error('Error creating case:', error);
+      toast({
+        title: "Error Creating Case",
+        description: "There was an error creating the case. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Customer Information */}
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+              <Calendar className="h-5 w-5" />
+              <span>Customer Information</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="customerName">Customer Name *</Label>
+                <Input
+                  id="customerName"
+                  value={formData.customerName}
+                  onChange={(e) => handleInputChange('customerName', e.target.value)}
+                  placeholder="Customer full name"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="customerPhone">Phone Number</Label>
+                <Input
+                  id="customerPhone"
+                  value={formData.customerPhone}
+                  onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="customerAddress">Address</Label>
+              <Input
+                id="customerAddress"
+                value={formData.customerAddress}
+                onChange={(e) => handleInputChange('customerAddress', e.target.value)}
+                placeholder="Customer address"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Appliance Information */}
         <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
@@ -260,31 +371,17 @@ const CaseForm = () => {
           <Button 
             type="button" 
             variant="outline"
-            onClick={() => {
-              setFormData({
-                applianceBrand: '',
-                applianceModel: '',
-                applianceType: '',
-                serialNumber: '',
-                warrantyStatus: '',
-                serviceType: '',
-                problemDescription: '',
-                initialDiagnosis: '',
-                partsNeeded: '',
-                estimatedTime: '',
-                laborCost: '',
-                partsCost: '',
-                technicianNotes: '',
-              });
-            }}
+            onClick={resetForm}
+            disabled={isSubmitting}
           >
             Clear Form
           </Button>
           <Button 
             type="submit"
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+            disabled={isSubmitting}
           >
-            Create Case
+            {isSubmitting ? 'Creating Case...' : 'Create Case'}
           </Button>
         </div>
       </form>
