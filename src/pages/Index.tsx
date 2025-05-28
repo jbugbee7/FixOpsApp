@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -245,7 +244,7 @@ const Index = () => {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        {cases.map((case_) => (
+                        {cases.slice(0, 5).map((case_) => (
                           <div 
                             key={case_.id} 
                             className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
