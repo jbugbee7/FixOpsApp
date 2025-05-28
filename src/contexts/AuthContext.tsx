@@ -30,12 +30,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<{ full_name?: string } | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
+        
+        // Don't process auth state changes if we're in the middle of signing out
+        if (isSigningOut && event === 'SIGNED_IN') {
+          console.log('Ignoring sign-in event during sign-out process');
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -47,6 +55,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }, 0);
         } else if (event === 'SIGNED_OUT') {
           setUserProfile(null);
+          setIsSigningOut(false);
         }
       }
     );
@@ -64,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isSigningOut]);
 
   const fetchUserProfile = async (userId: string) => {
     try {
@@ -88,27 +97,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = async () => {
     try {
       console.log('Starting sign out process...');
+      setIsSigningOut(true);
       
       // Clear local state immediately
       setUser(null);
       setSession(null);
       setUserProfile(null);
       
-      // Attempt to sign out from Supabase
-      const { error } = await supabase.auth.signOut();
+      // Clear any stored session data
+      await supabase.auth.signOut({ scope: 'global' });
       
-      if (error) {
-        console.error('Error signing out:', error);
-        // Even if there's an error, we've already cleared local state
-        // This handles cases where the session is already invalid
-      } else {
-        console.log('Successfully signed out');
-      }
+      console.log('Successfully signed out');
       
-      // Force redirect to auth page
-      window.location.href = '/auth';
+      // Small delay to ensure auth state is fully cleared
+      setTimeout(() => {
+        window.location.href = '/auth';
+      }, 100);
+      
     } catch (error) {
       console.error('Unexpected error during sign out:', error);
+      setIsSigningOut(false);
       // Force redirect even on unexpected errors
       window.location.href = '/auth';
     }

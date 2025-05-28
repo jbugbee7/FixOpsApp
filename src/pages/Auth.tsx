@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,18 +20,27 @@ const Auth = () => {
   const [showVerificationMessage, setShowVerificationMessage] = useState(false);
   const [showVerificationSuccess, setShowVerificationSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('signin');
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Check if user is already logged in
+    // Check if user is already logged in with a delay to handle sign-out redirects
     const checkUser = async () => {
+      // Wait a bit to ensure any sign-out process is complete
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       const { data: { session } } = await supabase.auth.getSession();
+      console.log('Auth page checking session:', session?.user?.email);
+      
       if (session) {
+        console.log('User already authenticated, redirecting to home');
         navigate('/');
       }
+      setIsCheckingAuth(false);
     };
+    
     checkUser();
 
     // Check for email verification success from URL
@@ -62,6 +70,24 @@ const Auth = () => {
       setActiveTab('signin');
     }
   }, [navigate, searchParams, toast]);
+
+  // Show loading while checking auth status
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="dark:bg-slate-800 dark:border-slate-700">
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <Wrench className="h-8 w-8 text-white" />
+              </div>
+              <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // Check if this is the verification success page
   const isVerificationPage = searchParams.get('type') === 'signup';
