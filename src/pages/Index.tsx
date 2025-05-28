@@ -74,11 +74,9 @@ const Index = () => {
               <Home className="h-6 w-6" />
             </Button>
             
-            {/* Center - Logo with new repair bot */}
+            {/* Center - Logo with wrench icon */}
             <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
-              <div className="w-10 h-10">
-                <AnimatedRepairBot />
-              </div>
+              <Wrench className="h-8 w-8 text-blue-600" />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   FixOps
