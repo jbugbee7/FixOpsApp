@@ -41,6 +41,15 @@ const ScrollableDocumentModal = ({
     }
   };
 
+  const handleCheckboxChange = (checked: boolean) => {
+    setTempAccepted(checked);
+    if (checked && hasScrolledToBottom) {
+      // Automatically accept and close modal when checkbox is checked
+      onAccept();
+      onClose();
+    }
+  };
+
   const handleAccept = () => {
     if (tempAccepted) {
       onAccept();
@@ -78,7 +87,7 @@ const ScrollableDocumentModal = ({
             <Checkbox
               id={`accept-${title.toLowerCase().replace(/\s+/g, '-')}`}
               checked={tempAccepted}
-              onCheckedChange={(checked) => setTempAccepted(checked as boolean)}
+              onCheckedChange={handleCheckboxChange}
               disabled={!hasScrolledToBottom}
             />
             <label
