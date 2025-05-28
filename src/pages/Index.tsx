@@ -30,6 +30,8 @@ interface Case {
 const Index = () => {
   const { user, userProfile, signOut } = useAuth();
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [selectedModel, setSelectedModel] = useState<any | null>(null);
+  const [selectedPart, setSelectedPart] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,8 +138,22 @@ const Index = () => {
     setSelectedCase(case_);
   };
 
+  const handleModelFound = (model: any) => {
+    setSelectedModel(model);
+    setSelectedCase(null);
+    setSelectedPart(null);
+  };
+
+  const handlePartFound = (part: any) => {
+    setSelectedPart(part);
+    setSelectedCase(null);
+    setSelectedModel(null);
+  };
+
   const handleHomeClick = () => {
     setSelectedCase(null);
+    setSelectedModel(null);
+    setSelectedPart(null);
     setActiveTab('dashboard');
   };
 
@@ -186,6 +202,24 @@ const Index = () => {
     );
   }
 
+  if (selectedModel) {
+    return (
+      <ModelDetails 
+        model={selectedModel} 
+        onBack={() => setSelectedModel(null)} 
+      />
+    );
+  }
+
+  if (selectedPart) {
+    return (
+      <PartDetails 
+        part={selectedPart} 
+        onBack={() => setSelectedPart(null)} 
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
@@ -224,7 +258,11 @@ const Index = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
               {/* Search Bar */}
               <div className="mb-8">
-                <SearchBar onNavigate={handleNavigate} />
+                <SearchBar 
+                  onNavigate={handleNavigate} 
+                  onModelFound={handleModelFound}
+                  onPartFound={handlePartFound}
+                />
               </div>
 
               {/* Recent Work Orders - Centered */}
