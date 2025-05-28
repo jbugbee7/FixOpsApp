@@ -245,9 +245,10 @@ const AiAssistantPage = () => {
     <div className="flex flex-col h-full relative">
       {/* Header with repair bot */}
       <div className="text-center mb-6">
-        <AnimatedRepairBot className="h-16 w-16 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">FixBot AI</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400">Intelligent repair assistant with access to your real data</p>
+        <div className="flex items-center justify-center space-x-3 mb-4">
+          <AnimatedRepairBot className="h-8 w-8" />
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">FixBot</h2>
+        </div>
         
         {/* Connection status indicator */}
         {hasConnectionError && (
