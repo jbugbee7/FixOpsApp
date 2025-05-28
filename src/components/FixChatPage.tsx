@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Send, Users } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
 import { useForumMessages } from '@/hooks/useForumMessages';
 import ForumMessage from '@/components/forum/ForumMessage';
 import ConnectionStatus from '@/components/chat/ConnectionStatus';
@@ -27,25 +27,13 @@ const FixChatPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center space-x-2 mb-6">
-          <MessageCircle className="h-16 w-16 text-blue-500" />
-          <Users className="h-12 w-12 text-slate-500" />
-        </div>
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">Technician Forum</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">Connect with fellow appliance repair technicians</p>
-      </div>
-
-      <Card className="dark:bg-slate-800 dark:border-slate-700 h-[600px] flex flex-col">
+    <div className="h-screen flex flex-col">
+      <Card className="dark:bg-slate-800 dark:border-slate-700 h-full flex flex-col border-0 rounded-none">
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center justify-between dark:text-slate-100">
-            <div className="flex items-center space-x-2">
-              <span>Forum Chat</span>
-              <span className="text-sm text-slate-500 dark:text-slate-400">
-                ({messages.length} messages)
-              </span>
-            </div>
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              {messages.length} messages
+            </span>
             <ConnectionStatus hasConnectionError={hasConnectionError} />
           </CardTitle>
         </CardHeader>
