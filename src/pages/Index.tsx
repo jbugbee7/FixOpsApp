@@ -9,12 +9,24 @@ import TabContent from '@/components/dashboard/TabContent';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useCompanyCaseOperations } from '@/hooks/useCompanyCaseOperations';
+import { useBasicCaseOperations } from '@/hooks/useBasicCaseOperations';
 import { useIndexState } from '@/hooks/useIndexState';
+import { useCompany } from '@/contexts/CompanyContext';
 
 const Index = () => {
   const { user, userProfile, signOut } = useAuth();
+  const { company, loading: companyLoading } = useCompany();
   const isOnline = useNetworkStatus();
-  const { cases, loading, hasOfflineData, updateCaseStatus, handleResync } = useCompanyCaseOperations(user, isOnline);
+  
+  // Use company operations if company is available, otherwise fall back to basic operations
+  const companyOperations = useCompanyCaseOperations(user, isOnline);
+  const basicOperations = useBasicCaseOperations(user, isOnline);
+  
+  // Choose which operations to use based on company availability
+  const useCompanyOps = !companyLoading && company;
+  const { cases, loading, hasOfflineData, updateCaseStatus, handleResync } = useCompanyOps 
+    ? companyOperations 
+    : basicOperations;
   
   const {
     selectedCase,
