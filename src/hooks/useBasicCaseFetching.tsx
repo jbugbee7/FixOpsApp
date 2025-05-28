@@ -88,18 +88,23 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       console.error('Error fetching cases:', error);
       
       // Fallback to AsyncStorage on any error
-      const offlineData = await AsyncStorage.getCases();
-      if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
-        setCases(offlineData.cases);
-        toast({
-          title: "Using Cached Data",
-          description: "Connection error. Showing cached data.",
-          variant: "default"
-        });
-      } else {
-        // No cached data available
+      try {
+        const offlineData = await AsyncStorage.getCases();
+        if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+          setCases(offlineData.cases);
+          toast({
+            title: "Using Cached Data",
+            description: "Connection error. Showing cached data.",
+            variant: "default"
+          });
+        } else {
+          // No cached data available
+          setCases([]);
+          console.log('No cached data available after error');
+        }
+      } catch (storageError) {
+        console.error('Error accessing cached data:', storageError);
         setCases([]);
-        console.log('No cached data available after error');
       }
     } finally {
       setLoading(false);

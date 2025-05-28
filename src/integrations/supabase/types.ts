@@ -420,6 +420,10 @@ export type Database = {
         Args: { user_id_param: string }
         Returns: string
       }
+      get_user_company_safe: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       has_feature_access: {
         Args: { _company_id: string; _feature_name: string }
         Returns: boolean
@@ -427,6 +431,10 @@ export type Database = {
       increment_usage: {
         Args: { _company_id: string; _feature_name: string }
         Returns: undefined
+      }
+      user_has_company_access: {
+        Args: { _user_id: string; _company_id: string }
+        Returns: boolean
       }
     }
     Enums: {

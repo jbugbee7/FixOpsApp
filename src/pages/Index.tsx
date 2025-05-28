@@ -16,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Case } from '@/types/case';
 
 const Index = () => {
-  const { user, userProfile, signOut } = useAuth();
+  const { user, userProfile, signOut, loading: authLoading } = useAuth();
   const { company, loading: companyLoading } = useCompany();
   const isOnline = useNetworkStatus();
   
@@ -26,7 +26,7 @@ const Index = () => {
   
   // Choose which operations to use based on company availability
   const useCompanyOps = !companyLoading && company;
-  const { cases, loading, hasOfflineData, updateCaseStatus, handleResync } = useCompanyOps 
+  const { cases, loading: casesLoading, hasOfflineData, updateCaseStatus, handleResync } = useCompanyOps 
     ? companyOperations 
     : basicOperations;
   
@@ -46,13 +46,21 @@ const Index = () => {
   } = useIndexState();
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+      // Force redirect even if sign out fails
+      window.location.href = '/auth';
+    }
   };
 
   const handleResyncWrapper = async () => {
     setIsResyncing(true);
     try {
       await handleResync();
+    } catch (error) {
+      console.error('Error during resync:', error);
     } finally {
       setIsResyncing(false);
     }
@@ -61,8 +69,14 @@ const Index = () => {
   // Get display name - prioritize full name from profile, fallback to email
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // Show loading skeleton while company is loading OR cases are loading
-  const isLoading = companyLoading || loading;
+  // Show loading skeleton while auth is loading OR company is loading OR cases are loading
+  const isLoading = authLoading || companyLoading || casesLoading;
+
+  // If user is not authenticated after auth loading is complete, redirect to auth
+  if (!authLoading && !user) {
+    window.location.href = '/auth';
+    return null;
+  }
 
   if (selectedCase) {
     return (

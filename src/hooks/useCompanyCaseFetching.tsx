@@ -72,19 +72,24 @@ export const useCompanyCaseFetching = (user: any, isOnline: boolean) => {
             });
           } else {
             // For any other error, try to fallback to AsyncStorage
-            const offlineData = await AsyncStorage.getCases();
-            if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
-              const casesWithCompanyId = ensureCompanyId(offlineData.cases);
-              setCases(casesWithCompanyId);
-              toast({
-                title: "Using Cached Data",
-                description: "Unable to connect to server. Showing cached data.",
-                variant: "default"
-              });
-            } else {
-              // No cached data available, show empty state
+            try {
+              const offlineData = await AsyncStorage.getCases();
+              if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+                const casesWithCompanyId = ensureCompanyId(offlineData.cases);
+                setCases(casesWithCompanyId);
+                toast({
+                  title: "Using Cached Data",
+                  description: "Unable to connect to server. Showing cached data.",
+                  variant: "default"
+                });
+              } else {
+                // No cached data available, show empty state
+                setCases([]);
+                console.log('No cached data available, showing empty state');
+              }
+            } catch (storageError) {
+              console.error('Error accessing cached data:', storageError);
               setCases([]);
-              console.log('No cached data available, showing empty state');
             }
           }
         } else {
@@ -101,19 +106,24 @@ export const useCompanyCaseFetching = (user: any, isOnline: boolean) => {
       console.error('Error fetching cases:', error);
       
       // Fallback to AsyncStorage on any error
-      const offlineData = await AsyncStorage.getCases();
-      if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
-        const casesWithCompanyId = ensureCompanyId(offlineData.cases);
-        setCases(casesWithCompanyId);
-        toast({
-          title: "Using Cached Data",
-          description: "Connection error. Showing cached data.",
-          variant: "default"
-        });
-      } else {
-        // No cached data available
+      try {
+        const offlineData = await AsyncStorage.getCases();
+        if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+          const casesWithCompanyId = ensureCompanyId(offlineData.cases);
+          setCases(casesWithCompanyId);
+          toast({
+            title: "Using Cached Data",
+            description: "Connection error. Showing cached data.",
+            variant: "default"
+          });
+        } else {
+          // No cached data available
+          setCases([]);
+          console.log('No cached data available after error');
+        }
+      } catch (storageError) {
+        console.error('Error accessing cached data:', storageError);
         setCases([]);
-        console.log('No cached data available after error');
       }
     } finally {
       setLoading(false);

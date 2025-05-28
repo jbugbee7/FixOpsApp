@@ -42,10 +42,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   } | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      console.log('Fetching profile for user:', userId);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, policy_agreed, terms_agreed, agreements_date')
+        .eq('id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+      
+      console.log('Profile fetched successfully:', data);
+      setUserProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         console.log('Auth state changed:', event, session?.user?.email);
         
         // If we're in the middle of signing out, ignore any sign-in events
@@ -92,6 +117,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      
       console.log('Initial session:', session?.user?.email);
       
       if (!isSigningOut) {
@@ -105,29 +132,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, [isSigningOut, userProfile]);
-
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name, policy_agreed, terms_agreed, agreements_date')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
-      
-      console.log('Profile fetched successfully:', data);
-      setUserProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
 
   const signOut = async () => {
     if (isSigningOut) {
