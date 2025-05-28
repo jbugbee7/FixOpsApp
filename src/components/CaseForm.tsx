@@ -5,18 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Phone, User, Wrench, FileText, Camera } from 'lucide-react';
+import { Calendar, Wrench, FileText } from 'lucide-react';
 
 const CaseForm = () => {
   const [formData, setFormData] = useState({
-    // Customer Information
-    customerName: '',
-    customerPhone: '',
-    customerEmail: '',
-    serviceAddress: '',
-    
     // Appliance Information
     applianceBrand: '',
     applianceModel: '',
@@ -35,8 +29,17 @@ const CaseForm = () => {
     
     // Additional Notes
     technicianNotes: '',
-    customerNotes: '',
   });
+
+  const applianceBrands = [
+    'Whirlpool', 'GE', 'Samsung', 'LG', 'Maytag', 'Frigidaire', 'KitchenAid', 
+    'Bosch', 'Electrolux', 'Kenmore', 'Amana', 'Hotpoint', 'Fisher & Paykel'
+  ];
+
+  const applianceTypes = [
+    'Refrigerator', 'Dishwasher', 'Washing Machine', 'Dryer', 'Oven', 'Range',
+    'Microwave', 'Freezer', 'Ice Maker', 'Garbage Disposal', 'Wine Cooler'
+  ];
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -48,10 +51,10 @@ const CaseForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.customerName || !formData.applianceBrand || !formData.problemDescription) {
+    if (!formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
       toast({
         title: "Required Fields Missing",
-        description: "Please fill in customer name, appliance brand, and problem description.",
+        description: "Please fill in appliance brand, type, and problem description.",
         variant: "destructive"
       });
       return;
@@ -64,10 +67,6 @@ const CaseForm = () => {
 
     // Reset form
     setFormData({
-      customerName: '',
-      customerPhone: '',
-      customerEmail: '',
-      serviceAddress: '',
       applianceBrand: '',
       applianceModel: '',
       applianceType: '',
@@ -81,7 +80,6 @@ const CaseForm = () => {
       laborCost: '',
       partsCost: '',
       technicianNotes: '',
-      customerNotes: '',
     });
   };
 
@@ -91,86 +89,50 @@ const CaseForm = () => {
         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <FileText className="h-8 w-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Create New Case</h1>
-        <p className="text-lg text-slate-600">Log a new repair case with all relevant details</p>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Create New Case</h1>
+        <p className="text-lg text-slate-600 dark:text-slate-400">Log a new repair case with all relevant details</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Customer Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <User className="h-5 w-5" />
-              <span>Customer Information</span>
-            </CardTitle>
-            <CardDescription>Basic customer details and contact information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="customerName">Customer Name *</Label>
-                <Input
-                  id="customerName"
-                  value={formData.customerName}
-                  onChange={(e) => handleInputChange('customerName', e.target.value)}
-                  placeholder="Enter customer name"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="customerPhone">Phone Number</Label>
-                <Input
-                  id="customerPhone"
-                  type="tel"
-                  value={formData.customerPhone}
-                  onChange={(e) => handleInputChange('customerPhone', e.target.value)}
-                  placeholder="(555) 123-4567"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="customerEmail">Email Address</Label>
-              <Input
-                id="customerEmail"
-                type="email"
-                value={formData.customerEmail}
-                onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                placeholder="customer@email.com"
-              />
-            </div>
-            <div>
-              <Label htmlFor="serviceAddress">Service Address</Label>
-              <Input
-                id="serviceAddress"
-                value={formData.serviceAddress}
-                onChange={(e) => handleInputChange('serviceAddress', e.target.value)}
-                placeholder="123 Main St, City, State 12345"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Appliance Information */}
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
               <Wrench className="h-5 w-5" />
               <span>Appliance Information</span>
             </CardTitle>
-            <CardDescription>Details about the appliance being serviced</CardDescription>
+            <CardDescription className="dark:text-slate-400">Details about the appliance being serviced</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="applianceBrand">Brand *</Label>
-                <Input
-                  id="applianceBrand"
-                  value={formData.applianceBrand}
-                  onChange={(e) => handleInputChange('applianceBrand', e.target.value)}
-                  placeholder="e.g., Whirlpool, GE, Samsung"
-                  required
-                />
+                <Select value={formData.applianceBrand} onValueChange={(value) => handleInputChange('applianceBrand', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {applianceBrands.map((brand) => (
+                      <SelectItem key={brand} value={brand}>{brand}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+              <div>
+                <Label htmlFor="applianceType">Appliance Type *</Label>
+                <Select value={formData.applianceType} onValueChange={(value) => handleInputChange('applianceType', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select appliance type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {applianceTypes.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="applianceModel">Model Number</Label>
                 <Input
@@ -178,17 +140,6 @@ const CaseForm = () => {
                   value={formData.applianceModel}
                   onChange={(e) => handleInputChange('applianceModel', e.target.value)}
                   placeholder="Model number"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="applianceType">Appliance Type</Label>
-                <Input
-                  id="applianceType"
-                  value={formData.applianceType}
-                  onChange={(e) => handleInputChange('applianceType', e.target.value)}
-                  placeholder="e.g., Dishwasher, Refrigerator, Washer"
                 />
               </div>
               <div>
@@ -214,13 +165,13 @@ const CaseForm = () => {
         </Card>
 
         {/* Service Details */}
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
               <Calendar className="h-5 w-5" />
               <span>Service Details</span>
             </CardTitle>
-            <CardDescription>Repair information and diagnostics</CardDescription>
+            <CardDescription className="dark:text-slate-400">Repair information and diagnostics</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -296,10 +247,10 @@ const CaseForm = () => {
         </Card>
 
         {/* Additional Notes */}
-        <Card>
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
-            <CardTitle>Additional Notes</CardTitle>
-            <CardDescription>Extra information and observations</CardDescription>
+            <CardTitle className="dark:text-slate-100">Additional Notes</CardTitle>
+            <CardDescription className="dark:text-slate-400">Extra information and observations</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -309,16 +260,6 @@ const CaseForm = () => {
                 value={formData.technicianNotes}
                 onChange={(e) => handleInputChange('technicianNotes', e.target.value)}
                 placeholder="Internal notes, observations, follow-up items"
-                className="min-h-[80px]"
-              />
-            </div>
-            <div>
-              <Label htmlFor="customerNotes">Customer Notes</Label>
-              <Textarea
-                id="customerNotes"
-                value={formData.customerNotes}
-                onChange={(e) => handleInputChange('customerNotes', e.target.value)}
-                placeholder="Customer requests, preferences, special instructions"
                 className="min-h-[80px]"
               />
             </div>
@@ -332,10 +273,6 @@ const CaseForm = () => {
             variant="outline"
             onClick={() => {
               setFormData({
-                customerName: '',
-                customerPhone: '',
-                customerEmail: '',
-                serviceAddress: '',
                 applianceBrand: '',
                 applianceModel: '',
                 applianceType: '',
@@ -349,7 +286,6 @@ const CaseForm = () => {
                 laborCost: '',
                 partsCost: '',
                 technicianNotes: '',
-                customerNotes: '',
               });
             }}
           >
