@@ -71,7 +71,7 @@ const PlanCard = ({ plan, onSubscribe }: PlanCardProps) => {
               : plan.popular 
               ? 'bg-blue-600 hover:bg-blue-700 text-white' 
               : plan.id === 'pro'
-              ? 'bg-blue-600 hover:bg-blue-700 text-white'
+              ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
               : ''
           }`}
           variant={plan.current ? 'default' : (plan.popular || plan.id === 'pro') ? 'default' : 'outline'}
