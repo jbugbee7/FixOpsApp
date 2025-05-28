@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Settings, User, Palette, CreditCard } from "lucide-react";
+import { User, Palette, CreditCard } from "lucide-react";
 import AccountTab from "./AccountTab";
 import ProfileTab from "./ProfileTab";
 import SubscriptionTab from "./SubscriptionTab";
@@ -17,7 +17,6 @@ const SettingsPage = () => {
             <div className="bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-800 dark:to-slate-700 px-6 py-4 rounded-t-lg">
               <TabsList className="grid w-full grid-cols-4 bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border border-slate-200 dark:border-slate-600 h-12">
                 <TabsTrigger value="account" className="flex items-center space-x-2 py-2 px-4 text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm transition-all">
-                  <Settings className="h-4 w-4" />
                   <span>Account</span>
                 </TabsTrigger>
                 <TabsTrigger value="profile" className="flex items-center space-x-2 py-2 px-4 text-sm font-medium data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:shadow-sm transition-all">
