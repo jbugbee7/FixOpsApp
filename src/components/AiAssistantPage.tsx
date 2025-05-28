@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Bot, Send, User } from 'lucide-react';
+import { Send, User } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -12,11 +12,76 @@ interface Message {
   timestamp: Date;
 }
 
+// Animated Robot Icon Component
+const AnimatedRobotIcon = ({ className }: { className?: string }) => (
+  <div className={`relative ${className}`}>
+    <svg
+      viewBox="0 0 64 64"
+      className="w-full h-full animate-pulse"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Robot Head */}
+      <rect
+        x="16"
+        y="12"
+        width="32"
+        height="24"
+        rx="4"
+        className="fill-blue-500 stroke-blue-600 stroke-2"
+      />
+      
+      {/* Robot Eyes */}
+      <circle cx="24" cy="22" r="3" className="fill-white animate-bounce" style={{ animationDelay: '0s' }} />
+      <circle cx="40" cy="22" r="3" className="fill-white animate-bounce" style={{ animationDelay: '0.1s' }} />
+      <circle cx="24" cy="22" r="1.5" className="fill-blue-800" />
+      <circle cx="40" cy="22" r="1.5" className="fill-blue-800" />
+      
+      {/* Robot Mouth */}
+      <rect x="28" y="28" width="8" height="2" rx="1" className="fill-blue-800" />
+      
+      {/* Robot Body */}
+      <rect
+        x="20"
+        y="36"
+        width="24"
+        height="20"
+        rx="2"
+        className="fill-blue-400 stroke-blue-500 stroke-2"
+      />
+      
+      {/* Robot Arms */}
+      <rect
+        x="12"
+        y="40"
+        width="6"
+        height="12"
+        rx="3"
+        className="fill-blue-400 stroke-blue-500 stroke-2 animate-pulse"
+        style={{ animationDelay: '0.5s' }}
+      />
+      <rect
+        x="46"
+        y="40"
+        width="6"
+        height="12"
+        rx="3"
+        className="fill-blue-400 stroke-blue-500 stroke-2 animate-pulse"
+        style={{ animationDelay: '0.7s' }}
+      />
+      
+      {/* Robot Antenna */}
+      <line x1="32" y1="12" x2="32" y2="8" className="stroke-blue-600 stroke-2" />
+      <circle cx="32" cy="6" r="2" className="fill-blue-500 animate-ping" />
+    </svg>
+  </div>
+);
+
 const AiAssistantPage = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your AI repair assistant. I can help you with troubleshooting, part identification, and repair recommendations. What can I help you with today?",
+      text: "Hello! I'm FixBot, your AI repair assistant. I can help you with troubleshooting, part identification, and repair recommendations. What can I help you with today?",
       sender: 'ai',
       timestamp: new Date()
     }
@@ -112,8 +177,8 @@ const AiAssistantPage = () => {
     <div className="flex flex-col h-full relative">
       {/* Header */}
       <div className="text-center mb-6">
-        <Bot className="h-16 w-16 text-blue-500 mx-auto mb-4" />
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">AI Assistant</h2>
+        <AnimatedRobotIcon className="h-16 w-16 mx-auto mb-4" />
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">FixBot</h2>
         <p className="text-lg text-slate-600 dark:text-slate-400">Get intelligent repair recommendations and troubleshooting help</p>
       </div>
 
@@ -150,7 +215,7 @@ const AiAssistantPage = () => {
                   {message.sender === 'user' ? (
                     <User className="h-4 w-4 text-white" />
                   ) : (
-                    <Bot className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                    <AnimatedRobotIcon className="h-5 w-5" />
                   )}
                 </div>
                 <Card
@@ -195,7 +260,7 @@ const AiAssistantPage = () => {
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask me about repairs, troubleshooting, or parts..."
+            placeholder="Ask FixBot about repairs, troubleshooting, or parts..."
             className="flex-1"
           />
           <Button onClick={handleSendMessage} size="icon">

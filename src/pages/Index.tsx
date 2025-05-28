@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, FileText, BarChart3, Settings, Wrench, Calendar, Clock, CheckCircle, Home, LogIn, Bot } from 'lucide-react';
@@ -9,6 +9,7 @@ import CaseForm from '@/components/CaseForm';
 import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
+import AnalyticsPage from '@/components/AnalyticsPage';
 
 const Index = () => {
   const [selectedCase, setSelectedCase] = useState(null);
@@ -25,6 +26,12 @@ const Index = () => {
     { label: "Avg. Repair Time", value: "2.3h", icon: <Clock className="h-5 w-5" /> },
     { label: "Next Appointment", value: "2:00 PM", icon: <Calendar className="h-5 w-5" /> },
   ];
+
+  // Mock user data
+  const user = {
+    name: "Alex Johnson",
+    loginTime: "Today 8:24 AM"
+  };
 
   const updateCaseStatus = (caseId, newStatus) => {
     setCases(cases.map(case_ => 
@@ -67,7 +74,7 @@ const Index = () => {
             </Button>
             
             {/* Center - Logo */}
-            <div className="flex items-center space-x-3">
+            <div className="absolute left-1/2 transform -translate-x-1/2 flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                 <Wrench className="h-6 w-6 text-white" />
               </div>
@@ -80,9 +87,9 @@ const Index = () => {
             
             {/* Right - Sign Out */}
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center space-x-2">
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center space-x-2 pr-2">
                 <LogIn className="h-4 w-4" />
-                <span>Sign Out</span>
+                <span className="text-sm">Sign Out</span>
               </Button>
             </div>
           </div>
@@ -92,7 +99,7 @@ const Index = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex-1">
           <TabsContent value="dashboard" className="m-0">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {stats.map((stat, index) => (
@@ -112,35 +119,44 @@ const Index = () => {
                 ))}
               </div>
 
-              {/* Recent Cases */}
-              <Card className="dark:bg-slate-800 dark:border-slate-700">
-                <CardHeader>
-                  <CardTitle className="dark:text-slate-100">Recent Cases</CardTitle>
-                  <CardDescription className="dark:text-slate-400">Your latest repair assignments</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {cases.map((case_) => (
-                      <div 
-                        key={case_.id} 
-                        className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
-                        onClick={() => handleCaseClick(case_)}
-                      >
-                        <div className="flex-1">
-                          <h4 className="font-medium text-slate-900 dark:text-slate-100">{case_.customer}</h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-300">{case_.appliance}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400">{case_.date}</p>
-                        </div>
-                        <Badge 
-                          variant={case_.status === 'Completed' ? 'default' : case_.status === 'In Progress' ? 'secondary' : 'outline'}
+              {/* Recent Cases - Centered */}
+              <div className="flex justify-center">
+                <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
+                  <CardHeader className="text-center">
+                    <CardTitle className="dark:text-slate-100">Recent Cases</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {cases.map((case_) => (
+                        <div 
+                          key={case_.id} 
+                          className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors"
+                          onClick={() => handleCaseClick(case_)}
                         >
-                          {case_.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-slate-900 dark:text-slate-100">{case_.customer}</h4>
+                            <p className="text-sm text-slate-600 dark:text-slate-300">{case_.appliance}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{case_.date}</p>
+                          </div>
+                          <Badge 
+                            variant={case_.status === 'Completed' ? 'default' : case_.status === 'In Progress' ? 'secondary' : 'outline'}
+                          >
+                            {case_.status}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* User Login Info - Bottom Right */}
+              <div className="fixed bottom-20 right-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{user.loginTime}</p>
+                </div>
+              </div>
             </div>
           </TabsContent>
 
@@ -157,10 +173,8 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="analytics" className="m-0">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-              <BarChart3 className="h-16 w-16 text-green-500 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">Analytics</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400">Performance metrics and insights coming soon</p>
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <AnalyticsPage />
             </div>
           </TabsContent>
 
@@ -198,7 +212,7 @@ const Index = () => {
               className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
             >
               <Bot className="h-5 w-5" />
-              <span className="text-xs">AI Assistant</span>
+              <span className="text-xs">FixBot</span>
             </TabsTrigger>
             <TabsTrigger 
               value="analytics" 
