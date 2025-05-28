@@ -24,6 +24,96 @@ const TrainingPage = () => {
   const [expandedAppliance, setExpandedAppliance] = useState<string | null>(null);
   const [selectedApplianceForAI, setSelectedApplianceForAI] = useState<string | null>(null);
 
+  const fetchRepairSummaries = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch recent cases for AI analysis
+      const { data: cases, error } = await supabase
+        .from('cases')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Error fetching cases:', error);
+        return;
+      }
+
+      // Generate AI summaries by appliance type
+      const summariesByType: { [key: string]: RepairSummary } = {};
+      
+      cases?.forEach(case_ => {
+        if (!summariesByType[case_.appliance_type]) {
+          summariesByType[case_.appliance_type] = {
+            appliance_type: case_.appliance_type,
+            common_issues: [],
+            recent_solutions: [],
+            parts_frequency: []
+          };
+        }
+
+        if (case_.problem_description) {
+          summariesByType[case_.appliance_type].common_issues.push(case_.problem_description);
+        }
+
+        if (case_.initial_diagnosis) {
+          summariesByType[case_.appliance_type].recent_solutions.push(case_.initial_diagnosis);
+        }
+      });
+
+      setRepairSummaries(Object.values(summariesByType));
+    } catch (error) {
+      console.error('Error generating repair summaries:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateAISummary = async (applianceType: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: { 
+          message: `Based on the recent repair data for ${applianceType} appliances, provide a brief summary of the most common issues and recommended preventive maintenance steps. Keep it concise and practical for technicians.` 
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "AI Summary Generated",
+        description: `Generated insights for ${applianceType} repairs.`,
+      });
+
+      return data.response;
+    } catch (error) {
+      console.error('Error generating AI summary:', error);
+      toast({
+        title: "AI Summary Error",
+        description: "Failed to generate AI insights. Please try again.",
+        variant: "destructive"
+      });
+      return null;
+    }
+  };
+
+  const getLikelihoodColor = (likelihood: string) => {
+    switch (likelihood) {
+      case 'Very High': return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
+      case 'High': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
+      default: return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
+    }
+  };
+
+  const handleInsightCardClick = (applianceType: string) => {
+    setSelectedApplianceForAI(applianceType);
+  };
+
+  useEffect(() => {
+    fetchRepairSummaries();
+  }, [user]);
+
   const applianceGuides = [
     {
       type: "Refrigerator",
@@ -190,92 +280,6 @@ const TrainingPage = () => {
     }
   ];
 
-  const fetchRepairSummaries = async () => {
-    if (!user) return;
-
-    try {
-      // Fetch recent cases for AI analysis
-      const { data: cases, error } = await supabase
-        .from('cases')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) {
-        console.error('Error fetching cases:', error);
-        return;
-      }
-
-      // Generate AI summaries by appliance type
-      const summariesByType: { [key: string]: RepairSummary } = {};
-      
-      cases?.forEach(case_ => {
-        if (!summariesByType[case_.appliance_type]) {
-          summariesByType[case_.appliance_type] = {
-            appliance_type: case_.appliance_type,
-            common_issues: [],
-            recent_solutions: [],
-            parts_frequency: []
-          };
-        }
-
-        if (case_.problem_description) {
-          summariesByType[case_.appliance_type].common_issues.push(case_.problem_description);
-        }
-
-        if (case_.initial_diagnosis) {
-          summariesByType[case_.appliance_type].recent_solutions.push(case_.initial_diagnosis);
-        }
-      });
-
-      setRepairSummaries(Object.values(summariesByType));
-    } catch (error) {
-      console.error('Error generating repair summaries:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const generateAISummary = async (applianceType: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { 
-          message: `Based on the recent repair data for ${applianceType} appliances, provide a brief summary of the most common issues and recommended preventive maintenance steps. Keep it concise and practical for technicians.` 
-        }
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "AI Summary Generated",
-        description: `Generated insights for ${applianceType} repairs.`,
-      });
-
-      return data.response;
-    } catch (error) {
-      console.error('Error generating AI summary:', error);
-      toast({
-        title: "AI Summary Error",
-        description: "Failed to generate AI insights. Please try again.",
-        variant: "destructive"
-      });
-      return null;
-    }
-  };
-
-  const getLikelihoodColor = (likelihood: string) => {
-    switch (likelihood) {
-      case 'Very High': return 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300';
-      case 'High': return 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
-      default: return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
-    }
-  };
-
-  const handleInsightCardClick = (applianceType: string) => {
-    setSelectedApplianceForAI(applianceType);
-  };
-
   if (selectedApplianceForAI) {
     return (
       <AiSummaryPage 
@@ -284,10 +288,6 @@ const TrainingPage = () => {
       />
     );
   }
-
-  useEffect(() => {
-    fetchRepairSummaries();
-  }, [user]);
 
   return (
     <div className="space-y-8">
