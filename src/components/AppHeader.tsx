@@ -9,6 +9,11 @@ interface AppHeaderProps {
 }
 
 const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
+  const handleSignOut = () => {
+    console.log('Sign out button clicked');
+    onSignOut();
+  };
+
   return (
     <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 dark:bg-slate-900/80 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -39,7 +44,7 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
               )}
             </div>
             
-            <Button variant="ghost" size="sm" onClick={onSignOut} className="flex items-center">
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center">
               <LogOut className="h-6 w-6" />
             </Button>
           </div>

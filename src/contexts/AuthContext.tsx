@@ -35,16 +35,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
         
         // Fetch user profile when user signs in
-        if (session?.user) {
+        if (session?.user && event === 'SIGNED_IN') {
           setTimeout(() => {
             fetchUserProfile(session.user.id);
           }, 0);
-        } else {
+        } else if (event === 'SIGNED_OUT') {
           setUserProfile(null);
         }
       }
@@ -52,6 +53,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -84,9 +86,31 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
+    try {
+      console.log('Starting sign out process...');
+      
+      // Clear local state immediately
+      setUser(null);
+      setSession(null);
+      setUserProfile(null);
+      
+      // Attempt to sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        // Even if there's an error, we've already cleared local state
+        // This handles cases where the session is already invalid
+      } else {
+        console.log('Successfully signed out');
+      }
+      
+      // Force redirect to auth page
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error('Unexpected error during sign out:', error);
+      // Force redirect even on unexpected errors
+      window.location.href = '/auth';
     }
   };
 
