@@ -122,7 +122,7 @@ const SettingsPage = () => {
               <CardDescription>
                 {canCustomizeProfile 
                   ? "Customize your profile information and preferences"
-                  : "Upgrade to Standard or higher for profile customization features"
+                  : "Upgrade to Basic or higher for profile customization features"
                 }
               </CardDescription>
             </CardHeader>
@@ -139,7 +139,7 @@ const SettingsPage = () => {
                   />
                   {!canCustomizeProfile && (
                     <p className="text-xs text-slate-500">
-                      Upgrade to Standard plan to customize your display name
+                      Upgrade to Basic plan to customize your display name
                     </p>
                   )}
                 </div>
@@ -167,7 +167,7 @@ const SettingsPage = () => {
                         Unlock Profile Features
                       </h4>
                       <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
-                        Upgrade to Standard plan or higher to unlock:
+                        Upgrade to Basic plan or higher to unlock:
                       </p>
                       <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
                         <li className="flex items-center space-x-2">
@@ -182,7 +182,7 @@ const SettingsPage = () => {
                           <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
                           <span>Custom contact preferences</span>
                         </li>
-                        {currentTier !== 'professional' && currentTier !== 'company' && (
+                        {currentTier !== 'professional' && currentTier !== 'enterprise' && (
                           <>
                             <li className="flex items-center space-x-2">
                               <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>

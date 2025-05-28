@@ -38,23 +38,23 @@ const SubscriptionInfo = () => {
 
   const tierColors = {
     free: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-    standard: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    basic: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
     professional: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-    company: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+    enterprise: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
   };
 
   const tierIcons = {
     free: Users,
-    standard: Zap,
+    basic: Zap,
     professional: Crown,
-    company: Building2
+    enterprise: Building2
   };
 
   const tierPrices = {
     free: 'Free',
-    standard: '$29/month',
+    basic: '$29/month',
     professional: '$49/month', 
-    company: '$99/month'
+    enterprise: '$99/month'
   };
 
   const TierIcon = tierIcons[currentSubscription.tier];
@@ -65,7 +65,7 @@ const SubscriptionInfo = () => {
       key: 'work_orders_per_month',
       format: (limit: number | null) => {
         if (currentSubscription.tier === 'free') return '5';
-        if (currentSubscription.tier === 'standard') return '50';
+        if (currentSubscription.tier === 'basic') return '50';
         return 'Unlimited';
       }
     },
@@ -74,7 +74,7 @@ const SubscriptionInfo = () => {
       key: 'team_members',
       format: (limit: number | null) => {
         if (currentSubscription.tier === 'free') return '1';
-        if (currentSubscription.tier === 'standard') return '5';
+        if (currentSubscription.tier === 'basic') return '5';
         if (currentSubscription.tier === 'professional') return '25';
         return 'Unlimited';
       }
@@ -84,7 +84,7 @@ const SubscriptionInfo = () => {
       key: 'ai_assistance',
       format: (limit: number | null) => {
         if (currentSubscription.tier === 'free') return 'Not Available';
-        if (currentSubscription.tier === 'standard') return '10 per month';
+        if (currentSubscription.tier === 'basic') return '10 per month';
         return 'Unlimited';
       }
     },
@@ -92,7 +92,7 @@ const SubscriptionInfo = () => {
       name: 'Custom Branding',
       key: 'custom_branding',
       format: () => {
-        const hasAccess = currentSubscription.tier === 'professional' || currentSubscription.tier === 'company';
+        const hasAccess = currentSubscription.tier === 'professional' || currentSubscription.tier === 'enterprise';
         return hasAccess ? 'Available' : 'Not Available';
       }
     },
@@ -108,7 +108,7 @@ const SubscriptionInfo = () => {
       name: 'Priority Support',
       key: 'priority_support',
       format: () => {
-        const hasAccess = currentSubscription.tier === 'professional' || currentSubscription.tier === 'company';
+        const hasAccess = currentSubscription.tier === 'professional' || currentSubscription.tier === 'enterprise';
         return hasAccess ? 'Available' : 'Email Support Only';
       }
     }
@@ -131,9 +131,9 @@ const SubscriptionInfo = () => {
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                 {currentSubscription.tier === 'free' && 'Perfect for individual repair technicians'}
-                {currentSubscription.tier === 'standard' && 'Ideal for small repair shops'}
+                {currentSubscription.tier === 'basic' && 'Ideal for small repair shops'}
                 {currentSubscription.tier === 'professional' && 'For growing repair businesses'}
-                {currentSubscription.tier === 'company' && 'For large operations & franchises'}
+                {currentSubscription.tier === 'enterprise' && 'For large operations & franchises'}
               </p>
             </div>
           </CardTitle>
@@ -146,9 +146,9 @@ const SubscriptionInfo = () => {
               </h3>
               <p className="text-slate-600 dark:text-slate-400 mt-1">
                 {currentSubscription.tier === 'free' && 'Essential features for getting started'}
-                {currentSubscription.tier === 'standard' && 'Advanced tools for growing businesses'}
+                {currentSubscription.tier === 'basic' && 'Advanced tools for growing businesses'}
                 {currentSubscription.tier === 'professional' && 'Professional features and priority support'}
-                {currentSubscription.tier === 'company' && 'Enterprise-grade solution with dedicated support'}
+                {currentSubscription.tier === 'enterprise' && 'Enterprise-grade solution with dedicated support'}
               </p>
             </div>
             <div className="text-right">
@@ -204,7 +204,7 @@ const SubscriptionInfo = () => {
           {currentSubscription.tier === 'free' && (
             <div className="mt-6">
               <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-medium">
-                Upgrade to Standard - $29/month
+                Upgrade to Basic - $29/month
               </Button>
             </div>
           )}
