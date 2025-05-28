@@ -1,13 +1,13 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Wrench, FileText } from 'lucide-react';
+import { Calendar, Wrench } from 'lucide-react';
 
 const CaseForm = () => {
   const [formData, setFormData] = useState({
@@ -85,14 +85,6 @@ const CaseForm = () => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <FileText className="h-8 w-8 text-white" />
-        </div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Create New Case</h1>
-        <p className="text-lg text-slate-600 dark:text-slate-400">Log a new repair case with all relevant details</p>
-      </div>
-
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Appliance Information */}
         <Card className="dark:bg-slate-800 dark:border-slate-700">
@@ -101,7 +93,6 @@ const CaseForm = () => {
               <Wrench className="h-5 w-5" />
               <span>Appliance Information</span>
             </CardTitle>
-            <CardDescription className="dark:text-slate-400">Details about the appliance being serviced</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -171,7 +162,6 @@ const CaseForm = () => {
               <Calendar className="h-5 w-5" />
               <span>Service Details</span>
             </CardTitle>
-            <CardDescription className="dark:text-slate-400">Repair information and diagnostics</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -250,7 +240,6 @@ const CaseForm = () => {
         <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
             <CardTitle className="dark:text-slate-100">Additional Notes</CardTitle>
-            <CardDescription className="dark:text-slate-400">Extra information and observations</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>

@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Plus, FileText, BarChart3, Settings, Wrench, Calendar, Clock, CheckCircle, Home, LogIn, Bot } from 'lucide-react';
+import { Plus, FileText, BarChart3, Settings, Wrench, Calendar, Clock, CheckCircle, Home, LogIn, Bot } from 'lucide-react';
 import CaseForm from '@/components/CaseForm';
 import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
+import AiAssistantPage from '@/components/AiAssistantPage';
 
 const Index = () => {
   const [selectedCase, setSelectedCase] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [cases, setCases] = useState([
     { id: 1, customer: "John Smith", appliance: "Whirlpool Dishwasher", status: "In Progress", date: "2024-05-27", phone: "(555) 123-4567", address: "123 Main St", problemDescription: "Dishwasher not draining properly", initialDiagnosis: "Likely clogged drain hose" },
     { id: 2, customer: "Sarah Johnson", appliance: "GE Refrigerator", status: "Completed", date: "2024-05-26", phone: "(555) 987-6543", address: "456 Oak Ave", problemDescription: "Refrigerator not cooling", initialDiagnosis: "Faulty compressor" },
@@ -34,6 +36,15 @@ const Index = () => {
     setSelectedCase(case_);
   };
 
+  const handleHomeClick = () => {
+    setSelectedCase(null);
+    setActiveTab('dashboard');
+  };
+
+  const handleSignOut = () => {
+    console.log("User signed out");
+  };
+
   if (selectedCase) {
     return (
       <CaseDetails 
@@ -51,9 +62,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Left - Home Button */}
-            <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-              <Home className="h-5 w-5" />
-              <span>Home</span>
+            <Button variant="ghost" size="sm" onClick={handleHomeClick} className="flex items-center">
+              <Home className="h-6 w-6" />
             </Button>
             
             {/* Center - Logo */}
@@ -65,28 +75,21 @@ const Index = () => {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   FixOps
                 </h1>
-                <p className="text-sm text-slate-600 dark:text-slate-400">Repair Management Dashboard</p>
               </div>
             </div>
             
-            {/* Right - Sign In/Out */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5 text-slate-600 dark:text-slate-300" />
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Tech #1001</p>
-                <Button variant="ghost" size="sm" className="text-xs p-0 h-auto">
-                  <LogIn className="h-3 w-3 mr-1" />
-                  Sign Out
-                </Button>
-              </div>
+            {/* Right - Sign Out */}
+            <div className="flex items-center">
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center space-x-2">
+                <LogIn className="h-4 w-4" />
+                <span>Sign Out</span>
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <Tabs defaultValue="dashboard" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex-1">
           <TabsContent value="dashboard" className="m-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -148,10 +151,8 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="ai-assistant" className="m-0">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-              <Bot className="h-16 w-16 text-blue-500 mx-auto mb-6" />
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">AI Assistant</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400">Get intelligent repair recommendations and troubleshooting help</p>
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <AiAssistantPage />
             </div>
           </TabsContent>
 
@@ -182,7 +183,7 @@ const Index = () => {
               value="dashboard" 
               className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
             >
-              <User className="h-5 w-5" />
+              <Home className="h-5 w-5" />
               <span className="text-xs">Dashboard</span>
             </TabsTrigger>
             <TabsTrigger 
