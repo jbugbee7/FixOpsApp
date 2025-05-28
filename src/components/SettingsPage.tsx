@@ -167,22 +167,24 @@ const SettingsPage = () => {
                   
                   <Card className="border border-slate-200 dark:border-slate-700">
                     <CardContent className="p-6">
-                      <Carousel className="w-full">
-                        <CarouselContent className="-ml-2 md:-ml-4">
-                          {subscriptionPlans.map((plan) => (
-                            <CarouselItem key={plan.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                              <div className="h-full">
-                                <PlanCard 
-                                  plan={plan} 
-                                  onSubscribe={handleSubscribe}
-                                />
-                              </div>
-                            </CarouselItem>
-                          ))}
-                        </CarouselContent>
-                        <CarouselPrevious className="hidden md:flex" />
-                        <CarouselNext className="hidden md:flex" />
-                      </Carousel>
+                      <div className="relative">
+                        <Carousel className="w-full">
+                          <CarouselContent className="-ml-2 md:-ml-4">
+                            {subscriptionPlans.map((plan) => (
+                              <CarouselItem key={plan.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                                <div className="h-full">
+                                  <PlanCard 
+                                    plan={plan} 
+                                    onSubscribe={handleSubscribe}
+                                  />
+                                </div>
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                          <CarouselPrevious />
+                          <CarouselNext />
+                        </Carousel>
+                      </div>
                       
                       <div className="text-center text-sm text-slate-600 dark:text-slate-400 mt-6">
                         <p>Start with our free plan and upgrade as your business grows.</p>
