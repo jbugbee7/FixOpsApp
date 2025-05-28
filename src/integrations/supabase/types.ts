@@ -43,15 +43,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "appliance_models_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       cases: {
         Row: {
@@ -126,121 +118,7 @@ export type Database = {
           user_id?: string
           warranty_status?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "cases_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      companies: {
-        Row: {
-          created_at: string
-          id: string
-          logo_url: string | null
-          name: string
-          primary_color: string | null
-          secondary_color: string | null
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          logo_url?: string | null
-          name: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          logo_url?: string | null
-          name?: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug?: string
-          updated_at?: string
-        }
         Relationships: []
-      }
-      company_users: {
-        Row: {
-          company_id: string
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["company_role"]
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["company_role"]
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["company_role"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "company_users_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      feature_usage: {
-        Row: {
-          company_id: string
-          created_at: string
-          feature_name: string
-          id: string
-          reset_date: string
-          updated_at: string
-          usage_count: number
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          feature_name: string
-          id?: string
-          reset_date?: string
-          updated_at?: string
-          usage_count?: number
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          feature_name?: string
-          id?: string
-          reset_date?: string
-          updated_at?: string
-          usage_count?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "feature_usage_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       parts: {
         Row: {
@@ -279,15 +157,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "parts_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -322,128 +192,15 @@ export type Database = {
         }
         Relationships: []
       }
-      subscription_features: {
-        Row: {
-          created_at: string
-          enabled: boolean
-          feature_limit: number | null
-          feature_name: string
-          id: string
-          tier: Database["public"]["Enums"]["subscription_tier"]
-        }
-        Insert: {
-          created_at?: string
-          enabled?: boolean
-          feature_limit?: number | null
-          feature_name: string
-          id?: string
-          tier: Database["public"]["Enums"]["subscription_tier"]
-        }
-        Update: {
-          created_at?: string
-          enabled?: boolean
-          feature_limit?: number | null
-          feature_name?: string
-          id?: string
-          tier?: Database["public"]["Enums"]["subscription_tier"]
-        }
-        Relationships: []
-      }
-      subscriptions: {
-        Row: {
-          company_id: string
-          created_at: string
-          current_period_end: string | null
-          current_period_start: string | null
-          id: string
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          tier: Database["public"]["Enums"]["subscription_tier"]
-          trial_end: string | null
-          updated_at: string
-        }
-        Insert: {
-          company_id: string
-          created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: Database["public"]["Enums"]["subscription_tier"]
-          trial_end?: string | null
-          updated_at?: string
-        }
-        Update: {
-          company_id?: string
-          created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: Database["public"]["Enums"]["subscription_tier"]
-          trial_end?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: true
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      check_usage_limit: {
-        Args: { _company_id: string; _feature_name: string }
-        Returns: boolean
-      }
-      get_feature_limit: {
-        Args: { _company_id: string; _feature_name: string }
-        Returns: number
-      }
-      get_user_company: {
-        Args: { _user_id: string }
-        Returns: string
-      }
-      get_user_company_direct: {
-        Args: { _user_id: string }
-        Returns: string
-      }
-      get_user_company_id: {
-        Args: { user_id_param: string }
-        Returns: string
-      }
-      get_user_company_safe: {
-        Args: { _user_id: string }
-        Returns: string
-      }
-      has_feature_access: {
-        Args: { _company_id: string; _feature_name: string }
-        Returns: boolean
-      }
-      increment_usage: {
-        Args: { _company_id: string; _feature_name: string }
-        Returns: undefined
-      }
-      user_has_company_access: {
-        Args: { _user_id: string; _company_id: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
-      company_role: "owner" | "admin" | "member"
-      subscription_tier: "free" | "basic" | "professional" | "enterprise"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -558,9 +315,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      company_role: ["owner", "admin", "member"],
-      subscription_tier: ["free", "basic", "professional", "enterprise"],
-    },
+    Enums: {},
   },
 } as const
