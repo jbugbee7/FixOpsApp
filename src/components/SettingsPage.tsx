@@ -3,16 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { LogIn, Moon, Sun } from 'lucide-react';
+import { LogOut, Moon, Sun, User } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
   const appVersion = "1.0.0"; // This would typically come from package.json or environment
 
-  const handleSignIn = () => {
-    // Handle sign in logic here
-    console.log("User attempting to sign in");
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -55,16 +56,27 @@ const SettingsPage = () => {
       {/* Account Settings */}
       <Card className="dark:bg-slate-800 dark:border-slate-700">
         <CardHeader className="text-center">
-          <CardTitle className="dark:text-slate-100">Account</CardTitle>
+          <CardTitle className="flex items-center justify-center space-x-2 dark:text-slate-100">
+            <User className="h-5 w-5" />
+            <span>Account</span>
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          <div className="text-center space-y-2">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Signed in as:
+            </p>
+            <p className="font-medium dark:text-slate-100">
+              {user?.email}
+            </p>
+          </div>
           <Button 
-            variant="default" 
-            onClick={handleSignIn}
+            variant="destructive" 
+            onClick={handleSignOut}
             className="flex items-center space-x-2 w-full justify-center"
           >
-            <LogIn className="h-4 w-4" />
-            <span>Sign In</span>
+            <LogOut className="h-4 w-4" />
+            <span>Sign Out</span>
           </Button>
         </CardContent>
       </Card>

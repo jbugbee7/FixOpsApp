@@ -3,16 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, FileText, BarChart3, Settings, Wrench, Calendar, Clock, CheckCircle, Home, LogIn, Bot } from 'lucide-react';
+import { Plus, FileText, BarChart3, Settings, Wrench, Calendar, Clock, CheckCircle, Home, LogOut, Bot } from 'lucide-react';
 import CaseForm from '@/components/CaseForm';
 import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import AnalyticsPage from '@/components/AnalyticsPage';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
+  const { user, signOut } = useAuth();
   const [selectedCase, setSelectedCase] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Mock user data
   const [cases, setCases] = useState([
     { id: 1, customer: "John Smith", appliance: "Whirlpool Dishwasher", status: "In Progress", date: "2024-05-27", phone: "(555) 123-4567", address: "123 Main St", problemDescription: "Dishwasher not draining properly", initialDiagnosis: "Likely clogged drain hose" },
     { id: 2, customer: "Sarah Johnson", appliance: "GE Refrigerator", status: "Completed", date: "2024-05-26", phone: "(555) 987-6543", address: "456 Oak Ave", problemDescription: "Refrigerator not cooling", initialDiagnosis: "Faulty compressor" },
@@ -25,11 +29,6 @@ const Index = () => {
     { label: "Avg. Repair Time", value: "2.3h", icon: <Clock className="h-5 w-5" /> },
     { label: "Next Appointment", value: "2:00 PM", icon: <Calendar className="h-5 w-5" /> },
   ];
-
-  // Mock user data
-  const user = {
-    name: "Alex Johnson"
-  };
 
   const updateCaseStatus = (caseId, newStatus) => {
     setCases(cases.map(case_ => 
@@ -46,12 +45,8 @@ const Index = () => {
     setActiveTab('dashboard');
   };
 
-  const handleSignIn = () => {
-    console.log("User attempting to sign in");
-  };
-
-  const handleSignOut = () => {
-    console.log("User signed out");
+  const handleSignOut = async () => {
+    await signOut();
   };
 
   if (selectedCase) {
@@ -87,11 +82,11 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Right - Sign In */}
+            {/* Right - Sign Out */}
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" onClick={handleSignIn} className="flex items-center space-x-2 pr-2">
-                <LogIn className="h-4 w-4" />
-                <span className="text-sm">Sign In</span>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center space-x-2 pr-2">
+                <LogOut className="h-4 w-4" />
+                <span className="text-sm">Sign Out</span>
               </Button>
             </div>
           </div>
@@ -152,10 +147,10 @@ const Index = () => {
                 </Card>
               </div>
 
-              {/* User Login Info - Bottom Right */}
+              {/* User Info - Bottom Right */}
               <div className="fixed bottom-20 right-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg">
                 <div className="text-right">
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{user.name}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{user?.email}</p>
                 </div>
               </div>
             </div>
