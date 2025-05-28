@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -243,11 +244,10 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Right - Sign Out */}
+            {/* Right - Sign Out Icon */}
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center space-x-2 pr-2">
-                <LogOut className="h-4 w-4" />
-                <span className="text-sm">Sign Out</span>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center">
+                <LogOut className="h-6 w-6" />
               </Button>
             </div>
           </div>
