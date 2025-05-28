@@ -1,15 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, FileText, BarChart3, Settings, Wrench, Calendar, Clock, CheckCircle, Home, LogOut, Bot } from 'lucide-react';
+import { Plus, BarChart3, Settings, Wrench, RefreshCw, Home, LogOut, Bot } from 'lucide-react';
 import CaseForm from '@/components/CaseForm';
 import CaseDetails from '@/components/CaseDetails';
 import SettingsPage from '@/components/SettingsPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import AnalyticsPage from '@/components/AnalyticsPage';
-import AnimatedRepairBot from '@/components/AnimatedRepairBot';
+import SearchBar from '@/components/SearchBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -33,13 +34,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const stats = [
-    { label: "Cases This Week", value: cases.length.toString(), icon: <FileText className="h-5 w-5" /> },
-    { label: "Completion Rate", value: "94%", icon: <CheckCircle className="h-5 w-5" /> },
-    { label: "Avg. Repair Time", value: "2.3h", icon: <Clock className="h-5 w-5" /> },
-    { label: "Next Appointment", value: "2:00 PM", icon: <Calendar className="h-5 w-5" /> },
-  ];
+  const [isResyncing, setIsResyncing] = useState(false);
 
   // Fetch cases from Supabase
   const fetchCases = async () => {
@@ -54,8 +49,8 @@ const Index = () => {
       if (error) {
         console.error('Error fetching cases:', error);
         toast({
-          title: "Error Loading Cases",
-          description: "Failed to load cases from database.",
+          title: "Error Loading Work Orders",
+          description: "Failed to load work orders from database.",
           variant: "destructive"
         });
         return;
@@ -65,8 +60,8 @@ const Index = () => {
     } catch (error) {
       console.error('Error fetching cases:', error);
       toast({
-        title: "Error Loading Cases", 
-        description: "An unexpected error occurred while loading cases.",
+        title: "Error Loading Work Orders", 
+        description: "An unexpected error occurred while loading work orders.",
         variant: "destructive"
       });
     } finally {
@@ -112,8 +107,8 @@ const Index = () => {
       if (error) {
         console.error('Error updating case status:', error);
         toast({
-          title: "Error Updating Case",
-          description: "Failed to update case status.",
+          title: "Error Updating Work Order",
+          description: "Failed to update work order status.",
           variant: "destructive"
         });
         return;
@@ -125,14 +120,14 @@ const Index = () => {
       ));
 
       toast({
-        title: "Case Updated",
-        description: `Case status updated to ${newStatus}.`,
+        title: "Work Order Updated",
+        description: `Work order status updated to ${newStatus}.`,
       });
     } catch (error) {
       console.error('Error updating case status:', error);
       toast({
-        title: "Error Updating Case",
-        description: "An unexpected error occurred while updating the case.",
+        title: "Error Updating Work Order",
+        description: "An unexpected error occurred while updating the work order.",
         variant: "destructive"
       });
     }
@@ -149,6 +144,29 @@ const Index = () => {
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleNavigate = (tab: string) => {
+    setActiveTab(tab);
+  };
+
+  const handleResync = async () => {
+    setIsResyncing(true);
+    try {
+      await fetchCases();
+      toast({
+        title: "Resync Complete",
+        description: "All data has been synchronized with the server.",
+      });
+    } catch (error) {
+      toast({
+        title: "Resync Failed",
+        description: "Failed to synchronize data. Please check your connection.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsResyncing(false);
+    }
   };
 
   // Get display name - prioritize full name from profile, fallback to email
@@ -205,39 +223,25 @@ const Index = () => {
         <div className="flex-1">
           <TabsContent value="dashboard" className="m-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {stats.map((stat, index) => (
-                  <Card key={index} className="dark:bg-slate-800 dark:border-slate-700">
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          {stat.icon}
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400">{stat.label}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+              {/* Search Bar */}
+              <div className="mb-8">
+                <SearchBar onNavigate={handleNavigate} />
               </div>
 
-              {/* Recent Cases - Centered */}
+              {/* Recent Work Orders - Centered */}
               <div className="flex justify-center">
                 <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
                   <CardHeader className="text-center">
-                    <CardTitle className="dark:text-slate-100">Recent Cases</CardTitle>
+                    <CardTitle className="dark:text-slate-100">Recent Workorders</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {loading ? (
                       <div className="text-center py-8">
-                        <p className="text-slate-600 dark:text-slate-400">Loading cases...</p>
+                        <p className="text-slate-600 dark:text-slate-400">Loading work orders...</p>
                       </div>
                     ) : cases.length === 0 ? (
                       <div className="text-center py-8">
-                        <p className="text-slate-600 dark:text-slate-400">No cases found. Create your first case using the Add Case tab.</p>
+                        <p className="text-slate-600 dark:text-slate-400">No work orders found. Create your first work order using the Add WO tab.</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -263,6 +267,19 @@ const Index = () => {
                     )}
                   </CardContent>
                 </Card>
+              </div>
+
+              {/* Resync Button - Bottom Center */}
+              <div className="flex justify-center mt-8">
+                <Button 
+                  onClick={handleResync}
+                  disabled={isResyncing}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${isResyncing ? 'animate-spin' : ''}`} />
+                  <span>{isResyncing ? 'Resyncing...' : 'Resync Data'}</span>
+                </Button>
               </div>
 
               {/* User Info - Bottom Right with name instead of email */}
@@ -319,7 +336,7 @@ const Index = () => {
               className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
             >
               <Plus className="h-5 w-5" />
-              <span className="text-xs">Add Case</span>
+              <span className="text-xs">Add WO</span>
             </TabsTrigger>
             <TabsTrigger 
               value="ai-assistant" 

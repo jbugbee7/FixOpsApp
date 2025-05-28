@@ -28,8 +28,6 @@ const CaseForm = () => {
     initialDiagnosis: '',
     partsNeeded: '',
     estimatedTime: '',
-    laborCost: '',
-    partsCost: '',
     
     // Additional Notes
     technicianNotes: '',
@@ -150,8 +148,6 @@ const CaseForm = () => {
       initialDiagnosis: '',
       partsNeeded: '',
       estimatedTime: '',
-      laborCost: '',
-      partsCost: '',
       technicianNotes: '',
     });
   };
@@ -162,7 +158,7 @@ const CaseForm = () => {
     if (!user) {
       toast({
         title: "Authentication Required",
-        description: "You must be logged in to create cases.",
+        description: "You must be logged in to create work orders.",
         variant: "destructive"
       });
       return;
@@ -201,33 +197,31 @@ const CaseForm = () => {
           initial_diagnosis: formData.initialDiagnosis,
           parts_needed: formData.partsNeeded,
           estimated_time: formData.estimatedTime,
-          labor_cost: formData.laborCost,
-          parts_cost: formData.partsCost,
           technician_notes: formData.technicianNotes,
           status: 'Scheduled'
         });
 
       if (error) {
-        console.error('Error creating case:', error);
+        console.error('Error creating work order:', error);
         toast({
-          title: "Error Creating Case",
-          description: "There was an error creating the case. Please try again.",
+          title: "Error Creating Work Order",
+          description: "There was an error creating the work order. Please try again.",
           variant: "destructive"
         });
         return;
       }
 
       toast({
-        title: "Case Created Successfully",
-        description: "The repair case has been logged and assigned. Appliance and parts data saved to database.",
+        title: "Work Order Created Successfully",
+        description: "The work order has been logged and assigned. Appliance and parts data saved to database.",
       });
 
       resetForm();
     } catch (error) {
-      console.error('Error creating case:', error);
+      console.error('Error creating work order:', error);
       toast({
-        title: "Error Creating Case",
-        description: "There was an error creating the case. Please try again.",
+        title: "Error Creating Work Order",
+        description: "There was an error creating the work order. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -284,7 +278,8 @@ const CaseForm = () => {
                     value={formData.applianceModel}
                     onChange={(e) => handleInputChange('applianceModel', e.target.value)}
                     placeholder="Model number"
-                    className="flex-1"
+                    className="flex-1 uppercase"
+                    style={{ textTransform: 'uppercase' }}
                   />
                   <Button
                     type="button"
@@ -305,6 +300,8 @@ const CaseForm = () => {
                   value={formData.serialNumber}
                   onChange={(e) => handleInputChange('serialNumber', e.target.value)}
                   placeholder="Serial number"
+                  className="uppercase"
+                  style={{ textTransform: 'uppercase' }}
                 />
               </div>
             </div>
@@ -386,34 +383,14 @@ const CaseForm = () => {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="estimatedTime">Estimated Time</Label>
-                <Input
-                  id="estimatedTime"
-                  value={formData.estimatedTime}
-                  onChange={(e) => handleInputChange('estimatedTime', e.target.value)}
-                  placeholder="e.g., 2 hours"
-                />
-              </div>
-              <div>
-                <Label htmlFor="laborCost">Labor Cost</Label>
-                <Input
-                  id="laborCost"
-                  value={formData.laborCost}
-                  onChange={(e) => handleInputChange('laborCost', e.target.value)}
-                  placeholder="$0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="partsCost">Parts Cost</Label>
-                <Input
-                  id="partsCost"
-                  value={formData.partsCost}
-                  onChange={(e) => handleInputChange('partsCost', e.target.value)}
-                  placeholder="$0.00"
-                />
-              </div>
+            <div>
+              <Label htmlFor="estimatedTime">Estimated Time</Label>
+              <Input
+                id="estimatedTime"
+                value={formData.estimatedTime}
+                onChange={(e) => handleInputChange('estimatedTime', e.target.value)}
+                placeholder="e.g., 2 hours"
+              />
             </div>
           </CardContent>
         </Card>
@@ -452,7 +429,7 @@ const CaseForm = () => {
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Creating Case...' : 'Create Case'}
+            {isSubmitting ? 'Creating Work Order...' : 'Create Work Order'}
           </Button>
         </div>
       </form>
