@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,11 +15,6 @@ const CaseForm = () => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    // Customer Information
-    customerName: '',
-    customerPhone: '',
-    customerAddress: '',
-    
     // Appliance Information
     applianceBrand: '',
     applianceModel: '',
@@ -58,9 +54,6 @@ const CaseForm = () => {
 
   const resetForm = () => {
     setFormData({
-      customerName: '',
-      customerPhone: '',
-      customerAddress: '',
       applianceBrand: '',
       applianceModel: '',
       applianceType: '',
@@ -89,10 +82,10 @@ const CaseForm = () => {
       return;
     }
 
-    if (!formData.customerName || !formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
+    if (!formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
       toast({
         title: "Required Fields Missing",
-        description: "Please fill in customer name, appliance brand, type, and problem description.",
+        description: "Please fill in appliance brand, type, and problem description.",
         variant: "destructive"
       });
       return;
@@ -105,9 +98,7 @@ const CaseForm = () => {
         .from('cases')
         .insert({
           user_id: user.id,
-          customer_name: formData.customerName,
-          customer_phone: formData.customerPhone,
-          customer_address: formData.customerAddress,
+          customer_name: 'TBD', // Placeholder since field is required but not collected
           appliance_brand: formData.applianceBrand,
           appliance_model: formData.applianceModel,
           appliance_type: formData.applianceType,
@@ -155,48 +146,6 @@ const CaseForm = () => {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Customer Information */}
-        <Card className="dark:bg-slate-800 dark:border-slate-700">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-              <Calendar className="h-5 w-5" />
-              <span>Customer Information</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="customerName">Customer Name *</Label>
-                <Input
-                  id="customerName"
-                  value={formData.customerName}
-                  onChange={(e) => handleInputChange('customerName', e.target.value)}
-                  placeholder="Customer full name"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="customerPhone">Phone Number</Label>
-                <Input
-                  id="customerPhone"
-                  value={formData.customerPhone}
-                  onChange={(e) => handleInputChange('customerPhone', e.target.value)}
-                  placeholder="(555) 123-4567"
-                />
-              </div>
-            </div>
-            <div>
-              <Label htmlFor="customerAddress">Address</Label>
-              <Input
-                id="customerAddress"
-                value={formData.customerAddress}
-                onChange={(e) => handleInputChange('customerAddress', e.target.value)}
-                placeholder="Customer address"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Appliance Information */}
         <Card className="dark:bg-slate-800 dark:border-slate-700">
           <CardHeader>
