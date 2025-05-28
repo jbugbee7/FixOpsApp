@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { LogOut, User, Wrench, Home, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -35,16 +34,13 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
           </div>
 
           {/* Center - FixOps Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md">
-              <Wrench className="h-6 w-6 text-white" />
+          <div className="flex items-center space-x-1">
+            <div className="p-1.5 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg shadow-md">
+              <Wrench className="h-4 w-4 text-white" />
             </div>
             <div className="text-center">
-              <div className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <div className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 FixOps
-              </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400">
-                Repair Management
               </div>
             </div>
           </div>
@@ -52,18 +48,12 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
           {/* Right side - WiFi Status and User menu */}
           <div className="flex items-center space-x-3">
             {/* WiFi Status */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center">
               {isOnline ? (
-                <Wifi className="h-4 w-4 text-green-600 dark:text-green-400" />
+                <Wifi className="h-5 w-5 text-green-600 dark:text-green-400" />
               ) : (
-                <WifiOff className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <WifiOff className="h-5 w-5 text-slate-400 dark:text-slate-500" />
               )}
-              <Badge 
-                variant={isOnline ? "default" : "destructive"}
-                className={`text-xs ${isOnline ? 'bg-green-500 hover:bg-green-600' : ''}`}
-              >
-                {isOnline ? "Online" : "Offline"}
-              </Badge>
             </div>
 
             {/* User menu */}
