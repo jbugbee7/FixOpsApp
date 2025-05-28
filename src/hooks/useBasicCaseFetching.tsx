@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
@@ -9,6 +9,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const fetchingRef = useRef(false);
 
   const fetchCases = async (useOfflineData = false) => {
     if (!user) {
@@ -18,21 +19,24 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     }
     
     // Prevent multiple simultaneous fetch attempts
-    if (loading && !useOfflineData) {
-      console.log('Fetch already in progress, skipping');
+    if (fetchingRef.current) {
+      console.log('Fetch already in progress, skipping duplicate request');
       return;
     }
     
+    fetchingRef.current = true;
     setLoading(true);
     setHasError(false);
     
     try {
+      console.log('Starting case fetch for user:', user.id, 'online:', isOnline);
+      
       // If offline or explicitly requesting offline data, try AsyncStorage first
       if (!isOnline || useOfflineData) {
         const offlineData = await AsyncStorage.getCases();
-        if (offlineData) {
-          setCases(offlineData.cases || []);
-          console.log('Loaded cases from AsyncStorage:', offlineData.cases?.length || 0);
+        if (offlineData && offlineData.cases) {
+          console.log('Using cached data:', offlineData.cases.length, 'cases');
+          setCases(offlineData.cases);
           if (!isOnline) {
             toast({
               title: "Offline Mode",
@@ -40,6 +44,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
               variant: "default"
             });
             setLoading(false);
+            fetchingRef.current = false;
             return;
           }
         }
@@ -47,9 +52,8 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
       // Try to fetch from Supabase if online
       if (isOnline) {
-        console.log('Fetching cases from Supabase for user:', user.id);
+        console.log('Attempting to fetch from Supabase...');
         
-        // Query cases for the current user only
         const { data, error } = await supabase
           .from('cases')
           .select('*')
@@ -57,36 +61,40 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Error fetching cases:', error);
+          console.error('Supabase error:', error);
           setHasError(true);
           
-          // Check for specific database policy errors
+          // Handle specific database policy errors
           if (error.code === '42P17' || error.message.includes('infinite recursion')) {
-            console.log('Database policy error detected, using cached data only');
-            toast({
-              title: "Database Configuration Issue",
-              description: "Using cached data while database policies are being updated.",
-              variant: "default"
-            });
+            console.log('Database policy error detected - using fallback');
             
-            // Fallback to AsyncStorage without showing error
+            // Try to load cached data as fallback
             const offlineData = await AsyncStorage.getCases();
             if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+              console.log('Using cached data as fallback:', offlineData.cases.length, 'cases');
               setCases(offlineData.cases);
+              toast({
+                title: "Database Configuration Issue",
+                description: "Using cached data while database policies are being updated.",
+                variant: "default"
+              });
             } else {
+              console.log('No cached data available, showing empty state');
               setCases([]);
             }
           } else if (error.message.includes('JWTError') || error.message.includes('JWT')) {
-            console.log('JWT error detected, user may need to re-authenticate');
+            console.log('JWT error detected');
+            setCases([]);
             toast({
               title: "Authentication Error",
               description: "Please sign out and sign back in to continue.",
               variant: "destructive"
             });
           } else {
-            // For any other error, try to fallback to AsyncStorage
+            // For other errors, try to fallback to cached data
             const offlineData = await AsyncStorage.getCases();
             if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+              console.log('Using cached data after error:', offlineData.cases.length, 'cases');
               setCases(offlineData.cases);
               toast({
                 title: "Using Cached Data",
@@ -94,30 +102,30 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
                 variant: "default"
               });
             } else {
-              // No cached data available, show empty state
+              console.log('No cached data available after error');
               setCases([]);
-              console.log('No cached data available, showing empty state');
             }
           }
         } else {
-          console.log('Cases fetched successfully:', data?.length || 0);
+          console.log('Successfully fetched from Supabase:', data?.length || 0, 'cases');
           setCases(data || []);
           setHasError(false);
           
-          // Store fresh data in AsyncStorage for offline use
+          // Store fresh data for offline use
           if (data && data.length > 0) {
             await AsyncStorage.storeCases(data);
           }
         }
       }
     } catch (error) {
-      console.error('Error fetching cases:', error);
+      console.error('Unexpected error during fetch:', error);
       setHasError(true);
       
-      // Fallback to AsyncStorage on any error
+      // Final fallback to cached data
       try {
         const offlineData = await AsyncStorage.getCases();
         if (offlineData && offlineData.cases && offlineData.cases.length > 0) {
+          console.log('Using cached data after unexpected error:', offlineData.cases.length, 'cases');
           setCases(offlineData.cases);
           toast({
             title: "Using Cached Data",
@@ -125,9 +133,8 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
             variant: "default"
           });
         } else {
-          // No cached data available
+          console.log('No cached data available after unexpected error');
           setCases([]);
-          console.log('No cached data available after error');
         }
       } catch (storageError) {
         console.error('Error accessing cached data:', storageError);
@@ -135,6 +142,8 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       }
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
+      console.log('Case fetch completed');
     }
   };
 
