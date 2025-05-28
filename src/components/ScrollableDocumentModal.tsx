@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface ScrollableDocumentModalProps {
   isOpen: boolean;
@@ -23,14 +22,12 @@ const ScrollableDocumentModal = ({
   isAccepted
 }: ScrollableDocumentModalProps) => {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const [tempAccepted, setTempAccepted] = useState(isAccepted);
 
   useEffect(() => {
     if (isOpen) {
       setHasScrolledToBottom(false);
-      setTempAccepted(isAccepted);
     }
-  }, [isOpen, isAccepted]);
+  }, [isOpen]);
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
@@ -42,20 +39,9 @@ const ScrollableDocumentModal = ({
     }
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setTempAccepted(checked);
-    if (checked && hasScrolledToBottom) {
-      // Automatically accept and close modal when checkbox is checked
-      onAccept();
-      onClose();
-    }
-  };
-
   const handleAccept = () => {
-    if (tempAccepted) {
-      onAccept();
-      onClose();
-    }
+    onAccept();
+    onClose();
   };
 
   return (
@@ -85,21 +71,6 @@ const ScrollableDocumentModal = ({
               Please scroll to the bottom to read the complete document before agreeing.
             </p>
           )}
-          
-          <div className="flex items-center space-x-2 justify-center">
-            <Checkbox
-              id={`accept-${title.toLowerCase().replace(/\s+/g, '-')}`}
-              checked={tempAccepted}
-              onCheckedChange={handleCheckboxChange}
-              disabled={!hasScrolledToBottom}
-            />
-            <label
-              htmlFor={`accept-${title.toLowerCase().replace(/\s+/g, '-')}`}
-              className={`text-sm font-medium ${!hasScrolledToBottom ? 'text-muted-foreground' : ''}`}
-            >
-              I have read and agree to the {title}
-            </label>
-          </div>
 
           <div className="flex space-x-2 justify-center">
             <Button variant="outline" onClick={onClose}>
@@ -107,7 +78,7 @@ const ScrollableDocumentModal = ({
             </Button>
             <Button 
               onClick={handleAccept}
-              disabled={!tempAccepted || !hasScrolledToBottom}
+              disabled={!hasScrolledToBottom}
             >
               Accept
             </Button>

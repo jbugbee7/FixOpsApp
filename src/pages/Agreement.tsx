@@ -26,6 +26,7 @@ const Agreement = () => {
     setLoading(true);
 
     try {
+      console.log('Updating agreements for user:', user.id);
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -45,12 +46,16 @@ const Agreement = () => {
         return;
       }
 
+      console.log('Agreements updated successfully');
       toast({
         title: "Welcome to FixOps!",
         description: "Your agreements have been saved. You can now access the dashboard.",
       });
 
-      navigate('/');
+      // Small delay to ensure the database update is processed
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 500);
     } catch (err) {
       console.error('Unexpected error:', err);
       toast({

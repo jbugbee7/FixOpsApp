@@ -14,16 +14,18 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const [checkingAgreements, setCheckingAgreements] = useState(true);
   const [agreementsComplete, setAgreementsComplete] = useState(false);
+  const [hasChecked, setHasChecked] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const checkUserAgreements = async () => {
-      if (!user) {
+      if (!user || hasChecked) {
         setCheckingAgreements(false);
         return;
       }
 
       try {
+        console.log('Checking user agreements for:', user.id);
         const { data, error } = await supabase
           .from('profiles')
           .select('policy_agreed, terms_agreed')
@@ -34,22 +36,32 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
           console.error('Error checking agreements:', error);
           setAgreementsComplete(false);
         } else {
-          setAgreementsComplete(data?.policy_agreed && data?.terms_agreed);
+          const isComplete = data?.policy_agreed && data?.terms_agreed;
+          console.log('Agreements status:', { policy: data?.policy_agreed, terms: data?.terms_agreed, complete: isComplete });
+          setAgreementsComplete(isComplete);
         }
       } catch (error) {
         console.error('Error checking agreements:', error);
         setAgreementsComplete(false);
       } finally {
         setCheckingAgreements(false);
+        setHasChecked(true);
       }
     };
 
-    if (user) {
+    if (user && !hasChecked) {
       checkUserAgreements();
-    } else {
+    } else if (!user) {
       setCheckingAgreements(false);
+      setHasChecked(false);
     }
-  }, [user]);
+  }, [user, hasChecked]);
+
+  // Reset check when user changes
+  useEffect(() => {
+    setHasChecked(false);
+    setAgreementsComplete(false);
+  }, [user?.id]);
 
   if (loading || checkingAgreements) {
     return (
@@ -72,6 +84,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   // If user hasn't agreed to terms and is not already on the agreement page
   if (!agreementsComplete && location.pathname !== '/agreement') {
+    console.log('Redirecting to agreement page');
     return <Navigate to="/agreement" replace />;
   }
 
