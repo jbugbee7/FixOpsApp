@@ -6,6 +6,7 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
   const hasFetchedRef = useRef(false);
   const subscriptionRef = useRef<any>(null);
   const lastFetchRef = useRef(0);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!user?.id) {
@@ -37,19 +38,24 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
           (payload) => {
             console.log('Real-time change received:', payload.eventType);
             
-            // Debounce rapid changes to prevent excessive fetching
+            // Enhanced debouncing to prevent excessive fetching
             const now = Date.now();
-            if (now - lastFetchRef.current < 2000) {
+            if (now - lastFetchRef.current < 3000) {
               console.log('Debouncing realtime fetch');
               return;
             }
             lastFetchRef.current = now;
             
-            // Add delay to allow database to settle
-            setTimeout(() => {
+            // Clear any existing timeout
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+            
+            // Add optimized delay to allow database to settle
+            timeoutRef.current = setTimeout(() => {
               console.log('Triggering fetch from realtime change');
               fetchCases();
-            }, 1500);
+            }, 1000); // Reduced delay for better responsiveness
           }
         )
         .subscribe((status) => {
@@ -70,6 +76,9 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
         supabase.removeChannel(subscriptionRef.current);
         subscriptionRef.current = null;
       }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
-  }, [user?.id, isOnline, fetchCases]); // Add fetchCases to dependencies
+  }, [user?.id, isOnline, fetchCases]);
 };

@@ -10,6 +10,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const fetchingRef = useRef(false);
+  const lastFetchTime = useRef(0);
 
   const fetchCases = useCallback(async (useOfflineData = false) => {
     if (!user) {
@@ -18,6 +19,14 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       setCases([]);
       return;
     }
+    
+    // Debounce rapid fetch requests
+    const now = Date.now();
+    if (now - lastFetchTime.current < 1000) {
+      console.log('Debouncing fetch request');
+      return;
+    }
+    lastFetchTime.current = now;
     
     // Prevent multiple simultaneous fetch attempts
     if (fetchingRef.current) {
@@ -103,10 +112,14 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
           setCases(data || []);
           setHasError(false);
           
-          // Store fresh data for offline use
+          // Store fresh data for offline use only if data has changed
           if (data && data.length > 0) {
-            await AsyncStorage.storeCases(data);
-            console.log('Stored fresh data to AsyncStorage');
+            // Only store if different from current cache to reduce storage operations
+            const cachedData = await AsyncStorage.getCases();
+            if (!cachedData || JSON.stringify(cachedData.cases) !== JSON.stringify(data)) {
+              await AsyncStorage.storeCases(data);
+              console.log('Stored fresh data to AsyncStorage');
+            }
           }
         }
       }
@@ -140,10 +153,14 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     }
   }, [user?.id, isOnline]);
 
-  // Automatically fetch when user or online status changes
+  // Automatically fetch when user or online status changes, but debounced
   useEffect(() => {
     console.log('useBasicCaseFetching effect triggered - user:', user?.id, 'online:', isOnline);
-    fetchCases();
+    const timeoutId = setTimeout(() => {
+      fetchCases();
+    }, 100); // Small delay to batch rapid changes
+    
+    return () => clearTimeout(timeoutId);
   }, [fetchCases]);
 
   return {

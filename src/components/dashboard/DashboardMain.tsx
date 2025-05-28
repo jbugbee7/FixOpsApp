@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
@@ -22,7 +23,7 @@ interface DashboardMainProps {
   onResync: () => void;
 }
 
-const DashboardMain = ({
+const DashboardMain = React.memo(({
   isOnline,
   hasOfflineData,
   cases,
@@ -82,6 +83,8 @@ const DashboardMain = ({
       <UserInfoCard displayName={displayName} />
     </div>
   );
-};
+});
+
+DashboardMain.displayName = 'DashboardMain';
 
 export default DashboardMain;
