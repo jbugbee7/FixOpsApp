@@ -11,7 +11,6 @@ import TrainingPage from '@/components/TrainingPage';
 import SearchBar from '@/components/SearchBar';
 import ModelDetails from '@/components/ModelDetails';
 import PartDetails from '@/components/PartDetails';
-import CustomToast from '@/components/CustomToast';
 import AppHeader from '@/components/AppHeader';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
@@ -44,14 +43,6 @@ const Index = () => {
   const [selectedPart, setSelectedPart] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isResyncing, setIsResyncing] = useState(false);
-  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
-
-  // Show welcome toast when user signs in
-  useEffect(() => {
-    if (user && !loading) {
-      setShowWelcomeToast(true);
-    }
-  }, [user, loading]);
 
   const handleCaseClick = (case_: Case) => {
     setSelectedCase(case_);
@@ -214,15 +205,6 @@ const Index = () => {
         {/* Bottom Navigation */}
         <BottomNavigation />
       </Tabs>
-
-      {/* Custom Welcome Toast */}
-      {showWelcomeToast && (
-        <CustomToast
-          message="Welcome back!"
-          onClose={() => setShowWelcomeToast(false)}
-          duration={3000}
-        />
-      )}
     </div>
   );
 };
