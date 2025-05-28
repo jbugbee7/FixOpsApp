@@ -134,7 +134,6 @@ const TrainingPage = () => {
   const applianceGuides = [
     {
       type: "Refrigerator",
-      icon: "❄️",
       commonProblems: [
         {
           problem: "Not Cooling",
@@ -174,7 +173,6 @@ const TrainingPage = () => {
     },
     {
       type: "Washing Machine",
-      icon: "🧺",
       commonProblems: [
         {
           problem: "Won't Drain",
@@ -213,7 +211,6 @@ const TrainingPage = () => {
     },
     {
       type: "Dryer",
-      icon: "🌪️",
       commonProblems: [
         {
           problem: "Not Heating",
@@ -241,7 +238,6 @@ const TrainingPage = () => {
     },
     {
       type: "Dishwasher",
-      icon: "🍽️",
       commonProblems: [
         {
           problem: "Not Cleaning Properly",
@@ -269,7 +265,6 @@ const TrainingPage = () => {
     },
     {
       type: "Oven",
-      icon: "🔥",
       commonProblems: [
         {
           problem: "Not Heating",
@@ -312,7 +307,6 @@ const TrainingPage = () => {
       <div className="text-center">
         <GraduationCap className="h-16 w-16 text-blue-500 mx-auto mb-4" />
         <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Training Center</h2>
-        <p className="text-lg text-slate-600 dark:text-slate-400">AI-powered insights from your repair data and interactive troubleshooting guides</p>
       </div>
 
       <Tabs defaultValue="insights" className="w-full">
@@ -450,7 +444,6 @@ const TrainingPage = () => {
               <Card key={index} className="dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-3 dark:text-slate-100">
-                    <span className="text-2xl">{appliance.icon}</span>
                     <span>{appliance.type}</span>
                     <Badge variant="outline">{appliance.commonProblems.length} Common Issues</Badge>
                   </CardTitle>
