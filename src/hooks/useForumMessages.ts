@@ -84,7 +84,7 @@ export const useForumMessages = () => {
     fetchMessages();
   }, [fetchMessages]);
 
-  // Optimized real-time subscription
+  // Optimized real-time subscription with improved connection status handling
   useEffect(() => {
     if (!user || !mountedRef.current) {
       console.log('No user, skipping forum real-time subscription');
@@ -131,8 +131,14 @@ export const useForumMessages = () => {
       )
       .subscribe((status) => {
         console.log('Forum real-time subscription status:', status);
-        if (status !== 'SUBSCRIBED' && mountedRef.current) {
-          setHasConnectionError(true);
+        if (mountedRef.current) {
+          // Only set error state for actual error conditions, not transitional states
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            setHasConnectionError(true);
+          } else if (status === 'SUBSCRIBED') {
+            setHasConnectionError(false);
+          }
+          // Don't set error for CONNECTING, JOINING states as these are normal
         }
       });
 
