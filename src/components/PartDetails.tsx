@@ -51,7 +51,7 @@ const PartDetails = ({ part, onBack }: PartDetailsProps) => {
               <span>{part.part_name}</span>
               <Button onClick={handleGoogleSearch} size="sm" className="flex items-center space-x-2">
                 <ExternalLink className="h-4 w-4" />
-                <span>Search Google</span>
+                <span>Search Online</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -94,7 +94,10 @@ const PartDetails = ({ part, onBack }: PartDetailsProps) => {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Quick Actions</h3>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Part Resources</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Find purchasing options, installation guides, and compatibility information for this part.
+                </p>
                 <div className="space-y-3">
                   <Button 
                     onClick={handleGoogleSearch} 
@@ -102,7 +105,7 @@ const PartDetails = ({ part, onBack }: PartDetailsProps) => {
                     className="w-full flex items-center space-x-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Search for This Part</span>
+                    <span>Find This Part</span>
                   </Button>
                   <Button 
                     onClick={() => {
@@ -114,7 +117,7 @@ const PartDetails = ({ part, onBack }: PartDetailsProps) => {
                     className="w-full flex items-center space-x-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Search Installation Guide</span>
+                    <span>Installation Guide</span>
                   </Button>
                   <Button 
                     onClick={() => {
@@ -126,7 +129,7 @@ const PartDetails = ({ part, onBack }: PartDetailsProps) => {
                     className="w-full flex items-center space-x-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Check Compatibility</span>
+                    <span>Compatibility Check</span>
                   </Button>
                   <Button 
                     onClick={() => {

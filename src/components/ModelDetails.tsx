@@ -50,7 +50,7 @@ const ModelDetails = ({ model, onBack }: ModelDetailsProps) => {
               <span>{model.brand} {model.model}</span>
               <Button onClick={handleGoogleSearch} size="sm" className="flex items-center space-x-2">
                 <ExternalLink className="h-4 w-4" />
-                <span>Search Google</span>
+                <span>Search Online</span>
               </Button>
             </CardTitle>
           </CardHeader>
@@ -85,7 +85,10 @@ const ModelDetails = ({ model, onBack }: ModelDetailsProps) => {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Quick Actions</h3>
+                <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">Available Resources</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                  Access repair manuals, troubleshooting guides, and replacement parts for this appliance model.
+                </p>
                 <div className="space-y-3">
                   <Button 
                     onClick={handleGoogleSearch} 
@@ -93,7 +96,7 @@ const ModelDetails = ({ model, onBack }: ModelDetailsProps) => {
                     className="w-full flex items-center space-x-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Search for Repair Manual</span>
+                    <span>Find Repair Manual</span>
                   </Button>
                   <Button 
                     onClick={() => {
@@ -105,7 +108,7 @@ const ModelDetails = ({ model, onBack }: ModelDetailsProps) => {
                     className="w-full flex items-center space-x-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Search for Replacement Parts</span>
+                    <span>Find Replacement Parts</span>
                   </Button>
                   <Button 
                     onClick={() => {
@@ -117,7 +120,7 @@ const ModelDetails = ({ model, onBack }: ModelDetailsProps) => {
                     className="w-full flex items-center space-x-2"
                   >
                     <ExternalLink className="h-4 w-4" />
-                    <span>Search for Troubleshooting Guide</span>
+                    <span>View Troubleshooting Guide</span>
                   </Button>
                 </div>
               </div>
