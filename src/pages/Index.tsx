@@ -46,6 +46,10 @@ const Index = () => {
     setActiveTab('dashboard');
   };
 
+  const handleSignIn = () => {
+    console.log("User attempting to sign in");
+  };
+
   const handleSignOut = () => {
     console.log("User signed out");
   };
@@ -83,11 +87,11 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Right - Sign Out */}
+            {/* Right - Sign In */}
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="flex items-center space-x-2 pr-2">
+              <Button variant="ghost" size="sm" onClick={handleSignIn} className="flex items-center space-x-2 pr-2">
                 <LogIn className="h-4 w-4" />
-                <span className="text-sm">Sign Out</span>
+                <span className="text-sm">Sign In</span>
               </Button>
             </div>
           </div>

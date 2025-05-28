@@ -3,22 +3,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { LogOut, Moon, Sun } from 'lucide-react';
+import { LogIn, Moon, Sun } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 
 const SettingsPage = () => {
   const { theme, setTheme } = useTheme();
   const appVersion = "1.0.0"; // This would typically come from package.json or environment
 
-  const handleSignOut = () => {
-    // Handle sign out logic here
-    console.log("User signed out");
+  const handleSignIn = () => {
+    // Handle sign in logic here
+    console.log("User attempting to sign in");
   };
 
   const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   const handleThemeToggle = (checked: boolean) => {
     setTheme(checked ? 'dark' : 'light');
+  };
+
+  // Get the current effective theme for display
+  const getCurrentThemeLabel = () => {
+    if (theme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light';
+    }
+    return theme === 'dark' ? 'Dark' : 'Light';
   };
 
   return (
@@ -34,7 +42,7 @@ const SettingsPage = () => {
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-base dark:text-slate-100">Dark Mode</Label>
+              <Label className="text-base dark:text-slate-100">{getCurrentThemeLabel()} Mode</Label>
             </div>
             <Switch 
               checked={isDarkMode}
@@ -51,12 +59,12 @@ const SettingsPage = () => {
         </CardHeader>
         <CardContent>
           <Button 
-            variant="destructive" 
-            onClick={handleSignOut}
+            variant="default" 
+            onClick={handleSignIn}
             className="flex items-center space-x-2 w-full justify-center"
           >
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out</span>
+            <LogIn className="h-4 w-4" />
+            <span>Sign In</span>
           </Button>
         </CardContent>
       </Card>
