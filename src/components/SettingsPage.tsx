@@ -1,3 +1,4 @@
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -181,7 +182,7 @@ const SettingsPage = () => {
                           <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
                           <span>Custom contact preferences</span>
                         </li>
-                        {currentTier !== 'professional' && currentTier !== 'enterprise' && (
+                        {(currentTier === 'free' || currentTier === 'basic') && (
                           <>
                             <li className="flex items-center space-x-2">
                               <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>

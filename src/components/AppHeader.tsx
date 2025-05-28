@@ -2,10 +2,8 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Home, LogOut, User } from 'lucide-react';
+import { LogOut, User, Wrench } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCompany } from '@/contexts/CompanyContext';
-import ThemeToggle from './ThemeToggle';
 
 interface AppHeaderProps {
   isOnline: boolean;
@@ -15,26 +13,29 @@ interface AppHeaderProps {
 
 const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
   const { userProfile } = useAuth();
-  const { company } = useCompany();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const displayName = userProfile?.full_name || 'User';
-  const companyName = company?.name || 'Your Company';
 
   return (
-    <header className="bg-white dark:bg-slate-900 shadow-sm border-b border-slate-200 dark:border-slate-700">
+    <header className="bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left side - Logo and Company */}
+          {/* Left side - Logo */}
           <div className="flex items-center space-x-4">
             <Button 
               onClick={onHomeClick} 
               variant="ghost" 
               size="sm"
-              className="flex items-center space-x-2"
+              className="text-white hover:bg-white/20 flex items-center space-x-3"
             >
-              <Home className="h-5 w-5" />
-              <span className="font-semibold">{companyName}</span>
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Wrench className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-left">
+                <div className="text-xl font-bold">FixOps</div>
+                <div className="text-xs text-purple-100">Repair Management</div>
+              </div>
             </Button>
           </div>
 
@@ -42,22 +43,20 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
           <div className="flex items-center">
             <Badge 
               variant={isOnline ? "default" : "destructive"}
-              className="text-xs"
+              className={`text-xs ${isOnline ? 'bg-green-500 hover:bg-green-600' : ''}`}
             >
               {isOnline ? "Online" : "Offline"}
             </Badge>
           </div>
 
-          {/* Right side - User menu and theme toggle */}
+          {/* Right side - User menu */}
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
-            
             <div className="relative">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2"
+                className="text-white hover:bg-white/20 flex items-center space-x-2"
               >
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline">{displayName}</span>
