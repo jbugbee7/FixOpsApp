@@ -56,13 +56,13 @@ const Index = () => {
 
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // Faster redirect without loading state
+  // Redirect if not authenticated
   if (!authLoading && !user) {
     window.location.href = '/auth';
     return null;
   }
 
-  // Handle selected states with optimized rendering
+  // Handle selected states
   if (selectedCase) {
     return (
       <CaseDetails 
@@ -91,18 +91,12 @@ const Index = () => {
     );
   }
 
-  // Simplified loading state - only show when absolutely necessary
-  const showLoading = authLoading || (casesLoading && cases.length === 0 && !hasError);
+  // Show loading only when auth is loading or when we have no data and are still loading
+  const showLoading = authLoading || (casesLoading && cases.length === 0);
 
   if (showLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
-        <AppHeader 
-          isOnline={isOnline} 
-          onHomeClick={handleHomeClick} 
-          onSignOut={handleSignOut} 
-        />
-        
         <div className="max-w-4xl mx-auto px-3 py-6">
           <div className="space-y-4">
             <Skeleton className="h-10 w-full rounded-lg" />

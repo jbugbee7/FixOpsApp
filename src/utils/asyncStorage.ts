@@ -2,82 +2,68 @@
 import { Case } from '@/types/case';
 
 export const AsyncStorage = {
-  // Mobile-optimized storage with compression
+  // Fast storage with error recovery
   storeCases: async (cases: Case[]): Promise<void> => {
     try {
       const timestamp = new Date().toISOString();
       const dataToStore = {
-        cases: cases.slice(0, 50), // Limit for mobile performance
+        cases: cases.slice(0, 100), // Increased limit but still reasonable
         lastSync: timestamp,
         offline: !navigator.onLine
       };
       
-      // Use smaller storage footprint for mobile
       const compressed = JSON.stringify(dataToStore);
-      localStorage.setItem('fixops_cases_mobile', compressed);
-      console.log('Mobile-optimized storage:', cases.length, 'cases');
+      localStorage.setItem('fixops_cases', compressed);
+      console.log('Cases stored successfully:', cases.length);
     } catch (error) {
-      console.error('Mobile storage error:', error);
-      // Clear old data if storage is full
+      console.error('Storage error:', error);
+      // Clear old data and try with smaller dataset
       try {
-        localStorage.removeItem('fixops_cases_offline');
-        localStorage.setItem('fixops_cases_mobile', JSON.stringify({
+        localStorage.removeItem('fixops_cases');
+        localStorage.setItem('fixops_cases', JSON.stringify({
           cases: cases.slice(0, 20),
           lastSync: new Date().toISOString(),
           offline: !navigator.onLine
         }));
       } catch (retryError) {
-        console.error('Mobile storage retry failed:', retryError);
+        console.error('Storage retry failed:', retryError);
       }
     }
   },
 
-  // Fast mobile retrieval
+  // Fast retrieval with fallbacks
   getCases: async (): Promise<{ cases: Case[]; lastSync: string; offline: boolean } | null> => {
     try {
-      // Try mobile storage first
-      let stored = localStorage.getItem('fixops_cases_mobile');
-      
-      // Fallback to legacy storage
-      if (!stored) {
-        stored = localStorage.getItem('fixops_cases_offline');
-        if (stored) {
-          // Migrate to mobile storage
-          const parsed = JSON.parse(stored);
-          await AsyncStorage.storeCases(parsed.cases || []);
-          localStorage.removeItem('fixops_cases_offline');
-          return parsed;
-        }
-      }
-      
+      const stored = localStorage.getItem('fixops_cases');
       if (!stored) return null;
       
       const parsed = JSON.parse(stored);
-      console.log('Mobile cache retrieved:', parsed.cases?.length || 0);
+      console.log('Cases retrieved from cache:', parsed.cases?.length || 0);
       return parsed;
     } catch (error) {
-      console.error('Mobile retrieval error:', error);
+      console.error('Retrieval error:', error);
+      // Clear corrupted data
+      localStorage.removeItem('fixops_cases');
       return null;
     }
   },
 
-  // Mobile-optimized clear
+  // Fast clear
   clearCases: async (): Promise<void> => {
     try {
-      localStorage.removeItem('fixops_cases_mobile');
-      localStorage.removeItem('fixops_cases_offline'); // Clean legacy
-      console.log('Mobile cache cleared');
+      localStorage.removeItem('fixops_cases');
+      console.log('Cache cleared');
     } catch (error) {
-      console.error('Mobile clear error:', error);
+      console.error('Clear error:', error);
     }
   },
 
-  // Fast mobile check
+  // Fast check
   hasOfflineData: async (): Promise<boolean> => {
     try {
-      return !!(localStorage.getItem('fixops_cases_mobile') || localStorage.getItem('fixops_cases_offline'));
+      return !!localStorage.getItem('fixops_cases');
     } catch (error) {
-      console.error('Mobile check error:', error);
+      console.error('Check error:', error);
       return false;
     }
   }

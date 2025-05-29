@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -12,7 +11,7 @@ export const useCachedCaseOperations = (user: any, isOnline: boolean) => {
   const [hasOfflineData, setHasOfflineData] = useState(false);
   
   const mountedRef = useRef(true);
-  const lastFetchRef = useRef(0);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -30,62 +29,53 @@ export const useCachedCaseOperations = (user: any, isOnline: boolean) => {
       return;
     }
 
-    // Debounce rapid requests
-    const now = Date.now();
-    if (now - lastFetchRef.current < 500) {
-      return;
-    }
-    lastFetchRef.current = now;
-
-    console.log('Fetching cached cases for user:', user.id);
+    console.log('Fetching cases for user:', user.id, 'online:', isOnline);
     
     try {
       setHasError(false);
 
-      // Try cache first for immediate loading
-      const cachedData = await AsyncStorage.getCases();
-      if (cachedData?.cases?.length && mountedRef.current) {
-        console.log('Loading local cache:', cachedData.cases.length);
-        setCases(cachedData.cases);
-        setHasOfflineData(true);
-        setLoading(false);
-        
-        if (!isOnline) return;
+      // Load cache first for immediate response
+      if (!hasInitializedRef.current) {
+        const cachedData = await AsyncStorage.getCases();
+        if (cachedData?.cases?.length && mountedRef.current) {
+          console.log('Loading cached cases:', cachedData.cases.length);
+          setCases(cachedData.cases);
+          setHasOfflineData(true);
+          setLoading(false);
+          hasInitializedRef.current = true;
+          
+          // If offline, stop here
+          if (!isOnline) return;
+        }
       }
 
-      // Use cached edge function if online
+      // Fetch from server if online
       if (isOnline) {
-        try {
-          const { data, error } = await supabase.functions.invoke('cached-cases', {
-            method: 'GET'
-          });
+        console.log('Fetching from cached-cases edge function');
+        const { data, error } = await supabase.functions.invoke('cached-cases', {
+          method: 'GET'
+        });
 
-          if (!mountedRef.current) return;
+        if (!mountedRef.current) return;
 
-          if (error) {
-            console.error('Cached function error:', error);
-            setHasError(true);
-            
-            if (!cachedData?.cases?.length) {
-              setCases([]);
-            }
-          } else {
-            console.log('Successfully fetched cached cases:', data?.length || 0);
-            setCases(data || []);
-            setHasError(false);
-            setHasOfflineData(false);
-            
-            // Update local cache
-            if (data?.length) {
-              AsyncStorage.storeCases(data);
-            }
-          }
-        } catch (fetchError) {
-          console.error('Edge function call failed:', fetchError);
+        if (error) {
+          console.error('Cached function error:', error);
           setHasError(true);
           
-          if (!cachedData?.cases?.length) {
+          // Keep cached data if available
+          if (!hasInitializedRef.current) {
             setCases([]);
+          }
+        } else {
+          console.log('Successfully fetched cases:', data?.length || 0);
+          setCases(data || []);
+          setHasError(false);
+          setHasOfflineData(false);
+          hasInitializedRef.current = true;
+          
+          // Update cache
+          if (data?.length) {
+            AsyncStorage.storeCases(data);
           }
         }
       }
@@ -93,8 +83,7 @@ export const useCachedCaseOperations = (user: any, isOnline: boolean) => {
       console.error('Fetch error:', error);
       if (mountedRef.current) {
         setHasError(true);
-        const fallbackData = await AsyncStorage.getCases();
-        if (!fallbackData?.cases?.length) {
+        if (!hasInitializedRef.current) {
           setCases([]);
         }
       }
@@ -117,7 +106,6 @@ export const useCachedCaseOperations = (user: any, isOnline: boolean) => {
 
       if (error) throw error;
 
-      // Optimistic update
       setCases(prev => 
         prev.map(c => c.id === caseId ? { ...c, status: newStatus } : c)
       );
@@ -130,7 +118,7 @@ export const useCachedCaseOperations = (user: any, isOnline: boolean) => {
 
   const handleResync = useCallback(async () => {
     if (isOnline) {
-      lastFetchRef.current = 0; // Force fresh fetch
+      hasInitializedRef.current = false; // Force fresh fetch
       await fetchCases();
       toast({
         title: "Sync Complete",
