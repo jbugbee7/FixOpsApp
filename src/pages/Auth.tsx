@@ -10,6 +10,7 @@ import AuthForm from '@/components/auth/AuthForm';
 
 const Auth = () => {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [hasRedirected, setHasRedirected] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -24,24 +25,37 @@ const Auth = () => {
   } = useAuthForm();
 
   useEffect(() => {
-    // Check if user is already logged in with a delay to handle sign-out redirects
     const checkUser = async () => {
-      // Wait a bit to ensure any sign-out process is complete
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Auth page checking session:', session?.user?.email);
-      
-      if (session) {
-        console.log('User already authenticated, redirecting to home');
-        navigate('/');
+      try {
+        console.log('Auth page checking session...');
+        
+        // Add a small delay to ensure any previous sign-out is complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        console.log('Auth page session check:', session?.user?.email || 'no session');
+        
+        if (session?.user && !hasRedirected) {
+          console.log('User already authenticated, redirecting to home');
+          setHasRedirected(true);
+          navigate('/', { replace: true });
+          return;
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+      } finally {
+        setIsCheckingAuth(false);
       }
-      setIsCheckingAuth(false);
     };
     
     checkUser();
 
-    // Check for email verification success from URL
+    // Handle URL parameters for email verification
     const type = searchParams.get('type');
     const tokenHash = searchParams.get('token_hash');
     
@@ -54,20 +68,18 @@ const Auth = () => {
       });
     }
 
-    // Check for other verification scenarios
     const verified = searchParams.get('verified');
     if (verified === 'true') {
       setShowVerificationSuccess(true);
       setActiveTab('signin');
     }
 
-    // Check if coming from email verification link
     const message = searchParams.get('message');
     if (message === 'Email confirmed') {
       setShowVerificationSuccess(true);
       setActiveTab('signin');
     }
-  }, [navigate, searchParams, toast, setShowVerificationSuccess, setActiveTab]);
+  }, [navigate, searchParams, toast, setShowVerificationSuccess, setActiveTab, hasRedirected]);
 
   // Show loading while checking auth status
   if (isCheckingAuth) {

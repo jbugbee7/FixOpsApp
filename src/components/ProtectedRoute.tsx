@@ -12,20 +12,23 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
-  const [checkingAgreements, setCheckingAgreements] = useState(true);
+  const [checkingAgreements, setCheckingAgreements] = useState(false);
   const [agreementsComplete, setAgreementsComplete] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const checkUserAgreements = async () => {
-      if (!user) {
-        console.log('No user found, skipping agreement check');
+      if (!user || loading) {
+        console.log('No user or still loading, skipping agreement check');
         setCheckingAgreements(false);
         return;
       }
 
+      console.log('Checking user agreements for:', user.id);
+      setCheckingAgreements(true);
+
       try {
-        console.log('Checking user agreements for:', user.id);
         const { data, error } = await supabase
           .from('profiles')
           .select('policy_agreed, terms_agreed, agreements_date')
@@ -34,15 +37,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
         if (error) {
           console.error('Error checking agreements:', error);
-          // If profile doesn't exist, user needs to agree to terms
           setAgreementsComplete(false);
         } else {
           const isComplete = data?.policy_agreed === true && data?.terms_agreed === true;
           console.log('Agreements status:', { 
             policy: data?.policy_agreed, 
             terms: data?.terms_agreed, 
-            complete: isComplete,
-            agreementsDate: data?.agreements_date 
+            complete: isComplete 
           });
           setAgreementsComplete(isComplete);
         }
@@ -54,14 +55,17 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
       }
     };
 
-    if (user && !loading) {
+    // Only check agreements if we have a stable auth state
+    if (!loading && user) {
       checkUserAgreements();
-    } else {
+    } else if (!loading && !user) {
       setCheckingAgreements(false);
+      setAgreementsComplete(false);
     }
   }, [user, loading]);
 
-  if (loading || checkingAgreements) {
+  // Show loading while auth is initializing or checking agreements
+  if (loading || (user && checkingAgreements)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
         <Card className="dark:bg-slate-800 dark:border-slate-700">
@@ -76,21 +80,26 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     );
   }
 
-  if (!user) {
+  // Handle redirects only after auth state is stable
+  if (!user && !loading) {
     console.log('User not authenticated, redirecting to auth');
-    return <Navigate to="/auth" replace />;
+    if (!redirecting) {
+      setRedirecting(true);
+      return <Navigate to="/auth" replace />;
+    }
   }
 
-  // If user hasn't agreed to terms and is not already on the agreement page
-  if (!agreementsComplete && location.pathname !== '/agreement') {
-    console.log('User has not completed agreements, redirecting to agreement page');
-    return <Navigate to="/agreement" replace />;
-  }
+  // Handle agreement redirects
+  if (user && !checkingAgreements) {
+    if (!agreementsComplete && location.pathname !== '/agreement') {
+      console.log('User has not completed agreements, redirecting to agreement page');
+      return <Navigate to="/agreement" replace />;
+    }
 
-  // If user has completed agreements but is on agreement page, redirect to dashboard
-  if (agreementsComplete && location.pathname === '/agreement') {
-    console.log('User has completed agreements, redirecting to dashboard');
-    return <Navigate to="/" replace />;
+    if (agreementsComplete && location.pathname === '/agreement') {
+      console.log('User has completed agreements, redirecting to dashboard');
+      return <Navigate to="/" replace />;
+    }
   }
 
   return <>{children}</>;

@@ -51,8 +51,10 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
 
       if (data.user) {
         console.log('Sign in successful for user:', data.user.email);
-        // Navigate immediately without showing any toast
-        navigate('/');
+        // Small delay to ensure auth state is updated
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 100);
       }
     } catch (err) {
       console.error('Unexpected error during sign in:', err);
