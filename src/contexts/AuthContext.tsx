@@ -6,8 +6,13 @@ import { useComplexHooks } from '@/hooks/useComplexHooks';
 interface UserProfile {
   id: string;
   full_name: string;
-  avatar_url: string;
+  avatar_url?: string; // Made optional since it's not in the database
   updated_at?: string;
+  email?: string;
+  policy_agreed?: boolean;
+  terms_agreed?: boolean;
+  agreements_date?: string;
+  created_at?: string;
 }
 
 interface AuthContextType {
