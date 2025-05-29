@@ -40,27 +40,27 @@ const AiTrainingCard = ({ trainingData, onCardClick }: AiTrainingCardProps) => {
   };
 
   return (
-    <Card className="dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between dark:text-slate-100">
-          <div className="flex items-center space-x-3">
-            <Bot className="h-6 w-6 text-blue-500" />
-            <div>
-              <span className="text-lg">{trainingData.appliance_type} Repair Training</span>
-              <div className="flex items-center space-x-4 mt-1">
+    <Card className="w-full max-w-full dark:bg-slate-800 dark:border-slate-700 cursor-pointer hover:shadow-lg transition-all duration-200 border-l-4 border-l-blue-500">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 dark:text-slate-100">
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
+            <Bot className="h-6 w-6 text-blue-500 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <span className="text-lg block truncate">{trainingData.appliance_type} Repair Training</span>
+              <div className="flex flex-wrap items-center gap-2 mt-2">
                 <Badge variant="outline" className="text-xs">
-                  {trainingData.case_count} Completed Cases
+                  {trainingData.case_count} Cases
                 </Badge>
                 <span className={`text-sm font-semibold ${getSuccessRateColor(trainingData.success_rate)}`}>
-                  {trainingData.success_rate}% Success Rate
+                  {trainingData.success_rate}% Success
                 </span>
-                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs">
                   AI Generated
                 </Badge>
               </div>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right flex-shrink-0">
             <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
               Interactive Training →
             </p>
@@ -72,24 +72,24 @@ const AiTrainingCard = ({ trainingData, onCardClick }: AiTrainingCardProps) => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <Clock className="h-5 w-5 mx-auto mb-1 text-blue-600" />
-            <p className="text-sm font-medium">{trainingData.estimated_time}</p>
+            <Clock className="h-4 w-4 mx-auto mb-1 text-blue-600" />
+            <p className="text-sm font-medium truncate">{trainingData.estimated_time}</p>
             <p className="text-xs text-slate-600 dark:text-slate-400">Avg Time</p>
           </div>
           <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <CheckCircle className="h-5 w-5 mx-auto mb-1 text-green-600" />
+            <CheckCircle className="h-4 w-4 mx-auto mb-1 text-green-600" />
             <p className="text-sm font-medium">{trainingData.repair_sequence.length}</p>
             <p className="text-xs text-slate-600 dark:text-slate-400">Steps</p>
           </div>
           <div className="text-center p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-            <Wrench className="h-5 w-5 mx-auto mb-1 text-orange-600" />
+            <Wrench className="h-4 w-4 mx-auto mb-1 text-orange-600" />
             <p className="text-sm font-medium">{trainingData.tools_required.length}</p>
             <p className="text-xs text-slate-600 dark:text-slate-400">Tools</p>
           </div>
           <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <AlertTriangle className="h-5 w-5 mx-auto mb-1 text-purple-600" />
+            <AlertTriangle className="h-4 w-4 mx-auto mb-1 text-purple-600" />
             <p className="text-sm font-medium">{trainingData.critical_points.length}</p>
             <p className="text-xs text-slate-600 dark:text-slate-400">Critical Points</p>
           </div>
@@ -105,23 +105,23 @@ const AiTrainingCard = ({ trainingData, onCardClick }: AiTrainingCardProps) => {
             <CollapsibleTrigger asChild>
               <Button 
                 variant="ghost" 
-                className="w-full justify-between p-4 h-auto bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                className="w-full justify-between p-3 h-auto bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30"
               >
                 <div className="flex items-center space-x-3">
-                  <Lightbulb className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium">Step-by-Step Repair Sequence</span>
+                  <Lightbulb className="h-4 w-4 text-blue-600 flex-shrink-0" />
+                  <span className="font-medium text-sm">Step-by-Step Repair Sequence</span>
                 </div>
                 {expandedSection === 'sequence' ? 
-                  <ChevronDown className="h-4 w-4" /> : 
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" /> : 
+                  <ChevronRight className="h-4 w-4 flex-shrink-0" />
                 }
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-4">
-              <div className="space-y-4 pl-4">
+              <div className="space-y-4 pl-2">
                 {trainingData.repair_sequence.map((step, index) => (
                   <div key={index} className="border-l-4 border-blue-500 pl-4 py-2">
-                    <h4 className="font-semibold text-blue-700 dark:text-blue-400">
+                    <h4 className="font-semibold text-blue-700 dark:text-blue-400 text-sm">
                       Step {step.step}: {step.title}
                     </h4>
                     <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
@@ -133,8 +133,8 @@ const AiTrainingCard = ({ trainingData, onCardClick }: AiTrainingCardProps) => {
                         <ul className="text-xs space-y-1">
                           {step.keyPoints.map((point, pointIndex) => (
                             <li key={pointIndex} className="flex items-start space-x-2">
-                              <span className="text-blue-500 mt-1">•</span>
-                              <span>{point}</span>
+                              <span className="text-blue-500 mt-1 flex-shrink-0">•</span>
+                              <span className="break-words">{point}</span>
                             </li>
                           ))}
                         </ul>
@@ -162,38 +162,38 @@ const AiTrainingCard = ({ trainingData, onCardClick }: AiTrainingCardProps) => {
             <CollapsibleTrigger asChild>
               <Button 
                 variant="ghost" 
-                className="w-full justify-between p-4 h-auto bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30"
+                className="w-full justify-between p-3 h-auto bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30"
               >
                 <div className="flex items-center space-x-3">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <span className="font-medium">Critical Points & Common Mistakes</span>
+                  <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0" />
+                  <span className="font-medium text-sm">Critical Points & Common Mistakes</span>
                 </div>
                 {expandedSection === 'critical' ? 
-                  <ChevronDown className="h-4 w-4" /> : 
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" /> : 
+                  <ChevronRight className="h-4 w-4 flex-shrink-0" />
                 }
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-4">
-              <div className="grid md:grid-cols-2 gap-4 pl-4">
+              <div className="grid lg:grid-cols-2 gap-4 pl-2">
                 <div>
-                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2">Critical Points:</h4>
+                  <h4 className="font-semibold text-red-700 dark:text-red-400 mb-2 text-sm">Critical Points:</h4>
                   <ul className="space-y-2">
                     {trainingData.critical_points.map((point, index) => (
                       <li key={index} className="text-sm flex items-start space-x-2">
-                        <span className="text-red-500 mt-1">⚠️</span>
-                        <span>{point}</span>
+                        <span className="text-red-500 mt-1 flex-shrink-0">⚠️</span>
+                        <span className="break-words">{point}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-2">Common Mistakes:</h4>
+                  <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-2 text-sm">Common Mistakes:</h4>
                   <ul className="space-y-2">
                     {trainingData.common_mistakes.map((mistake, index) => (
                       <li key={index} className="text-sm flex items-start space-x-2">
-                        <span className="text-orange-500 mt-1">❌</span>
-                        <span>{mistake}</span>
+                        <span className="text-orange-500 mt-1 flex-shrink-0">❌</span>
+                        <span className="break-words">{mistake}</span>
                       </li>
                     ))}
                   </ul>
@@ -210,24 +210,24 @@ const AiTrainingCard = ({ trainingData, onCardClick }: AiTrainingCardProps) => {
             <CollapsibleTrigger asChild>
               <Button 
                 variant="ghost" 
-                className="w-full justify-between p-4 h-auto bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30"
+                className="w-full justify-between p-3 h-auto bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/30"
               >
                 <div className="flex items-center space-x-3">
-                  <Wrench className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">Required Tools & Equipment</span>
+                  <Wrench className="h-4 w-4 text-green-600 flex-shrink-0" />
+                  <span className="font-medium text-sm">Required Tools & Equipment</span>
                 </div>
                 {expandedSection === 'tools' ? 
-                  <ChevronDown className="h-4 w-4" /> : 
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" /> : 
+                  <ChevronRight className="h-4 w-4 flex-shrink-0" />
                 }
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-4">
-              <div className="pl-4">
-                <div className="grid md:grid-cols-3 gap-2">
+              <div className="pl-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {trainingData.tools_required.map((tool, index) => (
                     <div key={index} className="p-2 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
-                      <span className="text-sm font-medium">{tool}</span>
+                      <span className="text-sm font-medium break-words">{tool}</span>
                     </div>
                   ))}
                 </div>

@@ -29,10 +29,10 @@ const AiTrainingTab = ({ user, onTrainingCardClick }: AiTrainingTabProps) => {
   });
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="w-full max-w-full space-y-4 px-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h3 className="text-xl font-semibold dark:text-slate-100 flex items-center">
-          <Sparkles className="h-5 w-5 mr-2 text-purple-500" />
+          <Sparkles className="h-5 w-5 mr-2 text-purple-500 flex-shrink-0" />
           AI Training Center
         </h3>
         <Button onClick={handleRefreshTraining} disabled={loading || refreshing} variant="outline" size="sm">
@@ -43,8 +43,8 @@ const AiTrainingTab = ({ user, onTrainingCardClick }: AiTrainingTabProps) => {
       
       <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 p-4 rounded-lg border">
         <div className="flex items-start space-x-3">
-          <Bot className="h-6 w-6 text-purple-600 mt-1" />
-          <div>
+          <Bot className="h-6 w-6 text-purple-600 mt-1 flex-shrink-0" />
+          <div className="min-w-0 flex-1">
             <h4 className="font-semibold text-purple-900 dark:text-purple-100">AI-Powered Training System</h4>
             <p className="text-sm text-purple-700 dark:text-purple-300 mt-1">
               Our AI analyzes completed work orders to generate comprehensive training materials. 
@@ -75,25 +75,28 @@ const AiTrainingTab = ({ user, onTrainingCardClick }: AiTrainingTabProps) => {
           <h4 className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-2">
             No Training Data Available
           </h4>
-          <p className="text-slate-500 dark:text-slate-500 mb-4">
+          <p className="text-slate-500 dark:text-slate-500 mb-4 px-4">
             Complete some work orders first, then our AI will generate training materials based on successful repairs.
           </p>
-          <p className="text-sm text-slate-400 dark:text-slate-600">
+          <p className="text-sm text-slate-400 dark:text-slate-600 px-4">
             Training cards are generated from completed work orders in the system.
           </p>
         </div>
       ) : (
-        <div className="grid gap-6">
+        <div className="w-full max-w-full space-y-6">
           <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">
             Found {trainingData.length} appliance training module{trainingData.length !== 1 ? 's' : ''} based on completed repairs
           </div>
-          {trainingData.map((training, index) => (
-            <AiTrainingCard
-              key={`${training.appliance_type}-${index}`}
-              trainingData={training}
-              onCardClick={onTrainingCardClick}
-            />
-          ))}
+          <div className="space-y-6">
+            {trainingData.map((training, index) => (
+              <div key={`${training.appliance_type}-${index}`} className="w-full">
+                <AiTrainingCard
+                  trainingData={training}
+                  onCardClick={onTrainingCardClick}
+                />
+              </div>
+            ))}
+          </div>
           <div className="text-center pt-4 border-t">
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Training data automatically updates as more work orders are completed
