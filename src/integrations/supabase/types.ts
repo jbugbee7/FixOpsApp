@@ -53,8 +53,13 @@ export type Database = {
           company_id: string | null
           created_at: string
           customer_address: string | null
+          customer_address_line_2: string | null
+          customer_city: string | null
+          customer_email: string | null
           customer_name: string
           customer_phone: string | null
+          customer_state: string | null
+          customer_zip_code: string | null
           estimated_time: string | null
           id: string
           initial_diagnosis: string | null
@@ -78,8 +83,13 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           customer_address?: string | null
+          customer_address_line_2?: string | null
+          customer_city?: string | null
+          customer_email?: string | null
           customer_name: string
           customer_phone?: string | null
+          customer_state?: string | null
+          customer_zip_code?: string | null
           estimated_time?: string | null
           id?: string
           initial_diagnosis?: string | null
@@ -103,8 +113,13 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           customer_address?: string | null
+          customer_address_line_2?: string | null
+          customer_city?: string | null
+          customer_email?: string | null
           customer_name?: string
           customer_phone?: string | null
+          customer_state?: string | null
+          customer_zip_code?: string | null
           estimated_time?: string | null
           id?: string
           initial_diagnosis?: string | null
