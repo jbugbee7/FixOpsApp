@@ -1,24 +1,17 @@
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Settings, Home, Bot, GraduationCap, Plus } from 'lucide-react';
+import { MessageCircle, Settings, Home, Bot, GraduationCap } from 'lucide-react';
 
 const BottomNavigation = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-lg">
-      <TabsList className="grid w-full grid-cols-6 h-16 bg-white dark:bg-slate-900 rounded-none">
+      <TabsList className="grid w-full grid-cols-5 h-16 bg-white dark:bg-slate-900 rounded-none">
         <TabsTrigger 
           value="dashboard" 
           className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
         >
           <Home className="h-4 w-4" />
           <span className="text-xs">Dashboard</span>
-        </TabsTrigger>
-        <TabsTrigger 
-          value="add-case" 
-          className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="text-xs">Add WO</span>
         </TabsTrigger>
         <TabsTrigger 
           value="fixchat" 

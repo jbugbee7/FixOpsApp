@@ -1,7 +1,6 @@
 
 import { TabsContent } from "@/components/ui/tabs";
 import { Settings } from 'lucide-react';
-import CaseForm from '@/components/CaseForm';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
@@ -28,12 +27,6 @@ const TabContent = (props: TabContentProps) => {
     <>
       <TabsContent value="dashboard" className="m-0">
         <DashboardMain {...props} />
-      </TabsContent>
-
-      <TabsContent value="add-case" className="m-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <CaseForm />
-        </div>
       </TabsContent>
 
       <TabsContent value="fixchat" className="m-0">
