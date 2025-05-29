@@ -1,19 +1,25 @@
-
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, Session } from '@supabase/supabase-js';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { Session, User } from '@supabase/supabase-js';
+import { useComplexHooks } from '@/hooks/useComplexHooks';
+
+interface UserProfile {
+  id: string;
+  full_name: string;
+  avatar_url: string;
+  updated_at?: string;
+}
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   session: Session | null;
   loading: boolean;
+  error: string | null;
+  signUp: (email: string, password: string, fullName?: string) => Promise<{ data: any, error: any }>;
+  signIn: (email: string, password: string) => Promise<{ data: any, error: any }>;
   signOut: () => Promise<void>;
-  userProfile: { 
-    full_name?: string;
-    policy_agreed?: boolean;
-    terms_agreed?: boolean;
-    agreements_date?: string;
-  } | null;
+  updateProfile: (profileData: Partial<UserProfile>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,167 +27,202 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<{ 
-    full_name?: string;
-    policy_agreed?: boolean;
-    terms_agreed?: boolean;
-    agreements_date?: string;
-  } | null>(null);
-  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      console.log('Fetching profile for user:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name, policy_agreed, terms_agreed, agreements_date')
-        .eq('id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
-      
-      console.log('Profile fetched successfully:', data);
-      setUserProfile(data);
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
+  const { handleEvent } = useComplexHooks();
 
   useEffect(() => {
-    let mounted = true;
+    const loadSession = async () => {
+      try {
+        setLoading(true);
+        const { data: { session } } = await supabase.auth.getSession();
 
-    // Set up auth state listener
+        setSession(session);
+        setUser(session?.user || null);
+
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (err: any) {
+        console.error('Error loading session:', err);
+        setError(err.message || 'Failed to load session.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadSession();
+
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!mounted) return;
-        
-        console.log('Auth state changed:', event, session?.user?.email);
-        
-        // If we're in the middle of signing out, ignore any sign-in events
-        if (isSigningOut && event === 'SIGNED_IN') {
-          console.log('Ignoring sign-in event during sign-out process');
-          return;
-        }
-        
-        // If this is a sign-out event, clear everything immediately
-        if (event === 'SIGNED_OUT') {
-          console.log('Processing sign-out event');
-          setSession(null);
-          setUser(null);
-          setUserProfile(null);
-          setLoading(false);
-          setIsSigningOut(false);
-          return;
-        }
-        
-        // For sign-in events, update state normally
-        if (event === 'SIGNED_IN' && session) {
-          console.log('Processing sign-in event');
-          setSession(session);
-          setUser(session.user);
-          
-          // Fetch user profile after successful sign-in
-          if (session.user) {
-            await fetchUserProfile(session.user.id);
-          }
-          setLoading(false);
-          return;
-        }
-        
-        // For initial session or token refresh
+        console.log('Auth state change event:', event);
         setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user && !userProfile) {
-          await fetchUserProfile(session.user.id);
+        setUser(session?.user || null);
+
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setUserProfile(null);
         }
-        setLoading(false);
       }
     );
 
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      
-      console.log('Initial session:', session?.user?.email);
-      
-      if (!isSigningOut) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchUserProfile(session.user.id);
-        }
-        setLoading(false);
-      }
-    });
-
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
-  }, [isSigningOut, userProfile]);
+  }, []);
+
+  const fetchProfile = async (userId: string) => {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        throw profileError;
+      }
+
+      setUserProfile(profile as UserProfile);
+    } catch (error: any) {
+      console.error('Error fetching user profile:', error);
+      setError(error.message || 'Failed to fetch user profile.');
+    }
+  };
+
+  const signUp = async (email: string, password: string, fullName?: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName || '',
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      // Trigger USER_SIGNUP event
+      if (data.user) {
+        await handleEvent('USER_SIGNUP', {
+          userId: data.user.id,
+          email: data.user.email,
+          fullName: fullName
+        });
+      }
+
+      return { data, error: null };
+    } catch (error: any) {
+      console.error('Error signing up:', error);
+      setError(error.message);
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Trigger USER_LOGIN event
+      if (data.user) {
+        await handleEvent('USER_LOGIN', {
+          userId: data.user.id,
+          email: data.user.email,
+          loginTime: new Date().toISOString()
+        });
+      }
+
+      return { data, error: null };
+    } catch (error: any) {
+      console.error('Error signing in:', error);
+      setError(error.message);
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const signOut = async () => {
-    if (isSigningOut) {
-      console.log('Sign out already in progress, ignoring duplicate request');
-      return;
-    }
-
     try {
-      console.log('Starting sign out process...');
-      setIsSigningOut(true);
-      
-      // Clear local state first
+      setLoading(true);
+      await supabase.auth.signOut();
       setUser(null);
-      setSession(null);
       setUserProfile(null);
-      
-      // Sign out from Supabase
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      
-      if (error) {
-        console.error('Sign out error:', error);
-      } else {
-        console.log('Successfully signed out from Supabase');
-      }
-      
-      // Force redirect regardless of any errors
-      setTimeout(() => {
-        window.location.href = '/auth';
-      }, 100);
-      
-    } catch (error) {
-      console.error('Unexpected error during sign out:', error);
-      setIsSigningOut(false);
-      // Force redirect even on unexpected errors
-      window.location.href = '/auth';
+      setSession(null);
+    } catch (error: any) {
+      console.error('Error signing out:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const value = {
+  const updateProfile = async (profileData: Partial<UserProfile>) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user?.id)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+
+      setUserProfile(data as UserProfile);
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const value: AuthContextType = {
     user,
+    userProfile,
     session,
     loading,
+    error,
+    signUp,
+    signIn,
     signOut,
-    userProfile,
+    updateProfile,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
