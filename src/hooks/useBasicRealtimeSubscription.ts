@@ -24,17 +24,17 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
 
     // Initial fetch - only once
     if (!hasFetchedRef.current) {
-      console.log('Initial fetch for realtime subscription');
+      console.log('Initial fetch for realtime subscription - all cases for cross-user visibility');
       fetchCases();
       hasFetchedRef.current = true;
     }
 
-    // Subscribe to real-time changes only if online - now listening to all cases
+    // Subscribe to real-time changes for all cases (cross-user visibility)
     if (isOnline && !subscriptionRef.current) {
-      console.log('Setting up optimized realtime subscription for all cases');
+      console.log('Setting up realtime subscription for all cases - cross-user visibility enabled');
       
       subscriptionRef.current = supabase
-        .channel('all-cases-changes')
+        .channel('all-cases-cross-user-changes')
         .on(
           'postgres_changes',
           {
@@ -45,7 +45,7 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
           (payload) => {
             if (!mountedRef.current) return;
             
-            console.log('Real-time change received:', payload.eventType);
+            console.log('Real-time change received for cross-user visibility:', payload.eventType);
             
             // Optimized debouncing
             const now = Date.now();
@@ -63,14 +63,14 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
             // Optimized delay for better performance
             timeoutRef.current = setTimeout(() => {
               if (mountedRef.current) {
-                console.log('Triggering optimized fetch from realtime');
+                console.log('Triggering fetch from realtime - all cases visible to all users');
                 fetchCases();
               }
             }, 500);
           }
         )
         .subscribe((status) => {
-          console.log('Realtime subscription status:', status);
+          console.log('Realtime subscription status for cross-user visibility:', status);
         });
     }
 

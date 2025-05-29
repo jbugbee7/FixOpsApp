@@ -44,7 +44,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     }
     
     try {
-      console.log('Starting optimized case fetch for user:', user.id, 'online:', isOnline);
+      console.log('Starting fetch for all cases - cross-user visibility enabled');
       
       // If offline or explicitly requesting offline data, try AsyncStorage first
       if (!isOnline || useOfflineData) {
@@ -65,9 +65,9 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
         }
       }
 
-      // Try to fetch from Supabase if online - now fetching all cases
+      // Fetch all cases for cross-user visibility if online
       if (isOnline) {
-        console.log('Fetching all cases from Supabase');
+        console.log('Fetching all cases from database - all authenticated users can see all work orders');
         
         const { data, error } = await supabase
           .from('cases')
@@ -104,7 +104,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
             }
           }
         } else {
-          console.log('Successfully fetched:', data?.length || 0, 'cases');
+          console.log('Successfully fetched all cases:', data?.length || 0, 'cases from all users');
           setCases(data || []);
           setHasError(false);
           
@@ -141,7 +141,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       if (mountedRef.current) {
         setLoading(false);
         fetchingRef.current = false;
-        console.log('Case fetch completed');
+        console.log('Case fetch completed - cross-user visibility active');
       }
     }
   }, [user?.id, isOnline]);
@@ -155,7 +155,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       if (mountedRef.current) {
         fetchCases();
       }
-    }, 50); // Reduced delay for better responsiveness
+    }, 50);
     
     return () => {
       clearTimeout(timeoutId);

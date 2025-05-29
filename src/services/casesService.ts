@@ -12,7 +12,7 @@ export interface CasesServiceResult {
 }
 
 export const fetchUserCases = async (userId?: string): Promise<CasesServiceResult> => {
-  console.log('Fetching all cases (no user filtering)');
+  console.log('Fetching all cases for all authenticated users');
   
   const { data: cases, error } = await supabase
     .from('cases')
@@ -40,7 +40,7 @@ export const fetchUserCases = async (userId?: string): Promise<CasesServiceResul
     };
   }
 
-  console.log('Cases fetch successful, processing data...');
+  console.log('Cases fetch successful, all users can see all work orders');
   return {
     cases: cases || [],
     error: null
