@@ -36,11 +36,11 @@ const DashboardMain = React.memo(({
   onResync
 }: DashboardMainProps) => {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
+    <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8 relative">
       <DashboardHeader />
 
-      {/* Search Bar */}
-      <div className="mb-8">
+      {/* Mobile-optimized Search Bar */}
+      <div className="mb-6">
         <SearchBar 
           onNavigate={onNavigate} 
           onModelFound={onModelFound}
@@ -48,43 +48,44 @@ const DashboardMain = React.memo(({
         />
       </div>
 
-      {/* Add Work Order Button */}
-      <div className="flex justify-center mb-8">
+      {/* Mobile-optimized Add Button */}
+      <div className="flex justify-center mb-6">
         <Button 
           onClick={() => onNavigate('add-case')}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 text-lg font-semibold"
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-5 py-2.5 text-base font-semibold w-full max-w-xs"
           size="lg"
         >
-          <Plus className="h-5 w-5 mr-2" />
+          <Plus className="h-4 w-4 mr-2" />
           Add Work Order
         </Button>
       </div>
 
-      {/* Connection Status Banner */}
+      {/* Connection Status - Mobile optimized */}
       <ConnectionStatusBanner isOnline={isOnline} hasOfflineData={hasOfflineData} />
 
-      {/* Recent Work Orders - Centered */}
+      {/* Work Orders List - Mobile optimized */}
       <WorkOrdersList 
         cases={cases} 
         loading={loading} 
         onCaseClick={onCaseClick} 
       />
 
-      {/* Resync Button - Bottom Center */}
-      <div className="flex justify-center mt-8">
+      {/* Mobile-optimized Resync Button */}
+      <div className="flex justify-center mt-6">
         <Button 
           onClick={onResync}
           disabled={isResyncing}
           variant="outline"
-          className="flex items-center space-x-2"
+          className="flex items-center space-x-2 text-sm px-4 py-2"
+          size="sm"
         >
-          <RefreshCw className={`h-4 w-4 ${isResyncing ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3 w-3 ${isResyncing ? 'animate-spin' : ''}`} />
           <span>
             {isResyncing 
-              ? 'Resyncing...' 
+              ? 'Syncing...' 
               : isOnline 
-                ? 'Resync Data' 
-                : 'Load Cached Data'
+                ? 'Sync' 
+                : 'Load Cache'
             }
           </span>
         </Button>

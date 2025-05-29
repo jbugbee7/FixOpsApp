@@ -56,13 +56,13 @@ const Index = () => {
 
   const displayName = userProfile?.full_name || user?.email || 'User';
 
-  // Redirect if not authenticated
+  // Faster redirect without loading state
   if (!authLoading && !user) {
     window.location.href = '/auth';
     return null;
   }
 
-  // Handle selected states
+  // Handle selected states with optimized rendering
   if (selectedCase) {
     return (
       <CaseDetails 
@@ -91,7 +91,7 @@ const Index = () => {
     );
   }
 
-  // Show loading only when auth is loading OR when cases are loading and we have no data
+  // Simplified loading state - only show when absolutely necessary
   const showLoading = authLoading || (casesLoading && cases.length === 0 && !hasError);
 
   if (showLoading) {
@@ -103,14 +103,14 @@ const Index = () => {
           onSignOut={handleSignOut} 
         />
         
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-8 w-3/4" />
-            <div className="space-y-4">
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
+        <div className="max-w-4xl mx-auto px-3 py-6">
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full rounded-lg" />
+            <Skeleton className="h-6 w-3/4 rounded" />
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
+              <Skeleton className="h-16 w-full rounded-lg" />
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@ const Index = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex-1 px-2 sm:px-0">
+        <div className="flex-1 px-1 sm:px-0">
           <TabContent
             isOnline={isOnline}
             hasOfflineData={hasOfflineData}
