@@ -14,7 +14,19 @@ import Terms from "./pages/Terms";
 import Policy from "./pages/Policy";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+// Safari-optimized query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error) => {
+        // Reduce retries on Safari to prevent hanging
+        return failureCount < 2;
+      },
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (was cacheTime)
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

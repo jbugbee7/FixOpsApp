@@ -1,7 +1,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { useCachedCaseOperations } from '@/hooks/useCachedCaseOperations';
+import { useSafariCaseOperations } from '@/hooks/useSafariCaseOperations';
 import { useIndexState } from '@/hooks/useIndexState';
 import IndexPage from '@/components/dashboard/IndexPage';
 
@@ -9,7 +9,7 @@ const Index = () => {
   const { user, userProfile, signOut, loading: authLoading } = useAuth();
   const isOnline = useNetworkStatus();
   
-  const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useCachedCaseOperations(user, isOnline);
+  const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useSafariCaseOperations(user, isOnline);
   
   const {
     selectedCase,
