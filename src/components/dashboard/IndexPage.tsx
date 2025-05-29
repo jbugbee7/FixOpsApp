@@ -53,6 +53,15 @@ const IndexPage = ({
     }
   };
 
+  // Enhanced navigation handler to use setActiveTab for specific tabs
+  const handleEnhancedNavigate = (tab: string) => {
+    if (tab === 'add-case') {
+      setActiveTab('add-case');
+    } else {
+      handleNavigate(tab);
+    }
+  };
+
   const displayName = userProfile?.full_name || user?.email || 'User';
 
   // Redirect if not authenticated
@@ -128,7 +137,7 @@ const IndexPage = ({
             loading={casesLoading}
             isResyncing={isResyncing}
             displayName={displayName}
-            onNavigate={handleNavigate}
+            onNavigate={handleEnhancedNavigate}
             onModelFound={handleModelFound}
             onPartFound={handlePartFound}
             onCaseClick={handleCaseClick}
