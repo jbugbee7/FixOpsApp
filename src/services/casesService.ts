@@ -11,8 +11,8 @@ export interface CasesServiceResult {
   } | null;
 }
 
-export const fetchUserCases = async (userId: string): Promise<CasesServiceResult> => {
-  console.log('Fetching all cases for user:', userId);
+export const fetchUserCases = async (userId?: string): Promise<CasesServiceResult> => {
+  console.log('Fetching all cases (no user filtering)');
   
   const { data: cases, error } = await supabase
     .from('cases')
