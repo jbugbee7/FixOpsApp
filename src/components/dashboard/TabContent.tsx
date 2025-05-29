@@ -7,6 +7,7 @@ import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
 import FixChatPage from '@/components/FixChatPage';
 import DashboardMain from './DashboardMain';
+import CompletedWorkOrders from './CompletedWorkOrders';
 import type { Case } from '@/types/case';
 
 interface TabContentProps {
@@ -28,6 +29,10 @@ const TabContent = (props: TabContentProps) => {
     <>
       <TabsContent value="dashboard" className="m-0">
         <DashboardMain {...props} />
+      </TabsContent>
+
+      <TabsContent value="completed-orders" className="m-0">
+        <CompletedWorkOrders {...props} />
       </TabsContent>
 
       <TabsContent value="add-case" className="m-0">

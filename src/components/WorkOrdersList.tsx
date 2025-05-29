@@ -25,12 +25,16 @@ const WorkOrdersList = React.memo(({ cases, loading, onCaseClick }: WorkOrdersLi
     }
   }, []);
 
+  // Determine if we're showing completed cases
+  const isCompletedView = cases.length > 0 && cases.every(case_ => case_.status === 'Completed');
+  const title = isCompletedView ? "Completed Work Orders" : "Work Orders";
+
   if (loading) {
     return (
       <div className="flex justify-center">
         <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
           <CardHeader className="text-center">
-            <CardTitle className="dark:text-slate-100">Recent Workorders</CardTitle>
+            <CardTitle className="dark:text-slate-100">{title}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
@@ -43,15 +47,19 @@ const WorkOrdersList = React.memo(({ cases, loading, onCaseClick }: WorkOrdersLi
   }
 
   if (cases.length === 0) {
+    const emptyMessage = isCompletedView 
+      ? "No completed work orders found."
+      : "No work orders found. Create your first work order using the Add WO tab.";
+
     return (
       <div className="flex justify-center">
         <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
           <CardHeader className="text-center">
-            <CardTitle className="dark:text-slate-100">Recent Workorders</CardTitle>
+            <CardTitle className="dark:text-slate-100">{title}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">No work orders found. Create your first work order using the Add WO tab.</p>
+              <p className="text-slate-600 dark:text-slate-400">{emptyMessage}</p>
             </div>
           </CardContent>
         </Card>
@@ -63,7 +71,7 @@ const WorkOrdersList = React.memo(({ cases, loading, onCaseClick }: WorkOrdersLi
     <div className="flex justify-center">
       <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
         <CardHeader className="text-center">
-          <CardTitle className="dark:text-slate-100">Recent Workorders</CardTitle>
+          <CardTitle className="dark:text-slate-100">{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

@@ -1,14 +1,12 @@
 
 import React, { useMemo } from 'react';
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Plus } from 'lucide-react';
-import DashboardHeader from './DashboardHeader';
-import SearchBar from '@/components/SearchBar';
+import { RefreshCw } from 'lucide-react';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
 import type { Case } from '@/types/case';
 
-interface DashboardMainProps {
+interface CompletedWorkOrdersProps {
   isOnline: boolean;
   hasOfflineData: boolean;
   cases: Case[];
@@ -22,60 +20,42 @@ interface DashboardMainProps {
   onResync: () => void;
 }
 
-const DashboardMain = React.memo(({
+const CompletedWorkOrders = React.memo(({
   isOnline,
   hasOfflineData,
   cases,
   loading,
   isResyncing,
-  displayName,
-  onNavigate,
-  onModelFound,
-  onPartFound,
   onCaseClick,
   onResync
-}: DashboardMainProps) => {
-  const activeCases = useMemo(() => 
-    cases.filter(case_ => case_.status !== 'Completed'), 
+}: CompletedWorkOrdersProps) => {
+  const completedCases = useMemo(() => 
+    cases.filter(case_ => case_.status === 'Completed'), 
     [cases]
   );
 
   return (
     <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8 relative">
-      <DashboardHeader />
-
-      {/* Mobile-optimized Search Bar */}
-      <div className="mb-6">
-        <SearchBar 
-          onNavigate={onNavigate} 
-          onModelFound={onModelFound}
-          onPartFound={onPartFound}
-        />
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+          Completed Work Orders
+        </h1>
+        <p className="text-lg text-slate-600 dark:text-slate-400">
+          View all your completed work orders
+        </p>
       </div>
 
-      {/* Mobile-optimized Add Button */}
-      <div className="flex justify-center mb-6">
-        <Button 
-          onClick={() => onNavigate('add-case')}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-5 py-2.5 text-base font-semibold w-full max-w-xs"
-          size="lg"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Add Work Order
-        </Button>
-      </div>
-
-      {/* Connection Status - Mobile optimized */}
+      {/* Connection Status */}
       <ConnectionStatusBanner isOnline={isOnline} hasOfflineData={hasOfflineData} />
 
-      {/* Work Orders List - Mobile optimized */}
+      {/* Completed Work Orders List */}
       <WorkOrdersList 
-        cases={activeCases} 
+        cases={completedCases} 
         loading={loading} 
         onCaseClick={onCaseClick} 
       />
 
-      {/* Mobile-optimized Resync Button */}
+      {/* Resync Button */}
       <div className="flex justify-center mt-6">
         <Button 
           onClick={onResync}
@@ -99,6 +79,6 @@ const DashboardMain = React.memo(({
   );
 });
 
-DashboardMain.displayName = 'DashboardMain';
+CompletedWorkOrders.displayName = 'CompletedWorkOrders';
 
-export default DashboardMain;
+export default CompletedWorkOrders;
