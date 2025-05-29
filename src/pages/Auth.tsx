@@ -3,18 +3,25 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthForm } from '@/hooks/useAuthForm';
 import AuthLoading from '@/components/auth/AuthLoading';
 import VerificationSuccess from '@/components/auth/VerificationSuccess';
 import AuthForm from '@/components/auth/AuthForm';
 
 const Auth = () => {
-  const [showVerificationMessage, setShowVerificationMessage] = useState(false);
-  const [showVerificationSuccess, setShowVerificationSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState('signin');
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  
+  const {
+    showVerificationMessage,
+    showVerificationSuccess,
+    activeTab,
+    setShowVerificationMessage,
+    setShowVerificationSuccess,
+    setActiveTab
+  } = useAuthForm();
 
   useEffect(() => {
     // Check if user is already logged in with a delay to handle sign-out redirects
@@ -60,7 +67,7 @@ const Auth = () => {
       setShowVerificationSuccess(true);
       setActiveTab('signin');
     }
-  }, [navigate, searchParams, toast]);
+  }, [navigate, searchParams, toast, setShowVerificationSuccess, setActiveTab]);
 
   // Show loading while checking auth status
   if (isCheckingAuth) {
