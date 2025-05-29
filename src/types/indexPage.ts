@@ -12,7 +12,7 @@ export interface IndexPageProps {
   cases: Case[];
   loading: boolean;
   hasOfflineData: boolean;
-  updateCaseStatus: (caseId: string, status: string) => Promise<void>;
+  updateCaseStatus: (caseId: string, status: string) => Promise<boolean>;
   handleResync: () => Promise<void>;
   selectedCase: Case | null;
   selectedModel: any;
