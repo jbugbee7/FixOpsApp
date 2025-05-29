@@ -45,7 +45,9 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
           (payload) => {
             if (!mountedRef.current) return;
             
-            console.log('Real-time change received for cross-user visibility:', payload.eventType, 'from user:', payload.new?.user_id || payload.old?.user_id);
+            const userIdNew = (payload.new as any)?.user_id;
+            const userIdOld = (payload.old as any)?.user_id;
+            console.log('Real-time change received for cross-user visibility:', payload.eventType, 'from user:', userIdNew || userIdOld);
             
             // Optimized debouncing
             const now = Date.now();

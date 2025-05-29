@@ -47,6 +47,38 @@ export const fetchAllCases = async (): Promise<CasesServiceResult> => {
   };
 };
 
+export const fetchUserCases = async (userId: string): Promise<CasesServiceResult> => {
+  console.log('Fetching cases for specific user:', userId);
+  
+  const { data: cases, error } = await supabase
+    .from('cases')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('=== USER CASES FETCH ERROR ===');
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
+    console.error('Error details:', error.details);
+    
+    return {
+      cases: null,
+      error: {
+        code: error.code,
+        message: error.message,
+        details: error.details
+      }
+    };
+  }
+
+  console.log('User cases fetch successful:', cases?.length || 0, 'cases');
+  return {
+    cases: cases || [],
+    error: null
+  };
+};
+
 export const addSampleWorkOrders = async (userId: string): Promise<CasesServiceResult> => {
   console.log('Adding sample work orders for user:', userId);
   
