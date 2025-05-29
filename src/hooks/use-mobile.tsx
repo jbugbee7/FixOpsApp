@@ -28,14 +28,36 @@ export function useViewport() {
 
   React.useEffect(() => {
     const handleResize = () => {
+      // Safari-specific viewport handling
+      const height = window.visualViewport 
+        ? window.visualViewport.height 
+        : window.innerHeight;
+      
       setViewport({
         width: window.innerWidth,
-        height: window.innerHeight,
+        height: height,
       })
     }
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    // Use visualViewport API if available (Safari support)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleResize)
+      window.visualViewport.addEventListener('scroll', handleResize)
+    } else {
+      window.addEventListener('resize', handleResize)
+    }
+
+    // Initial call
+    handleResize()
+
+    return () => {
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleResize)
+        window.visualViewport.removeEventListener('scroll', handleResize)
+      } else {
+        window.removeEventListener('resize', handleResize)
+      }
+    }
   }, [])
 
   return viewport
@@ -46,11 +68,34 @@ export function useTouchDevice() {
 
   React.useEffect(() => {
     const checkTouch = () => {
-      setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+      // Better Safari detection
+      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+      
+      setIsTouchDevice(hasTouch || isSafari)
     }
     
     checkTouch()
   }, [])
 
   return isTouchDevice
+}
+
+// New hook specifically for Safari detection
+export function useIsSafari() {
+  const [isSafari, setIsSafari] = React.useState(false)
+
+  React.useEffect(() => {
+    const checkSafari = () => {
+      const userAgent = navigator.userAgent
+      const isSafariDesktop = /^((?!chrome|android).)*safari/i.test(userAgent)
+      const isSafariMobile = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream
+      
+      setIsSafari(isSafariDesktop || isSafariMobile)
+    }
+    
+    checkSafari()
+  }, [])
+
+  return isSafari
 }

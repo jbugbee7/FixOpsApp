@@ -1,5 +1,4 @@
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -92,6 +91,39 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Safari-specific fixes */
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Fix Safari viewport height issues */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  html {
+    /* Safari viewport height fix */
+    height: -webkit-fill-available;
+  }
+
+  /* Safari-specific input fixes */
+  input, textarea, select {
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  /* Fix Safari button styling */
+  button {
+    -webkit-appearance: none;
+    border-radius: inherit;
+  }
+
+  /* Prevent Safari from adding blue highlight on tap */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Fix Safari scroll behavior */
+  html, body {
+    -webkit-overflow-scrolling: touch;
   }
 }
-

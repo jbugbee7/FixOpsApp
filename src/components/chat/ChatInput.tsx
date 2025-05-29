@@ -29,16 +29,33 @@ const ChatInput = ({
 
   useEffect(() => {
     const handleResize = () => {
-      const isKeyboard = window.visualViewport ? 
-        window.visualViewport.height < window.innerHeight * 0.75 : 
-        false;
+      // Better Safari keyboard detection
+      let isKeyboard = false;
+      
+      if (window.visualViewport) {
+        // Modern Safari with Visual Viewport API
+        isKeyboard = window.visualViewport.height < window.innerHeight * 0.75;
+      } else {
+        // Fallback for older Safari versions
+        isKeyboard = window.innerHeight < screen.height * 0.75;
+      }
+      
       setIsKeyboardVisible(isKeyboard);
     };
 
     const handleFocus = () => {
+      // Safari-specific handling
       setTimeout(() => {
         setIsKeyboardVisible(true);
         onScrollToBottom();
+        
+        // Safari iOS specific: scroll input into view
+        if (inputRef.current && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          inputRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
       }, 300);
     };
 
@@ -48,8 +65,12 @@ const ChatInput = ({
       }, 300);
     };
 
+    // Use Visual Viewport API if available (Safari 13+)
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleResize);
+    } else {
+      // Fallback for older Safari
+      window.addEventListener('resize', handleResize);
     }
 
     const inputElement = inputRef.current;
@@ -61,6 +82,8 @@ const ChatInput = ({
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleResize);
+      } else {
+        window.removeEventListener('resize', handleResize);
       }
       if (inputElement) {
         inputElement.removeEventListener('focus', handleFocus);
@@ -71,6 +94,7 @@ const ChatInput = ({
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
+      e.preventDefault(); // Prevent Safari's default behavior
       onSendMessage();
     }
   };
@@ -93,6 +117,9 @@ const ChatInput = ({
           }
           className="flex-1 text-sm sm:text-base h-10 sm:h-11 touch-manipulation"
           disabled={isLoading}
+          // Safari-specific attributes
+          enterKeyHint="send"
+          inputMode="text"
         />
         <Button 
           onClick={onSendMessage} 
