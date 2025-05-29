@@ -19,8 +19,7 @@ export const useBasicCaseStatusUpdate = (user: any, isOnline: boolean, cases: Ca
       const { error } = await supabase
         .from('cases')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', caseId)
-        .eq('user_id', user.id);
+        .eq('id', caseId);
 
       if (error) {
         console.error('Error updating case status:', error);

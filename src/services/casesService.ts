@@ -12,12 +12,11 @@ export interface CasesServiceResult {
 }
 
 export const fetchUserCases = async (userId: string): Promise<CasesServiceResult> => {
-  console.log('Fetching cases for user:', userId);
+  console.log('Fetching all cases for user:', userId);
   
   const { data: cases, error } = await supabase
     .from('cases')
     .select('*')
-    .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
   console.log('=== CASES FETCH RESULT ===');

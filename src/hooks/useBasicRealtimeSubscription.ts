@@ -29,19 +29,18 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
       hasFetchedRef.current = true;
     }
 
-    // Subscribe to real-time changes only if online
+    // Subscribe to real-time changes only if online - now listening to all cases
     if (isOnline && !subscriptionRef.current) {
-      console.log('Setting up optimized realtime subscription');
+      console.log('Setting up optimized realtime subscription for all cases');
       
       subscriptionRef.current = supabase
-        .channel(`user-cases-${user.id}`)
+        .channel('all-cases-changes')
         .on(
           'postgres_changes',
           {
             event: '*',
             schema: 'public',
-            table: 'cases',
-            filter: `user_id=eq.${user.id}`
+            table: 'cases'
           },
           (payload) => {
             if (!mountedRef.current) return;

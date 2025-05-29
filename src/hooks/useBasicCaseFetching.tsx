@@ -65,14 +65,13 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
         }
       }
 
-      // Try to fetch from Supabase if online
+      // Try to fetch from Supabase if online - now fetching all cases
       if (isOnline) {
-        console.log('Fetching cases from Supabase for user:', user.id);
+        console.log('Fetching all cases from Supabase');
         
         const { data, error } = await supabase
           .from('cases')
           .select('*')
-          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (!mountedRef.current) return;
