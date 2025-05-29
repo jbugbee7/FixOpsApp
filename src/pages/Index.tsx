@@ -104,9 +104,9 @@ const Index = () => {
     );
   }
 
-  // Optimized loading skeleton - only for true initial loading
+  // Optimized mobile-friendly loading skeleton
   if (isInitialLoading) {
-    console.log('Showing optimized loading skeleton');
+    console.log('Showing optimized mobile-friendly loading skeleton');
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
         <AppHeader 
@@ -115,14 +115,14 @@ const Index = () => {
           onSignOut={handleSignOut} 
         />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="space-y-6">
-            <Skeleton className="h-12 w-full" />
-            <Skeleton className="h-8 w-3/4" />
-            <div className="space-y-4">
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-8">
+          <div className="space-y-4 sm:space-y-6">
+            <Skeleton className="h-10 sm:h-12 w-full" />
+            <Skeleton className="h-6 sm:h-8 w-3/4" />
+            <div className="space-y-3 sm:space-y-4">
+              <Skeleton className="h-16 sm:h-20 w-full" />
+              <Skeleton className="h-16 sm:h-20 w-full" />
+              <Skeleton className="h-16 sm:h-20 w-full" />
             </div>
           </div>
         </div>
@@ -130,11 +130,11 @@ const Index = () => {
     );
   }
 
-  console.log('Rendering optimized main app interface');
+  console.log('Rendering optimized mobile-friendly main app interface');
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
+      {/* Header with mobile-optimized spacing */}
       <AppHeader 
         isOnline={isOnline} 
         onHomeClick={handleHomeClick} 
@@ -142,7 +142,7 @@ const Index = () => {
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex-1">
+        <div className="flex-1 px-2 sm:px-0">
           <TabContent
             isOnline={isOnline}
             hasOfflineData={hasOfflineData}
@@ -158,7 +158,7 @@ const Index = () => {
           />
         </div>
 
-        {/* Bottom Navigation */}
+        {/* Bottom Navigation with mobile optimization */}
         <BottomNavigation />
       </Tabs>
     </div>

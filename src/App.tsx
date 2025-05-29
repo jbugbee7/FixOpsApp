@@ -22,7 +22,7 @@ const App = () => (
       <TooltipProvider>
         <BrowserRouter>
           <AuthProvider>
-            <div className="min-h-screen">
+            <div className="min-h-screen touch-manipulation">
               <Routes>
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/terms" element={<Terms />} />
