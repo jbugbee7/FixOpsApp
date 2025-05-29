@@ -6,7 +6,7 @@ import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
 import type { Case } from '@/types/case';
 
-interface CompletedWorkOrdersProps {
+interface DashboardCompletedOrdersProps {
   isOnline: boolean;
   hasOfflineData: boolean;
   cases: Case[];
@@ -20,7 +20,7 @@ interface CompletedWorkOrdersProps {
   onResync: () => void;
 }
 
-const CompletedWorkOrders = React.memo(({
+const DashboardCompletedOrders = React.memo(({
   isOnline,
   hasOfflineData,
   cases,
@@ -28,23 +28,14 @@ const CompletedWorkOrders = React.memo(({
   isResyncing,
   onCaseClick,
   onResync
-}: CompletedWorkOrdersProps) => {
+}: DashboardCompletedOrdersProps) => {
   const completedCases = useMemo(() => 
     cases.filter(case_ => case_.status === 'Completed'), 
     [cases]
   );
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-6 py-4 sm:py-8 relative">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-          Completed Work Orders
-        </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-400">
-          View all your completed work orders
-        </p>
-      </div>
-
+    <div className="space-y-6">
       {/* Connection Status */}
       <ConnectionStatusBanner isOnline={isOnline} hasOfflineData={hasOfflineData} />
 
@@ -56,7 +47,7 @@ const CompletedWorkOrders = React.memo(({
       />
 
       {/* Resync Button */}
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-center">
         <Button 
           onClick={onResync}
           disabled={isResyncing}
@@ -79,6 +70,6 @@ const CompletedWorkOrders = React.memo(({
   );
 });
 
-CompletedWorkOrders.displayName = 'CompletedWorkOrders';
+DashboardCompletedOrders.displayName = 'DashboardCompletedOrders';
 
-export default CompletedWorkOrders;
+export default DashboardCompletedOrders;

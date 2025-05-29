@@ -1,6 +1,6 @@
 
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Settings, Home, Bot, GraduationCap, CheckCircle } from 'lucide-react';
+import { MessageCircle, Settings, Home, Bot, GraduationCap, Plus } from 'lucide-react';
 
 const BottomNavigation = () => {
   return (
@@ -11,14 +11,14 @@ const BottomNavigation = () => {
           className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
         >
           <Home className="h-4 w-4" />
-          <span className="text-xs">Work Orders</span>
+          <span className="text-xs">Dashboard</span>
         </TabsTrigger>
         <TabsTrigger 
-          value="completed-orders" 
+          value="add-case" 
           className="flex flex-col items-center justify-center gap-1 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 dark:data-[state=active]:bg-blue-900/20"
         >
-          <CheckCircle className="h-4 w-4" />
-          <span className="text-xs">Completed</span>
+          <Plus className="h-4 w-4" />
+          <span className="text-xs">Add WO</span>
         </TabsTrigger>
         <TabsTrigger 
           value="fixchat" 
