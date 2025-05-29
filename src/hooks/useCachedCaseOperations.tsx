@@ -5,23 +5,19 @@ import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
 
-export const useMobileCaseOperations = (user: any, isOnline: boolean) => {
+export const useCachedCaseOperations = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [hasOfflineData, setHasOfflineData] = useState(false);
   
   const mountedRef = useRef(true);
-  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastFetchRef = useRef(0);
 
   useEffect(() => {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current);
-      }
     };
   }, []);
 
@@ -34,80 +30,71 @@ export const useMobileCaseOperations = (user: any, isOnline: boolean) => {
       return;
     }
 
-    // Aggressive debouncing for mobile
+    // Debounce rapid requests
     const now = Date.now();
-    if (now - lastFetchRef.current < 1000) {
+    if (now - lastFetchRef.current < 500) {
       return;
     }
     lastFetchRef.current = now;
 
-    console.log('Mobile-optimized fetch for user:', user.id);
+    console.log('Fetching cached cases for user:', user.id);
     
     try {
       setHasError(false);
 
-      // Immediate cache loading for mobile responsiveness
+      // Try cache first for immediate loading
       const cachedData = await AsyncStorage.getCases();
       if (cachedData?.cases?.length && mountedRef.current) {
-        console.log('Fast cache load:', cachedData.cases.length);
+        console.log('Loading local cache:', cachedData.cases.length);
         setCases(cachedData.cases);
         setHasOfflineData(true);
         setLoading(false);
         
-        // If offline, stop here
         if (!isOnline) return;
       }
 
-      // Background sync if online
+      // Use cached edge function if online
       if (isOnline) {
-        // Use shorter timeout for mobile
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-
         try {
-          const { data, error } = await supabase
-            .from('cases')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .abortSignal(controller.signal);
-
-          clearTimeout(timeoutId);
+          const { data, error } = await supabase.functions.invoke('cached-cases', {
+            method: 'GET'
+          });
 
           if (!mountedRef.current) return;
 
           if (error) {
-            console.error('Mobile fetch error:', error);
+            console.error('Cached function error:', error);
             setHasError(true);
             
-            // Keep cached data on error
             if (!cachedData?.cases?.length) {
               setCases([]);
             }
           } else {
-            console.log('Mobile sync complete:', data?.length || 0);
+            console.log('Successfully fetched cached cases:', data?.length || 0);
             setCases(data || []);
             setHasError(false);
             setHasOfflineData(false);
             
-            // Background cache update
+            // Update local cache
             if (data?.length) {
               AsyncStorage.storeCases(data);
             }
           }
         } catch (fetchError) {
-          if (fetchError.name !== 'AbortError') {
-            console.error('Mobile fetch timeout or error:', fetchError);
-            setHasError(true);
+          console.error('Edge function call failed:', fetchError);
+          setHasError(true);
+          
+          if (!cachedData?.cases?.length) {
+            setCases([]);
           }
         }
       }
     } catch (error) {
-      console.error('Mobile fetch error:', error);
+      console.error('Fetch error:', error);
       if (mountedRef.current) {
         setHasError(true);
-        const cachedData = await AsyncStorage.getCases();
-        if (!cachedData?.cases?.length) {
+        const fallbackData = await AsyncStorage.getCases();
+        if (!fallbackData?.cases?.length) {
           setCases([]);
         }
       }
@@ -136,18 +123,18 @@ export const useMobileCaseOperations = (user: any, isOnline: boolean) => {
       );
       return true;
     } catch (error) {
-      console.error('Mobile status update error:', error);
+      console.error('Status update error:', error);
       return false;
     }
   }, [isOnline, user?.id]);
 
   const handleResync = useCallback(async () => {
     if (isOnline) {
-      lastFetchRef.current = 0; // Reset debounce
+      lastFetchRef.current = 0; // Force fresh fetch
       await fetchCases();
       toast({
-        title: "Synced",
-        description: "Data updated successfully.",
+        title: "Sync Complete",
+        description: "Data synchronized successfully.",
       });
     } else {
       const offlineData = await AsyncStorage.getCases();
@@ -155,17 +142,16 @@ export const useMobileCaseOperations = (user: any, isOnline: boolean) => {
         setCases(offlineData.cases);
         setHasOfflineData(true);
         toast({
-          title: "Offline Mode",
+          title: "Offline Data Loaded",
           description: "Showing cached data.",
         });
       }
     }
   }, [isOnline, fetchCases]);
 
-  // Initial fetch with mobile optimization
+  // Initial fetch
   useEffect(() => {
-    if (user?.id && mountedRef.current) {
-      // Immediate execution for mobile
+    if (user?.id) {
       fetchCases();
     }
   }, [user?.id, fetchCases]);

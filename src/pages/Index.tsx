@@ -8,7 +8,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import TabContent from '@/components/dashboard/TabContent';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
-import { useOptimizedCaseOperations } from '@/hooks/useOptimizedCaseOperations';
+import { useCachedCaseOperations } from '@/hooks/useCachedCaseOperations';
 import { useIndexState } from '@/hooks/useIndexState';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Case } from '@/types/case';
@@ -17,7 +17,7 @@ const Index = () => {
   const { user, userProfile, signOut, loading: authLoading } = useAuth();
   const isOnline = useNetworkStatus();
   
-  const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useOptimizedCaseOperations(user, isOnline);
+  const { cases, loading: casesLoading, hasError, hasOfflineData, updateCaseStatus, handleResync } = useCachedCaseOperations(user, isOnline);
   
   const {
     selectedCase,
