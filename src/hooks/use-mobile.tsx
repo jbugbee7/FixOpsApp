@@ -89,7 +89,7 @@ export function useIsSafari() {
     const checkSafari = () => {
       const userAgent = navigator.userAgent
       const isSafariDesktop = /^((?!chrome|android).)*safari/i.test(userAgent)
-      const isSafariMobile = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream
+      const isSafariMobile = /iPad|iPhone|iPod/.test(userAgent)
       
       setIsSafari(isSafariDesktop || isSafariMobile)
     }
