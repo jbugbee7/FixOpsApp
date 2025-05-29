@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
+import { fetchAllCases, addSampleWorkOrders } from '@/services/casesService';
 
 export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -12,6 +13,7 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
   
   const mountedRef = useRef(true);
   const initializedRef = useRef(false);
+  const subscriptionRef = useRef<any>(null);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -29,7 +31,7 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
       return;
     }
 
-    console.log('Safari-optimized fetch for user:', user.id);
+    console.log('Safari-optimized fetch for ALL cases - cross-user visibility');
     
     try {
       setHasError(false);
@@ -49,54 +51,33 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
         }
       }
 
-      // Fetch from server if online - direct database call for reliability
+      // Fetch ALL cases from server if online
       if (isOnline) {
-        console.log('Fetching fresh data directly from database');
+        console.log('Fetching ALL cases from database - cross-user visibility enabled');
         
-        // Use a timeout for Safari compatibility
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const result = await fetchAllCases();
 
-        try {
-          const { data, error } = await supabase
-            .from('cases')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .abortSignal(controller.signal);
+        if (!mountedRef.current) return;
 
-          clearTimeout(timeoutId);
-
-          if (!mountedRef.current) return;
-
-          if (error) {
-            console.error('Database fetch error:', error);
-            setHasError(true);
-            
-            // Keep cached data if available
-            if (!initializedRef.current) {
-              setCases([]);
-            }
-          } else {
-            console.log('Successfully fetched cases:', data?.length || 0);
-            setCases(data || []);
-            setHasError(false);
-            setHasOfflineData(false);
-            initializedRef.current = true;
-            
-            // Update cache in background
-            if (data?.length) {
-              AsyncStorage.storeCases(data);
-            }
-          }
-        } catch (fetchError) {
-          clearTimeout(timeoutId);
-          if (fetchError.name === 'AbortError') {
-            console.log('Request timed out, using cached data');
-          } else {
-            console.error('Fetch error:', fetchError);
-          }
+        if (result.error) {
+          console.error('Database fetch error:', result.error);
           setHasError(true);
+          
+          // Keep cached data if available
+          if (!initializedRef.current) {
+            setCases([]);
+          }
+        } else {
+          console.log('Successfully fetched ALL cases:', result.cases?.length || 0);
+          setCases(result.cases || []);
+          setHasError(false);
+          setHasOfflineData(false);
+          initializedRef.current = true;
+          
+          // Update cache in background
+          if (result.cases?.length) {
+            AsyncStorage.storeCases(result.cases);
+          }
         }
       }
     } catch (error) {
@@ -121,8 +102,7 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
       const { error } = await supabase
         .from('cases')
         .update({ status: newStatus })
-        .eq('id', caseId)
-        .eq('user_id', user.id);
+        .eq('id', caseId);
 
       if (error) throw error;
 
@@ -137,13 +117,41 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
   }, [isOnline, user?.id]);
 
   const handleResync = useCallback(async () => {
+    if (!user?.id) return;
+
     if (isOnline) {
-      initializedRef.current = false;
-      await fetchCases();
-      toast({
-        title: "Sync Complete",
-        description: "Data synchronized successfully.",
-      });
+      try {
+        console.log('Adding sample work orders and syncing...');
+        
+        // Add sample work orders to database
+        const addResult = await addSampleWorkOrders(user.id);
+        
+        if (addResult.error) {
+          console.error('Error adding sample work orders:', addResult.error);
+          toast({
+            title: "Sync Error",
+            description: "Failed to add new work orders to database.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Fetch all cases including newly added ones
+        initializedRef.current = false;
+        await fetchCases();
+        
+        toast({
+          title: "Sync Complete",
+          description: `Added ${addResult.cases?.length || 0} new work orders. All users will see updates in real-time.`,
+        });
+      } catch (error) {
+        console.error('Sync error:', error);
+        toast({
+          title: "Sync Failed",
+          description: "Failed to sync work orders.",
+          variant: "destructive"
+        });
+      }
     } else {
       const offlineData = await AsyncStorage.getCases();
       if (offlineData?.cases) {
@@ -155,7 +163,48 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
         });
       }
     }
-  }, [isOnline, fetchCases]);
+  }, [isOnline, user?.id, fetchCases]);
+
+  // Set up real-time subscription for ALL cases
+  useEffect(() => {
+    if (!user?.id || !isOnline || !mountedRef.current) return;
+
+    console.log('Setting up real-time subscription for ALL cases - cross-user visibility');
+    
+    subscriptionRef.current = supabase
+      .channel('all-cases-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cases'
+        },
+        (payload) => {
+          if (!mountedRef.current) return;
+          
+          console.log('Real-time change received for ALL cases:', payload.eventType);
+          
+          // Refetch all cases when any change occurs
+          setTimeout(() => {
+            if (mountedRef.current) {
+              fetchCases();
+            }
+          }, 500);
+        }
+      )
+      .subscribe((status) => {
+        console.log('Real-time subscription status for ALL cases:', status);
+      });
+
+    return () => {
+      if (subscriptionRef.current) {
+        console.log('Cleaning up real-time subscription');
+        supabase.removeChannel(subscriptionRef.current);
+        subscriptionRef.current = null;
+      }
+    };
+  }, [user?.id, isOnline, fetchCases]);
 
   // Initial fetch
   useEffect(() => {
@@ -163,6 +212,16 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
       fetchCases();
     }
   }, [user?.id, fetchCases]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (subscriptionRef.current) {
+        supabase.removeChannel(subscriptionRef.current);
+        subscriptionRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     cases,

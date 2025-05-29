@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
+import { fetchAllCases } from '@/services/casesService';
 
 export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -44,7 +45,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     }
     
     try {
-      console.log('Starting fetch for all cases - cross-user visibility enabled');
+      console.log('Starting fetch for ALL cases - cross-user visibility enabled');
       
       // If offline or explicitly requesting offline data, try AsyncStorage first
       if (!isOnline || useOfflineData) {
@@ -65,23 +66,20 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
         }
       }
 
-      // Fetch all cases for cross-user visibility if online
+      // Fetch ALL cases for cross-user visibility if online
       if (isOnline) {
-        console.log('Fetching all cases from database - all authenticated users can see all work orders');
+        console.log('Fetching ALL cases from database - all authenticated users can see all work orders');
         
-        const { data, error } = await supabase
-          .from('cases')
-          .select('*')
-          .order('created_at', { ascending: false });
+        const result = await fetchAllCases();
 
         if (!mountedRef.current) return;
 
-        if (error) {
-          console.error('Supabase error:', error);
+        if (result.error) {
+          console.error('Supabase error:', result.error);
           setHasError(true);
           
           // Handle specific errors more efficiently
-          if (error.code === '42P17' || error.message.includes('policy')) {
+          if (result.error.code === '42P17' || result.error.message.includes('policy')) {
             console.log('Database policy error - showing empty state');
             setCases([]);
             toast({
@@ -104,13 +102,13 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
             }
           }
         } else {
-          console.log('Successfully fetched all cases:', data?.length || 0, 'cases from all users');
-          setCases(data || []);
+          console.log('Successfully fetched ALL cases:', result.cases?.length || 0, 'cases from all users');
+          setCases(result.cases || []);
           setHasError(false);
           
           // Efficiently store data only if changed
-          if (data?.length) {
-            AsyncStorage.storeCases(data);
+          if (result.cases?.length) {
+            AsyncStorage.storeCases(result.cases);
           }
         }
       }

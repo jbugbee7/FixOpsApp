@@ -24,14 +24,14 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
 
     // Initial fetch - only once
     if (!hasFetchedRef.current) {
-      console.log('Initial fetch for realtime subscription - all cases for cross-user visibility');
+      console.log('Initial fetch for realtime subscription - ALL cases for cross-user visibility');
       fetchCases();
       hasFetchedRef.current = true;
     }
 
-    // Subscribe to real-time changes for all cases (cross-user visibility)
+    // Subscribe to real-time changes for ALL cases (cross-user visibility)
     if (isOnline && !subscriptionRef.current) {
-      console.log('Setting up realtime subscription for all cases - cross-user visibility enabled');
+      console.log('Setting up realtime subscription for ALL cases - cross-user visibility enabled');
       
       subscriptionRef.current = supabase
         .channel('all-cases-cross-user-changes')
@@ -45,11 +45,11 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
           (payload) => {
             if (!mountedRef.current) return;
             
-            console.log('Real-time change received for cross-user visibility:', payload.eventType);
+            console.log('Real-time change received for cross-user visibility:', payload.eventType, 'from user:', payload.new?.user_id || payload.old?.user_id);
             
             // Optimized debouncing
             const now = Date.now();
-            if (now - lastFetchRef.current < 2000) {
+            if (now - lastFetchRef.current < 1000) {
               console.log('Debouncing realtime fetch');
               return;
             }
@@ -63,7 +63,7 @@ export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetch
             // Optimized delay for better performance
             timeoutRef.current = setTimeout(() => {
               if (mountedRef.current) {
-                console.log('Triggering fetch from realtime - all cases visible to all users');
+                console.log('Triggering fetch from realtime - ALL cases visible to ALL users');
                 fetchCases();
               }
             }, 500);
