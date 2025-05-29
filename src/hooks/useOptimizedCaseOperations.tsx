@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -13,7 +12,7 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
   
   const mountedRef = useRef(true);
   const subscriptionRef = useRef<any>(null);
-  const fetchingRef = useRef(false);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -23,30 +22,37 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
   }, []);
 
   const fetchCases = useCallback(async () => {
-    if (!user?.id || fetchingRef.current || !mountedRef.current) {
-      if (mountedRef.current) setLoading(false);
+    if (!user?.id || !mountedRef.current) {
+      if (mountedRef.current) {
+        setLoading(false);
+        setCases([]);
+      }
       return;
     }
 
-    fetchingRef.current = true;
-    setLoading(true);
-    setHasError(false);
-
+    console.log('Fetching cases for user:', user.id, 'online:', isOnline);
+    
     try {
-      // Try cache first for faster loading
-      const cachedData = await AsyncStorage.getCases();
-      if (cachedData?.cases?.length && mountedRef.current) {
-        setCases(cachedData.cases);
-        setHasOfflineData(true);
-        if (!isOnline) {
+      setHasError(false);
+
+      // Try cache first for immediate loading
+      if (!hasInitializedRef.current) {
+        const cachedData = await AsyncStorage.getCases();
+        if (cachedData?.cases?.length && mountedRef.current) {
+          console.log('Loading cached cases:', cachedData.cases.length);
+          setCases(cachedData.cases);
+          setHasOfflineData(true);
           setLoading(false);
-          fetchingRef.current = false;
-          return;
+          hasInitializedRef.current = true;
+          
+          // If offline, stop here
+          if (!isOnline) return;
         }
       }
 
       // Fetch from server if online
       if (isOnline) {
+        console.log('Fetching fresh data from server');
         const { data, error } = await supabase
           .from('cases')
           .select('*')
@@ -59,15 +65,18 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
           console.error('Cases fetch error:', error);
           setHasError(true);
           
-          if (!cachedData?.cases?.length) {
+          // Keep cached data if available
+          if (!hasInitializedRef.current) {
             setCases([]);
           }
         } else {
+          console.log('Successfully fetched cases:', data?.length || 0);
           setCases(data || []);
           setHasError(false);
           setHasOfflineData(false);
+          hasInitializedRef.current = true;
           
-          // Update cache in background
+          // Update cache
           if (data?.length) {
             AsyncStorage.storeCases(data);
           }
@@ -77,11 +86,13 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
       console.error('Fetch error:', error);
       if (mountedRef.current) {
         setHasError(true);
+        if (!hasInitializedRef.current) {
+          setCases([]);
+        }
       }
     } finally {
       if (mountedRef.current) {
         setLoading(false);
-        fetchingRef.current = false;
       }
     }
   }, [user?.id, isOnline]);
@@ -110,6 +121,7 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
 
   const handleResync = useCallback(async () => {
     if (isOnline) {
+      hasInitializedRef.current = false; // Force fresh fetch
       await fetchCases();
       toast({
         title: "Sync Complete",
@@ -135,45 +147,15 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
     }
   }, [user?.id, fetchCases]);
 
-  // Optimized realtime subscription
+  // Clean up subscription on unmount
   useEffect(() => {
-    if (!user?.id || !isOnline || !mountedRef.current) {
-      if (subscriptionRef.current) {
-        supabase.removeChannel(subscriptionRef.current);
-        subscriptionRef.current = null;
-      }
-      return;
-    }
-
-    // Set up single, efficient subscription
-    subscriptionRef.current = supabase
-      .channel(`optimized-cases-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'cases',
-          filter: `user_id=eq.${user.id}`
-        },
-        () => {
-          if (mountedRef.current) {
-            // Debounced refetch
-            setTimeout(() => {
-              if (mountedRef.current) fetchCases();
-            }, 1000);
-          }
-        }
-      )
-      .subscribe();
-
     return () => {
       if (subscriptionRef.current) {
         supabase.removeChannel(subscriptionRef.current);
         subscriptionRef.current = null;
       }
     };
-  }, [user?.id, isOnline, fetchCases]);
+  }, []);
 
   return {
     cases,

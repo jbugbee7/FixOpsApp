@@ -91,8 +91,10 @@ const Index = () => {
     );
   }
 
-  // Simple loading state
-  if (authLoading || (casesLoading && !hasError && !cases.length)) {
+  // Show loading only when auth is loading OR when cases are loading and we have no data
+  const showLoading = authLoading || (casesLoading && cases.length === 0 && !hasError);
+
+  if (showLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
         <AppHeader 
@@ -130,7 +132,7 @@ const Index = () => {
             isOnline={isOnline}
             hasOfflineData={hasOfflineData}
             cases={cases}
-            loading={false}
+            loading={casesLoading}
             isResyncing={isResyncing}
             displayName={displayName}
             onNavigate={handleNavigate}

@@ -17,11 +17,12 @@ export const useSimplifiedForumMessages = () => {
   const [messages, setMessages] = useState<ForumMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [hasConnectionError, setHasConnectionError] = useState(false);
   const { user, userProfile } = useAuth();
   const { toast } = useToast();
   const mountedRef = useRef(true);
+  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -31,24 +32,26 @@ export const useSimplifiedForumMessages = () => {
   }, []);
 
   const fetchMessages = useCallback(async () => {
-    if (!user || !mountedRef.current) {
-      if (mountedRef.current) setIsFetching(false);
+    if (!user || !mountedRef.current || hasInitializedRef.current) {
       return;
     }
 
+    setIsFetching(true);
     try {
       setHasConnectionError(false);
       
       const { data, error } = await supabase
         .from('forum_messages')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: true })
+        .limit(50); // Limit to prevent performance issues
 
       if (!mountedRef.current) return;
 
       if (error) throw error;
 
       setMessages(data || []);
+      hasInitializedRef.current = true;
     } catch (error) {
       console.error('Error fetching messages:', error);
       if (mountedRef.current) {
@@ -61,37 +64,12 @@ export const useSimplifiedForumMessages = () => {
     }
   }, [user]);
 
-  // Initial fetch only
+  // Single initial fetch
   useEffect(() => {
-    fetchMessages();
-  }, [fetchMessages]);
-
-  // Simplified real-time subscription
-  useEffect(() => {
-    if (!user || !mountedRef.current) return;
-
-    const channel = supabase
-      .channel('forum_messages_simple')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'forum_messages'
-        },
-        (payload) => {
-          if (!mountedRef.current) return;
-          if (payload.new && typeof payload.new === 'object') {
-            setMessages(prev => [...prev, payload.new as ForumMessage]);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
+    if (user && !hasInitializedRef.current) {
+      fetchMessages();
+    }
+  }, [user, fetchMessages]);
 
   const sendMessage = async () => {
     if (!inputMessage.trim() || !user || !userProfile || !mountedRef.current) {
@@ -115,6 +93,16 @@ export const useSimplifiedForumMessages = () => {
 
       if (mountedRef.current) {
         setInputMessage('');
+        // Optimistically add message to local state
+        const newMessage: ForumMessage = {
+          id: Date.now().toString(), // Temporary ID
+          user_id: user.id,
+          author_name: authorName,
+          message: inputMessage.trim(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, newMessage]);
       }
     } catch (error) {
       console.error('Error sending message:', error);
