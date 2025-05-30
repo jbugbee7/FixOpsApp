@@ -65,8 +65,13 @@ const PricingSection = ({
             />
           </div>
           
-          {/* Parts Manager */}
-          <PartsManager parts={parts} onChange={onPartsChange} />
+          {/* Parts Manager - Now collapsible */}
+          <PartsManager 
+            parts={parts} 
+            onChange={onPartsChange}
+            applianceType={formData.applianceType}
+            applianceBrand={formData.applianceBrand}
+          />
           
           {/* Cost Summary */}
           <div className="border-t pt-4">

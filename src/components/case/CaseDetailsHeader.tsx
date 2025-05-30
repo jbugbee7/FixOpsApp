@@ -32,7 +32,11 @@ const CaseDetailsHeader = ({
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Work Order</h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Case #{caseId}</p>
+              {isEditing ? (
+                <p className="text-xs text-slate-500 dark:text-slate-400">WO#{caseId}</p>
+              ) : (
+                <p className="text-sm text-slate-600 dark:text-slate-400">Case #{caseId}</p>
+              )}
             </div>
           </div>
           <div className="flex items-center space-x-2">
