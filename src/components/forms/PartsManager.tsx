@@ -94,12 +94,8 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
     }
   };
 
-  const handleAddSystemPart = (systemPart: Part) => {
-    onChange([...parts, systemPart]);
-    toast({
-      title: "Part Added",
-      description: `${systemPart.part_name} has been added to the parts list.`,
-    });
+  const handleAddFromDirectory = (directoryPart: Part) => {
+    onChange([...parts, directoryPart]);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -123,9 +119,9 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
 
   return (
     <div className="space-y-6">
-      {/* System Parts Lookup */}
+      {/* Parts Directory Lookup & Add */}
       <SystemPartsLookup 
-        onAddPart={handleAddSystemPart}
+        onAddPart={handleAddFromDirectory}
         applianceType={applianceType}
         applianceBrand={applianceBrand}
       />
