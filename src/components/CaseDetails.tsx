@@ -3,18 +3,26 @@ import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, Save, X, CreditCard, ChevronDown, ChevronUp } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-import EditCaseForm from './EditCaseForm';
 import StatusUpdateFlow from './forms/StatusUpdateFlow';
 import CustomerInformationDisplay from './case/CustomerInformationDisplay';
 import ApplianceInformationDisplay from './case/ApplianceInformationDisplay';
 import ServiceDetailsDisplay from './case/ServiceDetailsDisplay';
-import PricingInformationDisplay from './case/PricingInformationDisplay';
+import CustomerSection from './forms/modern/CustomerSection';
+import ApplianceSection from './forms/modern/ApplianceSection';
+import ServiceSection from './forms/modern/ServiceSection';
+import PricingSection from './forms/modern/PricingSection';
+import PhotosSection from './forms/modern/PhotosSection';
+import NotesSection from './forms/modern/NotesSection';
+import StatusUpdateSection from './forms/modern/StatusUpdateSection';
+import PaymentPage from './PaymentPage';
 import { Case } from '@/types/case';
+import { useEditCaseForm } from '@/hooks/useEditCaseForm';
+import { useEditCaseSubmit } from '@/hooks/useEditCaseSubmit';
 
 interface CaseDetailsProps {
   case: Case;
@@ -38,6 +46,36 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
   const [isEditing, setIsEditing] = useState(false);
   const [currentCase, setCurrentCase] = useState(caseData);
   const [caseParts, setCaseParts] = useState<CasePart[]>([]);
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    status: false,
+    customer: false,
+    appliance: false,
+    service: false,
+    pricing: false,
+    photos: false,
+    notes: false
+  });
+
+  const {
+    formData,
+    photos,
+    parts,
+    isSubmitting,
+    setPhotos,
+    setParts,
+    setIsSubmitting,
+    handleInputChange,
+    handleDiagnosticFeeChange,
+    getTotalPartsValue,
+    getLaborCost,
+    getTotalCost
+  } = useEditCaseForm(currentCase);
+
+  const { handleSubmit } = useEditCaseSubmit(currentCase, (updatedCase: Case) => {
+    setCurrentCase(updatedCase);
+    setIsEditing(false);
+  });
 
   // Load case parts
   useEffect(() => {
@@ -69,15 +107,6 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
     onStatusUpdate(caseData.id, newStatus);
   };
 
-  const handleEditSave = (updatedCase: Case) => {
-    setCurrentCase(updatedCase);
-    setIsEditing(false);
-  };
-
-  const handleEditCancel = () => {
-    setIsEditing(false);
-  };
-
   const handleStatusUpdate = async (newStatus: string, cancellationReason?: string) => {
     if (!user) return;
 
@@ -104,7 +133,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
           title: "Work Order Cancelled",
           description: "The work order has been cancelled and removed.",
         });
-        onBack(); // Navigate back since the work order is cancelled
+        onBack();
       } else {
         toast({
           title: "Status Updated",
@@ -163,20 +192,42 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
     }
   };
 
-  const getTotalCost = () => {
+  const getTotalCostValue = () => {
     const laborCost = currentCase.labor_cost_calculated || 0;
     const diagnosticFee = currentCase.diagnostic_fee_amount || 0;
     const partsCost = caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
     return laborCost + diagnosticFee + partsCost;
   };
 
-  // If in editing mode, show the edit form
-  if (isEditing) {
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
+  const getSectionIcon = (section: keyof typeof expandedSections) => {
+    return expandedSections[section] ? ChevronUp : ChevronDown;
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSubmit(
+      formData,
+      parts,
+      photos,
+      getLaborCost,
+      getTotalCost,
+      setIsSubmitting
+    );
+  };
+
+  if (showPaymentPage) {
     return (
-      <EditCaseForm 
-        case={currentCase} 
-        onBack={handleEditCancel}
-        onSave={handleEditSave}
+      <PaymentPage 
+        case={currentCase}
+        caseParts={caseParts}
+        onBack={() => setShowPaymentPage(false)}
       />
     );
   }
@@ -193,24 +244,47 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
                 <span>Back</span>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Case Details</h1>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Work Order</h1>
                 <p className="text-sm text-slate-600 dark:text-slate-400">Case #{currentCase.id}</p>
               </div>
             </div>
-            <Button 
-              onClick={() => setIsEditing(true)}
-              className="flex items-center space-x-2"
-              variant="outline"
-            >
-              <Edit className="h-4 w-4" />
-              <span>Edit</span>
-            </Button>
+            <div className="flex items-center space-x-2">
+              {!isEditing ? (
+                <Button 
+                  onClick={() => setIsEditing(true)}
+                  className="flex items-center space-x-2"
+                  variant="outline"
+                >
+                  <Edit className="h-4 w-4" />
+                  <span>Edit</span>
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    onClick={() => setIsEditing(false)}
+                    variant="outline"
+                    disabled={isSubmitting}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={onSubmit}
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 flex items-center gap-2"
+                    disabled={isSubmitting}
+                  >
+                    <Save className="h-4 w-4" />
+                    {isSubmitting ? 'Updating...' : 'Save Changes'}
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
+        <form onSubmit={onSubmit} className="space-y-6">
           {/* Status Update Flow */}
           <StatusUpdateFlow 
             onStatusUpdate={handleStatusUpdate}
@@ -219,49 +293,191 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
             sptStatus={currentCase.spt_status}
           />
 
-          {/* Status Card */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between dark:text-slate-100">
-                <span>Case Status</span>
-                <Badge variant={status === 'Completed' ? 'default' : status === 'In Progress' ? 'secondary' : 'outline'}>
-                  {status}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm font-medium dark:text-slate-300">Update Status:</span>
-                <Select value={status} onValueChange={handleStatusChange}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Scheduled">Scheduled</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Status Section - Editable */}
+          {isEditing && (
+            <StatusUpdateSection
+              currentCase={currentCase}
+              expanded={expandedSections.status}
+              onToggle={() => toggleSection('status')}
+              icon={getSectionIcon('status')}
+            />
+          )}
 
-          {/* Pricing Information */}
-          <PricingInformationDisplay 
-            case={currentCase}
-            caseParts={caseParts}
-            getTotalCost={getTotalCost}
-          />
+          {/* Status Card - View Mode */}
+          {!isEditing && (
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between dark:text-slate-100">
+                  <span>Case Status</span>
+                  <Badge variant={status === 'Completed' ? 'default' : status === 'In Progress' ? 'secondary' : 'outline'}>
+                    {status}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm font-medium dark:text-slate-300">Update Status:</span>
+                  <Select value={status} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Scheduled">Scheduled</SelectItem>
+                      <SelectItem value="In Progress">In Progress</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Customer Information */}
-          <CustomerInformationDisplay case={currentCase} />
+          {isEditing ? (
+            <CustomerSection
+              formData={formData}
+              onInputChange={handleInputChange}
+              expanded={expandedSections.customer}
+              onToggle={() => toggleSection('customer')}
+              icon={getSectionIcon('customer')}
+            />
+          ) : (
+            <CustomerInformationDisplay case={currentCase} />
+          )}
 
           {/* Appliance Information */}
-          <ApplianceInformationDisplay case={currentCase} />
+          {isEditing ? (
+            <ApplianceSection
+              formData={formData}
+              onInputChange={handleInputChange}
+              expanded={expandedSections.appliance}
+              onToggle={() => toggleSection('appliance')}
+              icon={getSectionIcon('appliance')}
+            />
+          ) : (
+            <ApplianceInformationDisplay case={currentCase} />
+          )}
 
           {/* Service Details */}
-          <ServiceDetailsDisplay case={currentCase} />
-        </div>
+          {isEditing ? (
+            <ServiceSection
+              formData={formData}
+              onInputChange={handleInputChange}
+              expanded={expandedSections.service}
+              onToggle={() => toggleSection('service')}
+              icon={getSectionIcon('service')}
+            />
+          ) : (
+            <ServiceDetailsDisplay case={currentCase} />
+          )}
+
+          {/* Photos Section */}
+          {isEditing && (
+            <PhotosSection
+              photos={photos}
+              onPhotosChange={setPhotos}
+              expanded={expandedSections.photos}
+              onToggle={() => toggleSection('photos')}
+              icon={getSectionIcon('photos')}
+            />
+          )}
+
+          {/* Notes Section */}
+          {isEditing && (
+            <NotesSection
+              formData={formData}
+              onInputChange={handleInputChange}
+              expanded={expandedSections.notes}
+              onToggle={() => toggleSection('notes')}
+              icon={getSectionIcon('notes')}
+            />
+          )}
+
+          {/* Pricing Section - Always at the bottom */}
+          {isEditing ? (
+            <PricingSection
+              formData={formData}
+              parts={parts}
+              onInputChange={handleInputChange}
+              onDiagnosticFeeChange={handleDiagnosticFeeChange}
+              onPartsChange={setParts}
+              getTotalCost={getTotalCost}
+              getLaborCost={getLaborCost}
+              getTotalPartsValue={getTotalPartsValue}
+              expanded={expandedSections.pricing}
+              onToggle={() => toggleSection('pricing')}
+              icon={getSectionIcon('pricing')}
+            />
+          ) : (
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between dark:text-slate-100">
+                  <span>Pricing Information</span>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
+                      Total: ${getTotalCostValue().toFixed(2)}
+                    </span>
+                    <Button 
+                      onClick={() => setShowPaymentPage(true)}
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                      disabled={getTotalCostValue() <= 0}
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Payment (${getTotalCostValue().toFixed(2)})
+                    </Button>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Labor Cost</label>
+                    <p className="text-lg font-semibold dark:text-slate-100">
+                      Level {currentCase.labor_level || 0} - ${currentCase.labor_cost_calculated || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Diagnostic Fee</label>
+                    <p className="text-lg dark:text-slate-100">
+                      {currentCase.diagnostic_fee_type || 'None'} - ${currentCase.diagnostic_fee_amount || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Parts Cost</label>
+                    <p className="text-lg dark:text-slate-100">
+                      ${caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0).toFixed(2)}
+                    </p>
+                    {caseParts.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {caseParts.map((part, index) => (
+                          <div key={index} className="text-sm text-slate-600 dark:text-slate-400">
+                            {part.part_name} (#{part.part_number}) - Qty: {part.quantity} - ${(part.final_price * part.quantity).toFixed(2)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Estimate</label>
+                    <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                      ${getTotalCostValue().toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+                {currentCase.spt_status && (
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Job Status</label>
+                    <Badge variant="outline" className="ml-2">
+                      {currentCase.spt_status === 'spt' ? 'SPT Scheduled' : 'Complete'}
+                    </Badge>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </form>
       </div>
     </div>
   );
