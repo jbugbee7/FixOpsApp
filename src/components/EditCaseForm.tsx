@@ -1,18 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Wrench, Search, ExternalLink, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import CameraCapture from './CameraCapture';
 import LaborCostSelector from './forms/LaborCostSelector';
 import DiagnosticFeeSelector from './forms/DiagnosticFeeSelector';
 import PartsManager from './forms/PartsManager';
+import CustomerInformationForm from './forms/CustomerInformationForm';
+import ApplianceInformationForm from './forms/ApplianceInformationForm';
+import ServiceDetailsForm from './forms/ServiceDetailsForm';
+import PricingSummary from './forms/PricingSummary';
 import { Case } from '@/types/case';
 
 interface EditCaseFormProps {
@@ -60,8 +61,6 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     initialDiagnosis: caseData.initial_diagnosis || '',
     partsNeeded: caseData.parts_needed || '',
     estimatedTime: caseData.estimated_time || '',
-    
-    // Additional Notes
     technicianNotes: caseData.technician_notes || '',
   });
 
@@ -69,20 +68,6 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
   const [laborLevel, setLaborLevel] = useState(caseData.labor_level || 0);
   const [diagnosticFeeType, setDiagnosticFeeType] = useState(caseData.diagnostic_fee_type || '');
   const [diagnosticFeeAmount, setDiagnosticFeeAmount] = useState(caseData.diagnostic_fee_amount || 0);
-
-  const applianceBrands = [
-    'Whirlpool', 'GE', 'Samsung', 'LG', 'Maytag', 'Frigidaire', 'KitchenAid', 
-    'Bosch', 'Electrolux', 'Kenmore', 'Amana', 'Hotpoint', 'Fisher & Paykel'
-  ];
-
-  const applianceTypes = [
-    'Refrigerator', 'Dishwasher', 'Washing Machine', 'Dryer', 'Oven', 'Range',
-    'Microwave', 'Freezer', 'Ice Maker', 'Garbage Disposal', 'Wine Cooler'
-  ];
-
-  const usStates = [
-    'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
-  ];
 
   // Load parts for this case
   useEffect(() => {
@@ -116,34 +101,6 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     }));
   };
 
-  const handleModelSearch = () => {
-    if (formData.applianceBrand && formData.applianceModel) {
-      const searchQuery = `${formData.applianceBrand} ${formData.applianceModel} manual specifications`;
-      const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-      window.open(googleSearchUrl, '_blank');
-    } else {
-      toast({
-        title: "Missing Information",
-        description: "Please enter both brand and model number before searching.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handlePartsSearch = () => {
-    if (formData.partsNeeded.trim()) {
-      const searchQuery = `${formData.applianceBrand} ${formData.applianceType} ${formData.partsNeeded} part number`;
-      const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-      window.open(googleSearchUrl, '_blank');
-    } else {
-      toast({
-        title: "Missing Information",
-        description: "Please enter part information before searching.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const calculateLaborCost = (level: number) => {
     if (level === 0) return 0;
     if (level === 1) return 110;
@@ -153,12 +110,6 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
   const handleDiagnosticFeeChange = (type: string, amount: number) => {
     setDiagnosticFeeType(type);
     setDiagnosticFeeAmount(amount);
-  };
-
-  const getTotalCost = () => {
-    const laborCost = calculateLaborCost(laborLevel);
-    const partsCost = parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
-    return laborCost + diagnosticFeeAmount + partsCost;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -236,9 +187,11 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
       // Update parts in the database
       await handlePartsUpdate();
 
+      const totalCost = calculateLaborCost(laborLevel) + diagnosticFeeAmount + parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
+
       toast({
         title: "Work Order Updated Successfully",
-        description: `The work order has been updated. Total: $${getTotalCost().toFixed(2)}`,
+        description: `The work order has been updated. Total: $${totalCost.toFixed(2)}`,
       });
 
       onSave(data);
@@ -330,15 +283,12 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
                   onChange={handleDiagnosticFeeChange} 
                 />
               </div>
-              <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
-                <div className="flex justify-between items-center text-lg font-semibold">
-                  <span>Total Estimate:</span>
-                  <span className="text-green-600 dark:text-green-400">${getTotalCost().toFixed(2)}</span>
-                </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400 mt-2">
-                  Labor: ${calculateLaborCost(laborLevel)} | Diagnostic: ${diagnosticFeeAmount} | Parts: ${parts.reduce((total, part) => total + (part.final_price * part.quantity), 0).toFixed(2)}
-                </div>
-              </div>
+              <PricingSummary 
+                laborLevel={laborLevel}
+                diagnosticFeeAmount={diagnosticFeeAmount}
+                parts={parts}
+                calculateLaborCost={calculateLaborCost}
+              />
             </CardContent>
           </Card>
 
@@ -346,279 +296,25 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
           <PartsManager parts={parts} onChange={setParts} />
 
           {/* Customer Information */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <span>Customer Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="customerName">Customer Name *</Label>
-                  <Input
-                    id="customerName"
-                    value={formData.customerName}
-                    onChange={(e) => handleInputChange('customerName', e.target.value)}
-                    placeholder="Full name"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="customerPhone">Phone Number</Label>
-                  <Input
-                    id="customerPhone"
-                    value={formData.customerPhone}
-                    onChange={(e) => handleInputChange('customerPhone', e.target.value)}
-                    placeholder="(555) 123-4567"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="customerEmail">Email Address</Label>
-                <Input
-                  id="customerEmail"
-                  type="email"
-                  value={formData.customerEmail}
-                  onChange={(e) => handleInputChange('customerEmail', e.target.value)}
-                  placeholder="customer@email.com"
-                />
-              </div>
-              <div>
-                <Label htmlFor="customerAddress">Address</Label>
-                <Input
-                  id="customerAddress"
-                  value={formData.customerAddress}
-                  onChange={(e) => handleInputChange('customerAddress', e.target.value)}
-                  placeholder="Street address"
-                />
-              </div>
-              <div>
-                <Label htmlFor="customerAddressLine2">Address Line 2</Label>
-                <Input
-                  id="customerAddressLine2"
-                  value={formData.customerAddressLine2}
-                  onChange={(e) => handleInputChange('customerAddressLine2', e.target.value)}
-                  placeholder="Apartment, suite, etc."
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="customerCity">City</Label>
-                  <Input
-                    id="customerCity"
-                    value={formData.customerCity}
-                    onChange={(e) => handleInputChange('customerCity', e.target.value)}
-                    placeholder="City"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="customerState">State</Label>
-                  <Select value={formData.customerState} onValueChange={(value) => handleInputChange('customerState', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select state" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {usStates.map((state) => (
-                        <SelectItem key={state} value={state}>{state}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="customerZipCode">ZIP Code</Label>
-                  <Input
-                    id="customerZipCode"
-                    value={formData.customerZipCode}
-                    onChange={(e) => handleInputChange('customerZipCode', e.target.value)}
-                    placeholder="12345"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CustomerInformationForm 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
           {/* Appliance Information */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <Wrench className="h-5 w-5" />
-                <span>Appliance Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="applianceBrand">Brand *</Label>
-                  <Select value={formData.applianceBrand} onValueChange={(value) => handleInputChange('applianceBrand', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select brand" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {applianceBrands.map((brand) => (
-                        <SelectItem key={brand} value={brand}>{brand}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="applianceType">Appliance Type *</Label>
-                  <Select value={formData.applianceType} onValueChange={(value) => handleInputChange('applianceType', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select appliance type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {applianceTypes.map((type) => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="applianceModel">Model Number</Label>
-                  <div className="flex space-x-2">
-                    <Input
-                      id="applianceModel"
-                      value={formData.applianceModel}
-                      onChange={(e) => handleInputChange('applianceModel', e.target.value)}
-                      placeholder="Model number"
-                      className="flex-1 uppercase"
-                      style={{ textTransform: 'uppercase' }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleModelSearch}
-                      className="flex items-center space-x-1"
-                    >
-                      <Search className="h-4 w-4" />
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="serialNumber">Serial Number</Label>
-                  <Input
-                    id="serialNumber"
-                    value={formData.serialNumber}
-                    onChange={(e) => handleInputChange('serialNumber', e.target.value)}
-                    placeholder="Serial number"
-                    className="uppercase"
-                    style={{ textTransform: 'uppercase' }}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="warrantyStatus">Warranty Status</Label>
-                <Input
-                  id="warrantyStatus"
-                  value={formData.warrantyStatus}
-                  onChange={(e) => handleInputChange('warrantyStatus', e.target.value)}
-                  placeholder="In warranty, Out of warranty, Extended warranty"
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ApplianceInformationForm 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
           {/* Service Details */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <Calendar className="h-5 w-5" />
-                <span>Service Details</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="serviceType">Service Type</Label>
-                <Input
-                  id="serviceType"
-                  value={formData.serviceType}
-                  onChange={(e) => handleInputChange('serviceType', e.target.value)}
-                  placeholder="e.g., Repair, Maintenance, Installation"
-                />
-              </div>
-              <div>
-                <Label htmlFor="problemDescription">Problem Description *</Label>
-                <Textarea
-                  id="problemDescription"
-                  value={formData.problemDescription}
-                  onChange={(e) => handleInputChange('problemDescription', e.target.value)}
-                  placeholder="Describe the issue reported by the customer"
-                  className="min-h-[100px]"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="initialDiagnosis">Initial Diagnosis</Label>
-                <Textarea
-                  id="initialDiagnosis"
-                  value={formData.initialDiagnosis}
-                  onChange={(e) => handleInputChange('initialDiagnosis', e.target.value)}
-                  placeholder="Initial assessment and suspected cause"
-                  className="min-h-[80px]"
-                />
-              </div>
-              <div>
-                <Label htmlFor="partsNeeded">Parts Needed</Label>
-                <div className="space-y-2">
-                  <div className="flex space-x-2">
-                    <Textarea
-                      id="partsNeeded"
-                      value={formData.partsNeeded}
-                      onChange={(e) => handleInputChange('partsNeeded', e.target.value)}
-                      placeholder="List required parts and part numbers (one per line or comma-separated)"
-                      className="min-h-[80px] flex-1"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handlePartsSearch}
-                      className="flex items-center space-x-1 self-start mt-1"
-                    >
-                      <Search className="h-4 w-4" />
-                      <ExternalLink className="h-3 w-3" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="estimatedTime">Estimated Time</Label>
-                <Input
-                  id="estimatedTime"
-                  value={formData.estimatedTime}
-                  onChange={(e) => handleInputChange('estimatedTime', e.target.value)}
-                  placeholder="e.g., 2 hours"
-                />
-              </div>
-            </CardContent>
-          </Card>
+          <ServiceDetailsForm 
+            formData={formData}
+            onInputChange={handleInputChange}
+          />
 
           {/* Camera/Photos Section */}
           <CameraCapture photos={photos} onPhotosChange={setPhotos} />
-
-          {/* Additional Notes */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="dark:text-slate-100">Additional Notes</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="technicianNotes">Technician Notes</Label>
-                <Textarea
-                  id="technicianNotes"
-                  value={formData.technicianNotes}
-                  onChange={(e) => handleInputChange('technicianNotes', e.target.value)}
-                  placeholder="Internal notes, observations, follow-up items"
-                  className="min-h-[80px]"
-                />
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Submit Buttons */}
           <div className="flex justify-end space-x-4">

@@ -1,14 +1,19 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, Wrench, Calendar, Phone, MapPin, FileText, Edit, Mail, DollarSign } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
 import EditCaseForm from './EditCaseForm';
 import StatusUpdateFlow from './forms/StatusUpdateFlow';
+import CustomerInformationDisplay from './case/CustomerInformationDisplay';
+import ApplianceInformationDisplay from './case/ApplianceInformationDisplay';
+import ServiceDetailsDisplay from './case/ServiceDetailsDisplay';
+import PricingInformationDisplay from './case/PricingInformationDisplay';
 import { Case } from '@/types/case';
 
 interface CaseDetailsProps {
@@ -242,201 +247,20 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
           </Card>
 
           {/* Pricing Information */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <DollarSign className="h-5 w-5" />
-                <span>Pricing Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Labor Cost</label>
-                  <p className="text-lg font-semibold dark:text-slate-100">
-                    Level {currentCase.labor_level || 0} - ${currentCase.labor_cost_calculated || 0}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Diagnostic Fee</label>
-                  <p className="text-lg dark:text-slate-100">
-                    {currentCase.diagnostic_fee_type || 'None'} - ${currentCase.diagnostic_fee_amount || 0}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Parts Cost</label>
-                  <p className="text-lg dark:text-slate-100">
-                    ${caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0).toFixed(2)}
-                  </p>
-                  {caseParts.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {caseParts.map((part, index) => (
-                        <div key={index} className="text-sm text-slate-600 dark:text-slate-400">
-                          {part.part_name} (#{part.part_number}) - Qty: {part.quantity} - ${(part.final_price * part.quantity).toFixed(2)}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Estimate</label>
-                  <p className="text-xl font-bold text-green-600 dark:text-green-400">
-                    ${getTotalCost().toFixed(2)}
-                  </p>
-                </div>
-              </div>
-              {currentCase.spt_status && (
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Job Status</label>
-                  <Badge variant="outline" className="ml-2">
-                    {currentCase.spt_status === 'spt' ? 'SPT Scheduled' : 'Complete'}
-                  </Badge>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <PricingInformationDisplay 
+            case={currentCase}
+            caseParts={caseParts}
+            getTotalCost={getTotalCost}
+          />
 
           {/* Customer Information */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <User className="h-5 w-5" />
-                <span>Customer Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Customer Name</label>
-                  <p className="text-lg font-semibold dark:text-slate-100">{currentCase.customer_name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Phone Number</label>
-                  <p className="text-lg dark:text-slate-100 flex items-center">
-                    <Phone className="h-4 w-4 mr-2" />
-                    {currentCase.customer_phone || 'N/A'}
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Email Address</label>
-                  <p className="text-lg dark:text-slate-100 flex items-center">
-                    <Mail className="h-4 w-4 mr-2" />
-                    {currentCase.customer_email || 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Service Date</label>
-                  <p className="text-lg dark:text-slate-100 flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {new Date(currentCase.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Service Address</label>
-                <div className="text-lg dark:text-slate-100">
-                  <div className="flex items-start">
-                    <MapPin className="h-4 w-4 mr-2 mt-1 flex-shrink-0" />
-                    <div>
-                      {currentCase.customer_address && (
-                        <div>{currentCase.customer_address}</div>
-                      )}
-                      {currentCase.customer_address_line_2 && (
-                        <div>{currentCase.customer_address_line_2}</div>
-                      )}
-                      {(currentCase.customer_city || currentCase.customer_state || currentCase.customer_zip_code) && (
-                        <div>
-                          {currentCase.customer_city}{currentCase.customer_city && currentCase.customer_state ? ', ' : ''}
-                          {currentCase.customer_state} {currentCase.customer_zip_code}
-                        </div>
-                      )}
-                      {!currentCase.customer_address && !currentCase.customer_city && 'N/A'}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CustomerInformationDisplay case={currentCase} />
 
           {/* Appliance Information */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <Wrench className="h-5 w-5" />
-                <span>Appliance Information</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Appliance</label>
-                  <p className="text-lg font-semibold dark:text-slate-100">{currentCase.appliance_brand} {currentCase.appliance_type}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Model</label>
-                  <p className="text-lg dark:text-slate-100">{currentCase.appliance_model || 'N/A'}</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Serial Number</label>
-                  <p className="text-lg dark:text-slate-100">{currentCase.serial_number || 'N/A'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Warranty Status</label>
-                  <p className="text-lg dark:text-slate-100">{currentCase.warranty_status || 'N/A'}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ApplianceInformationDisplay case={currentCase} />
 
           {/* Service Details */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <FileText className="h-5 w-5" />
-                <span>Service Details</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Service Type</label>
-                <p className="text-lg dark:text-slate-100">{currentCase.service_type || 'N/A'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Problem Description</label>
-                <p className="text-lg dark:text-slate-100">{currentCase.problem_description}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Initial Diagnosis</label>
-                <p className="text-lg dark:text-slate-100">{currentCase.initial_diagnosis || 'Not provided'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Parts Needed</label>
-                <p className="text-lg dark:text-slate-100">{currentCase.parts_needed || 'N/A'}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Estimated Time</label>
-                <p className="text-lg dark:text-slate-100">{currentCase.estimated_time || 'N/A'}</p>
-              </div>
-              {currentCase.technician_notes && (
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Technician Notes</label>
-                  <p className="text-lg dark:text-slate-100">{currentCase.technician_notes}</p>
-                </div>
-              )}
-              {currentCase.cancellation_reason && (
-                <div>
-                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Cancellation Reason</label>
-                  <p className="text-lg text-red-600 dark:text-red-400">{currentCase.cancellation_reason}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <ServiceDetailsDisplay case={currentCase} />
         </div>
       </div>
     </div>
