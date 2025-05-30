@@ -54,6 +54,8 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
   const { handleSubmit } = useEditCaseSubmit(currentCase, (updatedCase: Case) => {
     setCurrentCase(updatedCase);
     setIsEditing(false);
+    // Reload case parts after successful update
+    loadCaseParts();
   });
 
   const { handleStatusChange, handleStatusUpdate, handleSPTComplete } = useCaseDetailsActions({
@@ -64,28 +66,41 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
     onBack
   });
 
-  // Load case parts
-  useEffect(() => {
-    const loadCaseParts = async () => {
-      if (!user || !currentCase.id) return;
+  // Load case parts from database
+  const loadCaseParts = async () => {
+    if (!user || !currentCase.id) return;
 
-      try {
-        const { data, error } = await supabase
-          .from('case_parts')
-          .select('*')
-          .eq('case_id', currentCase.id);
+    try {
+      console.log('Loading case parts for case:', currentCase.id);
+      const { data, error } = await supabase
+        .from('case_parts')
+        .select('*')
+        .eq('case_id', currentCase.id);
 
-        if (error) {
-          console.error('Error loading case parts:', error);
-          return;
-        }
-
-        setCaseParts(data || []);
-      } catch (error) {
+      if (error) {
         console.error('Error loading case parts:', error);
+        return;
       }
-    };
 
+      console.log('Loaded case parts:', data);
+      setCaseParts(data || []);
+      
+      // Also set the parts in the form data for editing
+      const formParts = (data || []).map(part => ({
+        part_name: part.part_name,
+        part_number: part.part_number,
+        part_cost: part.part_cost,
+        quantity: part.quantity,
+        markup_percentage: part.markup_percentage,
+        final_price: part.final_price
+      }));
+      setParts(formParts);
+    } catch (error) {
+      console.error('Error loading case parts:', error);
+    }
+  };
+
+  useEffect(() => {
     loadCaseParts();
   }, [user, currentCase.id]);
 
