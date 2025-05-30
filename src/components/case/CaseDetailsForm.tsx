@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, Save } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 import CustomerSection from '../forms/modern/CustomerSection';
 import ApplianceSection from '../forms/modern/ApplianceSection';
 import ServiceSection from '../forms/modern/ServiceSection';
@@ -62,8 +63,13 @@ const CaseDetailsForm = ({
     return expandedSections[section] ? ChevronUp : ChevronDown;
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(e);
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <div className="space-y-6">
       {/* Status Update Section */}
       <StatusUpdateSection
         currentCase={currentCase}
@@ -131,7 +137,20 @@ const CaseDetailsForm = ({
         onToggle={() => toggleSection('pricing')}
         icon={getSectionIcon('pricing')}
       />
-    </form>
+
+      {/* Centered Save Button at Bottom */}
+      <div className="flex justify-center pt-8 pb-6">
+        <Button 
+          onClick={handleSubmit}
+          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-12 py-3 text-lg font-semibold"
+          disabled={isSubmitting}
+          size="lg"
+        >
+          <Save className="h-5 w-5 mr-2" />
+          {isSubmitting ? 'Updating...' : 'Save Changes'}
+        </Button>
+      </div>
+    </div>
   );
 };
 

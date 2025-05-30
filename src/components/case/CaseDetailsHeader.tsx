@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Save, X } from 'lucide-react';
+import { ArrowLeft, Edit } from 'lucide-react';
 
 interface CaseDetailsHeaderProps {
   caseId: string;
@@ -32,15 +32,11 @@ const CaseDetailsHeader = ({
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Work Order</h1>
-              {isEditing ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400">WO#{caseId}</p>
-              ) : (
-                <p className="text-sm text-slate-600 dark:text-slate-400">Case #{caseId}</p>
-              )}
+              <p className="text-xs text-slate-500 dark:text-slate-400">WO#{caseId}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            {!isEditing ? (
+            {!isEditing && (
               <Button 
                 onClick={onEdit}
                 className="flex items-center space-x-2"
@@ -49,25 +45,6 @@ const CaseDetailsHeader = ({
                 <Edit className="h-4 w-4" />
                 <span>Edit</span>
               </Button>
-            ) : (
-              <>
-                <Button 
-                  onClick={onCancel}
-                  variant="outline"
-                  disabled={isSubmitting}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={onSave}
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 flex items-center gap-2"
-                  disabled={isSubmitting}
-                >
-                  <Save className="h-4 w-4" />
-                  {isSubmitting ? 'Updating...' : 'Save Changes'}
-                </Button>
-              </>
             )}
           </div>
         </div>
