@@ -96,8 +96,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
     return laborCost + diagnosticFee + partsCost;
   };
 
-  const onSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async () => {
     await handleSubmit(
       formData,
       parts,

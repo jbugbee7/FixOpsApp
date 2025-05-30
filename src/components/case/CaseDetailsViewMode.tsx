@@ -1,4 +1,5 @@
-import StatusUpdateFlow from '../forms/StatusUpdateFlow';
+
+import StatusActionsDropdown from './StatusActionsDropdown';
 import CaseStatusCard from './CaseStatusCard';
 import CustomerInformationDisplay from './CustomerInformationDisplay';
 import ApplianceInformationDisplay from './ApplianceInformationDisplay';
@@ -6,7 +7,7 @@ import ServiceDetailsDisplay from './ServiceDetailsDisplay';
 import { Case } from '@/types/case';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard } from 'lucide-react';
+import { CreditCard, DollarSign } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 interface CaseDetailsViewModeProps {
@@ -32,19 +33,22 @@ const CaseDetailsViewMode = ({
 }: CaseDetailsViewModeProps) => {
   return (
     <div className="space-y-6">
-      {/* Status Update Flow */}
-      <StatusUpdateFlow 
-        onStatusUpdate={onStatusUpdate}
-        onSPTComplete={onSPTComplete}
-        currentStatus={status}
-        sptStatus={currentCase.spt_status}
-      />
-
-      {/* Status Card */}
-      <CaseStatusCard
-        status={status}
-        onStatusChange={onStatusChange}
-      />
+      {/* Status Actions Dropdown */}
+      <Card className="dark:bg-slate-800 dark:border-slate-700">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between dark:text-slate-100">
+            <div className="flex items-center space-x-2">
+              <span>Status & Actions</span>
+            </div>
+            <Badge variant={status === 'Completed' ? 'default' : status === 'In Progress' ? 'secondary' : 'outline'}>
+              {status}
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <StatusActionsDropdown currentCase={currentCase} />
+        </CardContent>
+      </Card>
 
       {/* Customer Information */}
       <CustomerInformationDisplay case={currentCase} />
@@ -58,21 +62,9 @@ const CaseDetailsViewMode = ({
       {/* Pricing Information Display */}
       <Card className="dark:bg-slate-800 dark:border-slate-700">
         <CardHeader>
-          <CardTitle className="flex items-center justify-between dark:text-slate-100">
+          <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+            <DollarSign className="h-5 w-5" />
             <span>Pricing Information</span>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
-                Total: ${getTotalCostValue().toFixed(2)}
-              </span>
-              <Button 
-                onClick={() => setShowPaymentPage(true)}
-                className="bg-green-500 hover:bg-green-600 text-white"
-                disabled={getTotalCostValue() <= 0}
-              >
-                <CreditCard className="h-4 w-4 mr-2" />
-                Payment (${getTotalCostValue().toFixed(2)})
-              </Button>
-            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -121,6 +113,19 @@ const CaseDetailsViewMode = ({
               </Badge>
             </div>
           )}
+          
+          {/* Centered Payment Button */}
+          <div className="flex justify-center pt-6 border-t">
+            <Button 
+              onClick={() => setShowPaymentPage(true)}
+              className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 text-lg font-semibold"
+              disabled={getTotalCostValue() <= 0}
+              size="lg"
+            >
+              <CreditCard className="h-5 w-5 mr-2" />
+              Process Payment (${getTotalCostValue().toFixed(2)})
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
