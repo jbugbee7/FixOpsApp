@@ -278,6 +278,59 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          case_id: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          payment_date: string | null
+          status: string | null
+          stripe_session_id: string | null
+          tax_amount: number
+          total_amount: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          case_id?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_date?: string | null
+          status?: string | null
+          stripe_session_id?: string | null
+          tax_amount?: number
+          total_amount: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          case_id?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          payment_date?: string | null
+          status?: string | null
+          stripe_session_id?: string | null
+          tax_amount?: number
+          total_amount?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           agreements_date: string | null

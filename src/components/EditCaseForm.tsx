@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CreditCard } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import CameraCapture from './CameraCapture';
@@ -14,6 +13,7 @@ import CustomerInformationForm from './forms/CustomerInformationForm';
 import ApplianceInformationForm from './forms/ApplianceInformationForm';
 import ServiceDetailsForm from './forms/ServiceDetailsForm';
 import PricingSummary from './forms/PricingSummary';
+import PaymentPage from './PaymentPage';
 import { Case } from '@/types/case';
 
 interface EditCaseFormProps {
@@ -247,20 +247,46 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     }
   };
 
+  const getTotalCost = () => {
+    return calculateLaborCost(laborLevel) + diagnosticFeeAmount + parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
+  };
+
+  const [showPaymentPage, setShowPaymentPage] = useState(false);
+
+  if (showPaymentPage) {
+    return (
+      <PaymentPage 
+        case={caseData}
+        caseParts={parts}
+        onBack={() => setShowPaymentPage(false)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pb-20">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 dark:bg-slate-900/80 dark:border-slate-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={onBack} className="flex items-center space-x-2">
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back</span>
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Edit Work Order</h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Case #{caseData.id}</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" onClick={onBack} className="flex items-center space-x-2">
+                <ArrowLeft className="h-5 w-5" />
+                <span>Back</span>
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Edit Work Order</h1>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Case #{caseData.id}</p>
+              </div>
             </div>
+            <Button 
+              onClick={() => setShowPaymentPage(true)}
+              className="bg-green-500 hover:bg-green-600 text-white"
+              disabled={getTotalCost() <= 0}
+            >
+              <CreditCard className="h-4 w-4 mr-2" />
+              Payment (${getTotalCost().toFixed(2)})
+            </Button>
           </div>
         </div>
       </div>
@@ -293,7 +319,12 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
           </Card>
 
           {/* Parts Management */}
-          <PartsManager parts={parts} onChange={setParts} />
+          <PartsManager 
+            parts={parts} 
+            onChange={setParts}
+            applianceType={formData.applianceType}
+            applianceBrand={formData.applianceBrand}
+          />
 
           {/* Customer Information */}
           <CustomerInformationForm 

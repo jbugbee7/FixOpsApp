@@ -9,8 +9,12 @@ interface DiagnosticFeeSelectorProps {
 
 const DiagnosticFeeSelector = ({ value, onChange }: DiagnosticFeeSelectorProps) => {
   const diagnosticOptions = [
+    { type: "none", label: "No Diagnostic Fee", cost: 0 },
+    { type: "standard-half", label: "Standard (Half)", cost: 49.50 },
     { type: "standard", label: "Standard", cost: 99 },
+    { type: "built-in-half", label: "Built-in Brands (Half)", cost: 62.50 },
     { type: "built-in", label: "Built-in Brands", cost: 125 },
+    { type: "boutique-half", label: "Boutique Brands (Half)", cost: 75 },
     { type: "boutique", label: "Boutique Brands", cost: 150 },
   ];
 
