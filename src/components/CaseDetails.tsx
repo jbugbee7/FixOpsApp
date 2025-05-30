@@ -122,6 +122,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
       {/* Header */}
       <CaseDetailsHeader
         caseId={currentCase.id}
+        woNumber={currentCase.wo_number}
         isEditing={isEditing}
         isSubmitting={isSubmitting}
         onBack={onBack}

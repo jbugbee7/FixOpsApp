@@ -1,183 +1,100 @@
 
-import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, User, Wrench, Calendar } from 'lucide-react';
-import type { Case } from '@/types/case';
+import { Calendar, MapPin, User, Wrench } from 'lucide-react';
+import { Case } from '@/types/case';
 
 interface WorkOrdersListProps {
   cases: Case[];
-  loading: boolean;
-  onCaseClick: (case_: Case) => void;
+  onCaseClick: (caseItem: Case) => void;
 }
 
-const WorkOrdersList = React.memo(({ cases, loading, onCaseClick }: WorkOrdersListProps) => {
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
-
-  const formatDate = useMemo(() => (dateString: string) => {
-    return new Date(dateString).toLocaleDateString();
-  }, []);
-
-  const displayedCases = useMemo(() => cases.slice(0, 10), [cases]);
-
-  const getBadgeVariant = useMemo(() => (status: string) => {
-    switch (status) {
-      case 'Completed': return 'default';
-      case 'In Progress': return 'secondary';
-      default: return 'outline';
+const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'in progress':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      case 'completed':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
-  }, []);
+  };
 
-  const toggleCardExpansion = (caseId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    setExpandedCards(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(caseId)) {
-        newSet.delete(caseId);
-      } else {
-        newSet.add(caseId);
-      }
-      return newSet;
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
-  // Determine if we're showing completed cases
-  const isCompletedView = cases.length > 0 && cases.every(case_ => case_.status === 'Completed');
-  const title = isCompletedView ? "Completed Work Orders" : "Work Orders";
-
-  if (loading) {
-    return (
-      <div className="flex justify-center">
-        <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
-          <CardHeader className="text-center">
-            <CardTitle className="dark:text-slate-100">{title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">Loading work orders...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   if (cases.length === 0) {
-    const emptyMessage = isCompletedView 
-      ? "No completed work orders found."
-      : "No work orders found. Create your first work order using the Add WO tab.";
-
     return (
-      <div className="flex justify-center">
-        <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
-          <CardHeader className="text-center">
-            <CardTitle className="dark:text-slate-100">{title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">{emptyMessage}</p>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="text-center py-12">
+        <Wrench className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No work orders found</h3>
+        <p className="text-gray-500 dark:text-gray-400">Get started by creating your first work order.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex justify-center">
-      <Card className="dark:bg-slate-800 dark:border-slate-700 w-full max-w-4xl">
-        <CardHeader className="text-center">
-          <CardTitle className="dark:text-slate-100">{title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {displayedCases.map((case_) => {
-              const isExpanded = expandedCards.has(case_.id);
-              const Icon = isExpanded ? ChevronUp : ChevronDown;
-              
-              return (
-                <Card key={case_.id} className="dark:bg-slate-700 dark:border-slate-600">
-                  <CardHeader 
-                    className="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-600/50 transition-colors"
-                    onClick={() => onCaseClick(case_)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-slate-900 dark:text-slate-100">{case_.customer_name}</h4>
-                        <p className="text-sm text-slate-600 dark:text-slate-300">{case_.appliance_brand} {case_.appliance_type}</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{formatDate(case_.created_at)}</p>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <Badge variant={getBadgeVariant(case_.status)}>
-                          {case_.status}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => toggleCardExpansion(case_.id, e)}
-                          className="p-1"
-                        >
-                          <Icon className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  
-                  {isExpanded && (
-                    <CardContent className="animate-fade-in border-t dark:border-slate-600">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                        {/* Customer Info */}
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-                            <User className="h-4 w-4" />
-                            <span>Customer</span>
-                          </div>
-                          <div className="text-sm">
-                            <p className="dark:text-slate-200">{case_.customer_phone || 'No phone'}</p>
-                            <p className="dark:text-slate-200">{case_.customer_email || 'No email'}</p>
-                            <p className="dark:text-slate-200">{case_.customer_address || 'No address'}</p>
-                          </div>
-                        </div>
+    <div className="space-y-4">
+      {cases.map((caseItem) => (
+        <Card 
+          key={caseItem.id} 
+          className="cursor-pointer hover:shadow-md transition-shadow dark:bg-slate-800 dark:border-slate-700"
+          onClick={() => onCaseClick(caseItem)}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg dark:text-slate-100">
+                {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
+              </CardTitle>
+              <Badge className={getStatusColor(caseItem.status)}>
+                {caseItem.status}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <User className="h-4 w-4" />
+              <span>{caseItem.customer_name}</span>
+            </div>
+            
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <Wrench className="h-4 w-4" />
+              <span>{caseItem.appliance_brand} {caseItem.appliance_type}</span>
+            </div>
 
-                        {/* Appliance Info */}
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-                            <Wrench className="h-4 w-4" />
-                            <span>Appliance</span>
-                          </div>
-                          <div className="text-sm">
-                            <p className="dark:text-slate-200">Model: {case_.appliance_model || 'N/A'}</p>
-                            <p className="dark:text-slate-200">Serial: {case_.serial_number || 'N/A'}</p>
-                            <p className="dark:text-slate-200">Warranty: {case_.warranty_status || 'N/A'}</p>
-                          </div>
-                        </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+              <Calendar className="h-4 w-4" />
+              <span>{formatDate(caseItem.created_at)}</span>
+            </div>
 
-                        {/* Service Info */}
-                        <div className="space-y-2">
-                          <div className="flex items-center space-x-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-                            <Calendar className="h-4 w-4" />
-                            <span>Service</span>
-                          </div>
-                          <div className="text-sm">
-                            <p className="dark:text-slate-200">Type: {case_.service_type || 'General'}</p>
-                            <p className="dark:text-slate-200">Time: {case_.estimated_time || 'TBD'}</p>
-                            <p className="dark:text-slate-200 truncate">Issue: {case_.problem_description}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+            {(caseItem.customer_city || caseItem.customer_state) && (
+              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                <MapPin className="h-4 w-4" />
+                <span>
+                  {caseItem.customer_city}{caseItem.customer_city && caseItem.customer_state ? ', ' : ''}
+                  {caseItem.customer_state}
+                </span>
+              </div>
+            )}
+            
+            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+              {caseItem.problem_description}
+            </p>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
-});
-
-WorkOrdersList.displayName = 'WorkOrdersList';
+};
 
 export default WorkOrdersList;

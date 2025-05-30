@@ -128,6 +128,7 @@ export type Database = {
           updated_at: string
           user_id: string
           warranty_status: string | null
+          wo_number: string | null
         }
         Insert: {
           appliance_brand: string
@@ -164,6 +165,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           warranty_status?: string | null
+          wo_number?: string | null
         }
         Update: {
           appliance_brand?: string
@@ -200,6 +202,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           warranty_status?: string | null
+          wo_number?: string | null
         }
         Relationships: []
       }
@@ -372,6 +375,10 @@ export type Database = {
       calculate_labor_cost: {
         Args: { level: number }
         Returns: number
+      }
+      generate_wo_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       is_authorized_to_delete: {
         Args: Record<PropertyKey, never>

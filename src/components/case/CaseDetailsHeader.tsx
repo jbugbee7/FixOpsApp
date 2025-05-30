@@ -4,6 +4,7 @@ import { ArrowLeft, Edit } from 'lucide-react';
 
 interface CaseDetailsHeaderProps {
   caseId: string;
+  woNumber?: string;
   isEditing: boolean;
   isSubmitting: boolean;
   onBack: () => void;
@@ -14,6 +15,7 @@ interface CaseDetailsHeaderProps {
 
 const CaseDetailsHeader = ({
   caseId,
+  woNumber,
   isEditing,
   isSubmitting,
   onBack,
@@ -32,7 +34,7 @@ const CaseDetailsHeader = ({
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Work Order</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">WO#{caseId}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{woNumber || `WO#${caseId}`}</p>
             </div>
           </div>
           <div className="flex items-center space-x-2">

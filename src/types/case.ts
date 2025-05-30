@@ -1,6 +1,7 @@
 
 export interface Case {
   id: string;
+  wo_number?: string;
   customer_name: string;
   customer_phone?: string;
   customer_email?: string;

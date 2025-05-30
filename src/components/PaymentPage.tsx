@@ -1,14 +1,12 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, CreditCard, Receipt, Calculator } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from '@/contexts/AuthContext';
+import { ArrowLeft, CreditCard, DollarSign, User, Wrench } from 'lucide-react';
 import { Case } from '@/types/case';
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface PaymentPageProps {
   case: Case;
@@ -16,69 +14,35 @@ interface PaymentPageProps {
   onBack: () => void;
 }
 
-const PaymentPage = ({ case: caseData, caseParts, onBack }: PaymentPageProps) => {
-  const { user } = useAuth();
+const PaymentPage = ({ case: currentCase, caseParts, onBack }: PaymentPageProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [taxRate] = useState(0.0875); // 8.75% tax rate
 
-  // Calculate costs
-  const laborCost = caseData.labor_cost_calculated || 0;
-  const diagnosticFee = caseData.diagnostic_fee_amount || 0;
-  const partsCost = caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
-  const subtotal = laborCost + diagnosticFee + partsCost;
-  const taxAmount = subtotal * taxRate;
-  const totalAmount = subtotal + taxAmount;
+  const getTotalAmount = () => {
+    const laborCost = currentCase.labor_cost_calculated || 0;
+    const diagnosticFee = currentCase.diagnostic_fee_amount || 0;
+    const partsCost = caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
+    return laborCost + diagnosticFee + partsCost;
+  };
 
   const handlePayment = async () => {
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in to process payments.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setIsProcessing(true);
-
     try {
-      // First, create a payment record
-      const { data: paymentData, error: paymentError } = await supabase
-        .from('payments')
-        .insert({
-          case_id: caseData.id,
-          user_id: user.id,
-          amount: Math.round(subtotal * 100), // Convert to cents
-          tax_amount: Math.round(taxAmount * 100), // Convert to cents
-          total_amount: Math.round(totalAmount * 100), // Convert to cents
-          status: 'pending'
-        })
-        .select()
-        .single();
+      const totalAmount = getTotalAmount();
+      const amountInCents = Math.round(totalAmount * 100);
 
-      if (paymentError) {
-        console.error('Error creating payment record:', paymentError);
-        toast({
-          title: "Payment Error",
-          description: "Failed to create payment record. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Create Stripe checkout session
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
-          caseId: caseData.id,
-          paymentId: paymentData.id,
-          amount: Math.round(totalAmount * 100), // Total amount in cents
-          description: `Work Order #${caseData.id} - ${caseData.appliance_brand} ${caseData.appliance_type}`,
-          customerEmail: caseData.customer_email || user.email
+          amount: amountInCents,
+          currency: 'usd',
+          case_id: currentCase.id,
+          customer_email: currentCase.customer_email,
+          customer_name: currentCase.customer_name,
+          wo_number: currentCase.wo_number || `WO-${currentCase.id.slice(0, 8)}`
         }
       });
 
       if (error) {
-        console.error('Stripe checkout error:', error);
+        console.error('Payment error:', error);
         toast({
           title: "Payment Error",
           description: "Failed to create payment session. Please try again.",
@@ -88,16 +52,10 @@ const PaymentPage = ({ case: caseData, caseParts, onBack }: PaymentPageProps) =>
       }
 
       if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
-        
-        toast({
-          title: "Redirecting to Payment",
-          description: "Opening Stripe checkout in a new tab...",
-        });
+        window.location.href = data.url;
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('Payment processing error:', error);
       toast({
         title: "Payment Error",
         description: "An unexpected error occurred. Please try again.",
@@ -109,184 +67,146 @@ const PaymentPage = ({ case: caseData, caseParts, onBack }: PaymentPageProps) =>
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 pb-20">
       {/* Header */}
       <div className="bg-white/80 backdrop-blur-md border-b border-slate-200 dark:bg-slate-900/80 dark:border-slate-700">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={onBack} className="flex items-center space-x-2">
-              <ArrowLeft className="h-5 w-5" />
-              <span>Back to Work Order</span>
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Payment</h1>
-              <p className="text-sm text-slate-600 dark:text-slate-400">Case #{caseData.id}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" onClick={onBack} className="flex items-center space-x-2">
+                <ArrowLeft className="h-5 w-5" />
+                <span>Back</span>
+              </Button>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Payment</h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {currentCase.wo_number || `WO-${currentCase.id.slice(0, 8)}`}
+                </p>
+              </div>
             </div>
+            <Badge variant="outline" className="text-green-600 border-green-600">
+              Ready for Payment
+            </Badge>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Order Summary */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <Receipt className="h-5 w-5" />
-                <span>Order Summary</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Customer Info */}
-              <div>
-                <h4 className="font-medium text-slate-900 dark:text-slate-100">Customer</h4>
-                <p className="text-slate-600 dark:text-slate-400">{caseData.customer_name}</p>
-                {caseData.customer_email && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{caseData.customer_email}</p>
+          {/* Work Order Summary */}
+          <div className="space-y-6">
+            {/* Customer Information */}
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+                  <User className="h-5 w-5" />
+                  <span>Customer Information</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Name</label>
+                  <p className="text-lg dark:text-slate-100">{currentCase.customer_name}</p>
+                </div>
+                {currentCase.customer_email && (
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Email</label>
+                    <p className="text-lg dark:text-slate-100">{currentCase.customer_email}</p>
+                  </div>
                 )}
-              </div>
-
-              <Separator />
-
-              {/* Appliance Info */}
-              <div>
-                <h4 className="font-medium text-slate-900 dark:text-slate-100">Appliance</h4>
-                <p className="text-slate-600 dark:text-slate-400">
-                  {caseData.appliance_brand} {caseData.appliance_type}
-                </p>
-                {caseData.appliance_model && (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Model: {caseData.appliance_model}</p>
+                {currentCase.customer_phone && (
+                  <div>
+                    <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Phone</label>
+                    <p className="text-lg dark:text-slate-100">{currentCase.customer_phone}</p>
+                  </div>
                 )}
-              </div>
+              </CardContent>
+            </Card>
 
-              <Separator />
+            {/* Service Information */}
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+                  <Wrench className="h-5 w-5" />
+                  <span>Service Information</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Appliance</label>
+                  <p className="text-lg dark:text-slate-100">{currentCase.appliance_brand} {currentCase.appliance_type}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Service Type</label>
+                  <p className="text-lg dark:text-slate-100">{currentCase.service_type || 'Repair Service'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Problem Description</label>
+                  <p className="text-lg dark:text-slate-100">{currentCase.problem_description}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-              {/* Cost Breakdown */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-slate-900 dark:text-slate-100">Cost Breakdown</h4>
-                
-                {laborCost > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Labor (Level {caseData.labor_level})
-                    </span>
-                    <span className="dark:text-slate-100">${laborCost.toFixed(2)}</span>
+          {/* Payment Summary */}
+          <div className="space-y-6">
+            <Card className="dark:bg-slate-800 dark:border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+                  <DollarSign className="h-5 w-5" />
+                  <span>Payment Summary</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Labor Cost */}
+                <div className="flex justify-between items-center py-2 border-b dark:border-slate-700">
+                  <span className="text-slate-600 dark:text-slate-400">Labor Cost (Level {currentCase.labor_level || 0})</span>
+                  <span className="font-semibold dark:text-slate-100">${(currentCase.labor_cost_calculated || 0).toFixed(2)}</span>
+                </div>
+
+                {/* Diagnostic Fee */}
+                {currentCase.diagnostic_fee_amount && currentCase.diagnostic_fee_amount > 0 && (
+                  <div className="flex justify-between items-center py-2 border-b dark:border-slate-700">
+                    <span className="text-slate-600 dark:text-slate-400">Diagnostic Fee ({currentCase.diagnostic_fee_type})</span>
+                    <span className="font-semibold dark:text-slate-100">${currentCase.diagnostic_fee_amount.toFixed(2)}</span>
                   </div>
                 )}
 
-                {diagnosticFee > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Diagnostic Fee ({caseData.diagnostic_fee_type})
-                    </span>
-                    <span className="dark:text-slate-100">${diagnosticFee.toFixed(2)}</span>
-                  </div>
-                )}
-
+                {/* Parts */}
                 {caseParts.length > 0 && (
-                  <>
-                    <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Parts</span>
-                      <span className="dark:text-slate-100">${partsCost.toFixed(2)}</span>
-                    </div>
-                    <div className="ml-4 space-y-1">
-                      {caseParts.map((part, index) => (
-                        <div key={index} className="flex justify-between text-sm">
-                          <span className="text-slate-500 dark:text-slate-400">
-                            {part.part_name} (x{part.quantity})
-                          </span>
-                          <span className="text-slate-500 dark:text-slate-400">
-                            ${(part.final_price * part.quantity).toFixed(2)}
-                          </span>
+                  <div className="space-y-2">
+                    <div className="text-slate-600 dark:text-slate-400 font-medium">Parts:</div>
+                    {caseParts.map((part, index) => (
+                      <div key={index} className="flex justify-between items-center py-1 pl-4">
+                        <div>
+                          <span className="text-sm dark:text-slate-300">{part.part_name}</span>
+                          <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">Qty: {part.quantity}</span>
                         </div>
-                      ))}
-                    </div>
-                  </>
+                        <span className="font-semibold dark:text-slate-100">${(part.final_price * part.quantity).toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
                 )}
 
-                <Separator />
-
-                <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-slate-400">Subtotal</span>
-                  <span className="dark:text-slate-100">${subtotal.toFixed(2)}</span>
+                {/* Total */}
+                <div className="flex justify-between items-center py-4 border-t-2 border-slate-200 dark:border-slate-600">
+                  <span className="text-xl font-bold dark:text-slate-100">Total</span>
+                  <span className="text-2xl font-bold text-green-600 dark:text-green-400">${getTotalAmount().toFixed(2)}</span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-slate-600 dark:text-slate-400">
-                    Tax ({(taxRate * 100).toFixed(2)}%)
-                  </span>
-                  <span className="dark:text-slate-100">${taxAmount.toFixed(2)}</span>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between text-lg font-semibold">
-                  <span className="dark:text-slate-100">Total</span>
-                  <span className="text-green-600 dark:text-green-400">${totalAmount.toFixed(2)}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Payment Section */}
-          <Card className="dark:bg-slate-800 dark:border-slate-700">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
-                <CreditCard className="h-5 w-5" />
-                <span>Payment</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                <div className="flex items-center space-x-2 text-blue-800 dark:text-blue-200">
-                  <Calculator className="h-5 w-5" />
-                  <span className="font-medium">Secure Payment</span>
-                </div>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                  Your payment will be processed securely through Stripe. You'll be redirected to complete the payment.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-medium text-slate-900 dark:text-slate-100">Payment Summary</h4>
-                  <div className="mt-2 space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Work Order</span>
-                      <span className="dark:text-slate-100">#{caseData.id}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Amount</span>
-                      <span className="font-semibold text-green-600 dark:text-green-400">
-                        ${totalAmount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
+                {/* Payment Button */}
                 <Button 
                   onClick={handlePayment}
-                  disabled={isProcessing || totalAmount <= 0}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                  className="w-full bg-green-500 hover:bg-green-600 text-white py-6 text-lg font-semibold"
+                  disabled={isProcessing || getTotalAmount() <= 0}
                   size="lg"
                 >
-                  {isProcessing ? (
-                    <>Processing...</>
-                  ) : (
-                    <>
-                      <CreditCard className="h-5 w-5 mr-2" />
-                      Pay ${totalAmount.toFixed(2)}
-                    </>
-                  )}
+                  <CreditCard className="h-6 w-6 mr-3" />
+                  {isProcessing ? 'Processing...' : `Pay $${getTotalAmount().toFixed(2)}`}
                 </Button>
-
-                <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
-                  By clicking "Pay", you agree to our terms of service and privacy policy.
-                  Your payment information is secured by Stripe.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
