@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,12 +44,12 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
   const [isAddExpanded, setIsAddExpanded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  // New part form state
+  // New part form state with 75% default markup
   const [newPart, setNewPart] = useState({
     part_name: '',
     part_number: '',
     part_cost: 0,
-    markup_percentage: 15,
+    markup_percentage: 75,
     appliance_type: applianceType || '',
     appliance_brand: applianceBrand || ''
   });
@@ -139,12 +138,12 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
 
       console.log('Part saved successfully:', data);
       
-      // Reset form
+      // Reset form with 75% default markup
       setNewPart({
         part_name: '',
         part_number: '',
         part_cost: 0,
-        markup_percentage: 15,
+        markup_percentage: 75,
         appliance_type: applianceType || '',
         appliance_brand: applianceBrand || ''
       });
@@ -343,8 +342,8 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
                   step="0.1"
                   min="0"
                   value={newPart.markup_percentage}
-                  onChange={(e) => handleNewPartInputChange('markup_percentage', parseFloat(e.target.value) || 15)}
-                  placeholder="15"
+                  onChange={(e) => handleNewPartInputChange('markup_percentage', parseFloat(e.target.value) || 75)}
+                  placeholder="75"
                 />
               </div>
             </div>

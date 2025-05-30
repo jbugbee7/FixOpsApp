@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,11 +32,11 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
     part_number: '',
     part_cost: 0,
     quantity: 1,
-    markup_percentage: 15,
+    markup_percentage: 75,
     final_price: 0
   });
 
-  const calculateFinalPrice = (cost: number, markup: number = 15) => {
+  const calculateFinalPrice = (cost: number, markup: number = 75) => {
     return cost * (1 + markup / 100);
   };
 
@@ -53,7 +52,7 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
 
     const cost = Number(newPart.part_cost) || 0;
     const quantity = Number(newPart.quantity) || 1;
-    const markup = Number(newPart.markup_percentage) || 15;
+    const markup = Number(newPart.markup_percentage) || 75;
     const finalPrice = calculateFinalPrice(cost, markup);
     
     const partToAdd: Part = {
@@ -71,7 +70,7 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
       part_number: '',
       part_cost: 0,
       quantity: 1,
-      markup_percentage: 15,
+      markup_percentage: 75,
       final_price: 0
     });
     
@@ -212,13 +211,13 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
                     min="0"
                     value={newPart.markup_percentage || ''}
                     onChange={(e) => handleInputChange('markup_percentage', e.target.value)}
-                    placeholder="15"
+                    placeholder="75"
                   />
                 </div>
                 <div>
                   <Label>Final Price</Label>
                   <div className="text-lg font-semibold text-green-600 dark:text-green-400 pt-2">
-                    ${calculateFinalPrice(Number(newPart.part_cost) || 0, Number(newPart.markup_percentage) || 15).toFixed(2)}
+                    ${calculateFinalPrice(Number(newPart.part_cost) || 0, Number(newPart.markup_percentage) || 75).toFixed(2)}
                   </div>
                 </div>
               </div>
