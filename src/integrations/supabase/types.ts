@@ -50,6 +50,7 @@ export type Database = {
           appliance_brand: string
           appliance_model: string | null
           appliance_type: string
+          cancellation_reason: string | null
           company_id: string | null
           created_at: string
           customer_address: string | null
@@ -60,16 +61,21 @@ export type Database = {
           customer_phone: string | null
           customer_state: string | null
           customer_zip_code: string | null
+          diagnostic_fee_amount: number | null
+          diagnostic_fee_type: string | null
           estimated_time: string | null
           id: string
           initial_diagnosis: string | null
           labor_cost: string | null
+          labor_cost_calculated: number | null
+          labor_level: number | null
           parts_cost: string | null
           parts_needed: string | null
           photos: string[] | null
           problem_description: string
           serial_number: string | null
           service_type: string | null
+          spt_status: string | null
           status: string
           technician_notes: string | null
           updated_at: string
@@ -80,6 +86,7 @@ export type Database = {
           appliance_brand: string
           appliance_model?: string | null
           appliance_type: string
+          cancellation_reason?: string | null
           company_id?: string | null
           created_at?: string
           customer_address?: string | null
@@ -90,16 +97,21 @@ export type Database = {
           customer_phone?: string | null
           customer_state?: string | null
           customer_zip_code?: string | null
+          diagnostic_fee_amount?: number | null
+          diagnostic_fee_type?: string | null
           estimated_time?: string | null
           id?: string
           initial_diagnosis?: string | null
           labor_cost?: string | null
+          labor_cost_calculated?: number | null
+          labor_level?: number | null
           parts_cost?: string | null
           parts_needed?: string | null
           photos?: string[] | null
           problem_description: string
           serial_number?: string | null
           service_type?: string | null
+          spt_status?: string | null
           status?: string
           technician_notes?: string | null
           updated_at?: string
@@ -110,6 +122,7 @@ export type Database = {
           appliance_brand?: string
           appliance_model?: string | null
           appliance_type?: string
+          cancellation_reason?: string | null
           company_id?: string | null
           created_at?: string
           customer_address?: string | null
@@ -120,16 +133,21 @@ export type Database = {
           customer_phone?: string | null
           customer_state?: string | null
           customer_zip_code?: string | null
+          diagnostic_fee_amount?: number | null
+          diagnostic_fee_type?: string | null
           estimated_time?: string | null
           id?: string
           initial_diagnosis?: string | null
           labor_cost?: string | null
+          labor_cost_calculated?: number | null
+          labor_level?: number | null
           parts_cost?: string | null
           parts_needed?: string | null
           photos?: string[] | null
           problem_description?: string
           serial_number?: string | null
           service_type?: string | null
+          spt_status?: string | null
           status?: string
           technician_notes?: string | null
           updated_at?: string
@@ -172,7 +190,10 @@ export type Database = {
           appliance_type: string | null
           company_id: string | null
           created_at: string
+          final_price: number | null
           id: string
+          markup_percentage: number | null
+          part_cost: number | null
           part_name: string
           part_number: string
           updated_at: string
@@ -184,7 +205,10 @@ export type Database = {
           appliance_type?: string | null
           company_id?: string | null
           created_at?: string
+          final_price?: number | null
           id?: string
+          markup_percentage?: number | null
+          part_cost?: number | null
           part_name: string
           part_number: string
           updated_at?: string
@@ -196,7 +220,10 @@ export type Database = {
           appliance_type?: string | null
           company_id?: string | null
           created_at?: string
+          final_price?: number | null
           id?: string
+          markup_percentage?: number | null
+          part_cost?: number | null
           part_name?: string
           part_number?: string
           updated_at?: string
@@ -242,6 +269,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_labor_cost: {
+        Args: { level: number }
+        Returns: number
+      }
       is_authorized_to_delete: {
         Args: Record<PropertyKey, never>
         Returns: boolean

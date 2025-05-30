@@ -1,11 +1,14 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, User, Wrench, Calendar, Phone, MapPin, FileText, Edit, Mail } from 'lucide-react';
+import { ArrowLeft, User, Wrench, Calendar, Phone, MapPin, FileText, Edit, Mail, DollarSign } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { useAuth } from '@/contexts/AuthContext';
 import EditCaseForm from './EditCaseForm';
+import StatusUpdateFlow from './forms/StatusUpdateFlow';
 import { Case } from '@/types/case';
 
 interface CaseDetailsProps {
@@ -15,6 +18,7 @@ interface CaseDetailsProps {
 }
 
 const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProps) => {
+  const { user } = useAuth();
   const [status, setStatus] = useState(caseData.status);
   const [isEditing, setIsEditing] = useState(false);
   const [currentCase, setCurrentCase] = useState(caseData);
@@ -31,6 +35,98 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
 
   const handleEditCancel = () => {
     setIsEditing(false);
+  };
+
+  const handleStatusUpdate = async (newStatus: string, cancellationReason?: string) => {
+    if (!user) return;
+
+    try {
+      const updateData: any = { status: newStatus };
+      
+      if (cancellationReason) {
+        updateData.cancellation_reason = cancellationReason;
+      }
+
+      const { error } = await supabase
+        .from('cases')
+        .update(updateData)
+        .eq('id', currentCase.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setStatus(newStatus);
+      setCurrentCase(prev => ({ ...prev, status: newStatus, cancellation_reason: cancellationReason }));
+      
+      if (newStatus === 'cancel' && cancellationReason) {
+        toast({
+          title: "Work Order Cancelled",
+          description: "The work order has been cancelled and removed.",
+        });
+        onBack(); // Navigate back since the work order is cancelled
+      } else {
+        toast({
+          title: "Status Updated",
+          description: `Work order status updated to ${newStatus}.`,
+        });
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update work order status.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleSPTComplete = async (sptStatus: string) => {
+    if (!user) return;
+
+    try {
+      const updateData: any = { spt_status: sptStatus };
+      
+      if (sptStatus === 'complete') {
+        updateData.status = 'Completed';
+      }
+
+      const { error } = await supabase
+        .from('cases')
+        .update(updateData)
+        .eq('id', currentCase.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setCurrentCase(prev => ({ 
+        ...prev, 
+        spt_status: sptStatus,
+        status: sptStatus === 'complete' ? 'Completed' : prev.status
+      }));
+      
+      if (sptStatus === 'complete') {
+        setStatus('Completed');
+      }
+
+      toast({
+        title: "Job Status Updated",
+        description: sptStatus === 'complete' ? "Work order marked as complete." : "SPT scheduled.",
+      });
+    } catch (error) {
+      console.error('Error updating SPT status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update job status.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getTotalCost = () => {
+    const laborCost = currentCase.labor_cost_calculated || 0;
+    const diagnosticFee = currentCase.diagnostic_fee_amount || 0;
+    const partsCost = parseFloat(currentCase.parts_cost || '0');
+    return laborCost + diagnosticFee + partsCost;
   };
 
   // If in editing mode, show the edit form
@@ -74,6 +170,14 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          {/* Status Update Flow */}
+          <StatusUpdateFlow 
+            onStatusUpdate={handleStatusUpdate}
+            onSPTComplete={handleSPTComplete}
+            currentStatus={status}
+            sptStatus={currentCase.spt_status}
+          />
+
           {/* Status Card */}
           <Card className="dark:bg-slate-800 dark:border-slate-700">
             <CardHeader>
@@ -98,6 +202,52 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
                   </SelectContent>
                 </Select>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Pricing Information */}
+          <Card className="dark:bg-slate-800 dark:border-slate-700">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+                <DollarSign className="h-5 w-5" />
+                <span>Pricing Information</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Labor Cost</label>
+                  <p className="text-lg font-semibold dark:text-slate-100">
+                    Level {currentCase.labor_level || 0} - ${currentCase.labor_cost_calculated || 0}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Diagnostic Fee</label>
+                  <p className="text-lg dark:text-slate-100">
+                    {currentCase.diagnostic_fee_type || 'None'} - ${currentCase.diagnostic_fee_amount || 0}
+                  </p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Parts Cost</label>
+                  <p className="text-lg dark:text-slate-100">${currentCase.parts_cost || '0.00'}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Estimate</label>
+                  <p className="text-xl font-bold text-green-600 dark:text-green-400">
+                    ${getTotalCost().toFixed(2)}
+                  </p>
+                </div>
+              </div>
+              {currentCase.spt_status && (
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Job Status</label>
+                  <Badge variant="outline" className="ml-2">
+                    {currentCase.spt_status === 'spt' ? 'SPT Scheduled' : 'Complete'}
+                  </Badge>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -230,6 +380,12 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Technician Notes</label>
                   <p className="text-lg dark:text-slate-100">{currentCase.technician_notes}</p>
+                </div>
+              )}
+              {currentCase.cancellation_reason && (
+                <div>
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Cancellation Reason</label>
+                  <p className="text-lg text-red-600 dark:text-red-400">{currentCase.cancellation_reason}</p>
                 </div>
               )}
             </CardContent>

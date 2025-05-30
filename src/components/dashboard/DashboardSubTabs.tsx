@@ -20,27 +20,42 @@ interface DashboardSubTabsProps {
 }
 
 const DashboardSubTabs = (props: DashboardSubTabsProps) => {
+  // Filter out cancelled work orders from both tabs
+  const activeCases = props.cases.filter(case_ => 
+    case_.status !== 'Completed' && case_.status !== 'cancel'
+  );
+  
+  const completedCases = props.cases.filter(case_ => 
+    case_.status === 'Completed'
+  );
+
   return (
     <Tabs defaultValue="work-orders" className="w-full">
       <div className="flex justify-center mb-6">
         <TabsList className="grid w-full max-w-md grid-cols-2">
           <TabsTrigger value="work-orders" className="flex items-center gap-2">
             <Home className="h-4 w-4" />
-            Work Orders
+            Work Orders ({activeCases.length})
           </TabsTrigger>
           <TabsTrigger value="completed" className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4" />
-            Completed
+            Completed ({completedCases.length})
           </TabsTrigger>
         </TabsList>
       </div>
 
       <TabsContent value="work-orders" className="m-0">
-        <DashboardWorkOrders {...props} />
+        <DashboardWorkOrders 
+          {...props} 
+          cases={activeCases}
+        />
       </TabsContent>
 
       <TabsContent value="completed" className="m-0">
-        <DashboardCompletedOrders {...props} />
+        <DashboardCompletedOrders 
+          {...props} 
+          cases={completedCases}
+        />
       </TabsContent>
     </Tabs>
   );

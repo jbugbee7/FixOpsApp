@@ -28,4 +28,10 @@ export interface Case {
   user_id?: string;
   labor_cost?: string;
   parts_cost?: string;
+  labor_level?: number;
+  labor_cost_calculated?: number;
+  diagnostic_fee_type?: string;
+  diagnostic_fee_amount?: number;
+  cancellation_reason?: string;
+  spt_status?: string;
 }

@@ -6,15 +6,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Wrench, Search, ExternalLink, User } from 'lucide-react';
+import { Calendar, Wrench, Search, ExternalLink, User, DollarSign } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import CameraCapture from './CameraCapture';
+import LaborCostSelector from './forms/LaborCostSelector';
+import DiagnosticFeeSelector from './forms/DiagnosticFeeSelector';
+import PartsManager from './forms/PartsManager';
 
 const CaseForm = () => {
   const { user, userProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [parts, setParts] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     // Customer Information
     customerName: '',
@@ -42,6 +46,11 @@ const CaseForm = () => {
     
     // Additional Notes
     technicianNotes: '',
+
+    // New fields
+    laborLevel: 0,
+    diagnosticFeeType: '',
+    diagnosticFeeAmount: 0,
   });
 
   const applianceBrands = [
@@ -58,10 +67,18 @@ const CaseForm = () => {
     'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
   ];
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleDiagnosticFeeChange = (type: string, amount: number) => {
+    setFormData(prev => ({
+      ...prev,
+      diagnosticFeeType: type,
+      diagnosticFeeAmount: amount
     }));
   };
 
@@ -120,24 +137,20 @@ const CaseForm = () => {
   };
 
   const savePartsData = async () => {
-    if (!user || !formData.partsNeeded.trim()) {
+    if (!user || parts.length === 0) {
       return;
     }
 
     try {
-      // Split parts by comma or newline and save each part
-      const partsList = formData.partsNeeded.split(/[,\n]/).map(part => part.trim()).filter(part => part);
-      
-      for (const part of partsList) {
-        // Try to extract part number from the description (looking for patterns like alphanumeric codes)
-        const partNumberMatch = part.match(/\b([A-Z0-9]{3,})\b/i);
-        const partNumber = partNumberMatch ? partNumberMatch[1] : part;
-        
+      for (const part of parts) {
         await supabase
           .from('parts')
           .upsert({
-            part_name: part,
-            part_number: partNumber,
+            part_name: part.part_name,
+            part_number: part.part_number,
+            part_cost: part.part_cost,
+            markup_percentage: part.markup_percentage,
+            final_price: part.final_price,
             appliance_brand: formData.applianceBrand || null,
             appliance_model: formData.applianceModel || null,
             appliance_type: formData.applianceType || null,
@@ -172,8 +185,26 @@ const CaseForm = () => {
       partsNeeded: '',
       estimatedTime: '',
       technicianNotes: '',
+      laborLevel: 0,
+      diagnosticFeeType: '',
+      diagnosticFeeAmount: 0,
     });
     setPhotos([]);
+    setParts([]);
+  };
+
+  const getTotalPartsValue = () => {
+    return parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
+  };
+
+  const getLaborCost = () => {
+    if (formData.laborLevel === 0) return 0;
+    if (formData.laborLevel === 1) return 110;
+    return 110 + ((formData.laborLevel - 1) * 40);
+  };
+
+  const getTotalCost = () => {
+    return getLaborCost() + formData.diagnosticFeeAmount + getTotalPartsValue();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -233,7 +264,12 @@ const CaseForm = () => {
           estimated_time: formData.estimatedTime,
           technician_notes: formData.technicianNotes,
           photos: photos.length > 0 ? photos : null,
-          status: 'Scheduled'
+          status: 'Scheduled',
+          labor_level: formData.laborLevel,
+          labor_cost_calculated: getLaborCost(),
+          diagnostic_fee_type: formData.diagnosticFeeType || null,
+          diagnostic_fee_amount: formData.diagnosticFeeAmount,
+          parts_cost: getTotalPartsValue().toString(),
         });
 
       if (error) {
@@ -248,7 +284,7 @@ const CaseForm = () => {
 
       toast({
         title: "Work Order Created Successfully",
-        description: `The work order has been logged and assigned.${photos.length > 0 ? ` ${photos.length} photos attached.` : ''}`,
+        description: `The work order has been logged and assigned. Total: $${getTotalCost().toFixed(2)}`,
       });
 
       resetForm();
@@ -506,9 +542,6 @@ const CaseForm = () => {
                     <ExternalLink className="h-3 w-3" />
                   </Button>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Tip: Use the search button to find parts online. Parts data will be automatically saved for future reference.
-                </p>
               </div>
             </div>
             <div>
@@ -522,6 +555,53 @@ const CaseForm = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Pricing Section */}
+        <Card className="dark:bg-slate-800 dark:border-slate-700">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 dark:text-slate-100">
+              <DollarSign className="h-5 w-5" />
+              <span>Pricing & Costs</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <LaborCostSelector
+                value={formData.laborLevel}
+                onChange={(value) => handleInputChange('laborLevel', value)}
+              />
+              <DiagnosticFeeSelector
+                value={formData.diagnosticFeeType}
+                onChange={handleDiagnosticFeeChange}
+              />
+            </div>
+            
+            {/* Cost Summary */}
+            <div className="border-t pt-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Labor Cost:</span>
+                  <span>${getLaborCost()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Diagnostic Fee:</span>
+                  <span>${formData.diagnosticFeeAmount}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Parts Total:</span>
+                  <span>${getTotalPartsValue().toFixed(2)}</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-semibold">
+                  <span>Total Estimate:</span>
+                  <span>${getTotalCost().toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Parts Manager */}
+        <PartsManager parts={parts} onChange={setParts} />
 
         {/* Camera/Photos Section */}
         <CameraCapture photos={photos} onPhotosChange={setPhotos} />
