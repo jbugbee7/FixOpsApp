@@ -51,13 +51,17 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
       return;
     }
 
-    const finalPrice = calculateFinalPrice(newPart.part_cost || 0, newPart.markup_percentage);
+    const cost = Number(newPart.part_cost) || 0;
+    const quantity = Number(newPart.quantity) || 1;
+    const markup = Number(newPart.markup_percentage) || 15;
+    const finalPrice = calculateFinalPrice(cost, markup);
+    
     const partToAdd: Part = {
       part_name: newPart.part_name,
       part_number: newPart.part_number,
-      part_cost: newPart.part_cost || 0,
-      quantity: newPart.quantity || 1,
-      markup_percentage: newPart.markup_percentage || 15,
+      part_cost: cost,
+      quantity: quantity,
+      markup_percentage: markup,
       final_price: finalPrice
     };
 
@@ -69,6 +73,11 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
       quantity: 1,
       markup_percentage: 15,
       final_price: 0
+    });
+    
+    toast({
+      title: "Part Added",
+      description: `${partToAdd.part_name} has been added successfully.`,
     });
   };
 
@@ -95,12 +104,16 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
 
   const handleInputChange = (field: string, value: string) => {
     setNewPart(prev => {
+      const updated = { ...prev };
+      
       if (field === 'part_cost' || field === 'quantity' || field === 'markup_percentage') {
-        // Allow empty string to clear the field completely
-        const numValue = value === '' ? 0 : parseFloat(value);
-        return { ...prev, [field]: isNaN(numValue) ? 0 : numValue };
+        const numValue = value === '' ? 0 : Number(value);
+        updated[field] = isNaN(numValue) ? 0 : numValue;
+      } else {
+        updated[field] = value;
       }
-      return { ...prev, [field]: value };
+      
+      return updated;
     });
   };
 
@@ -143,7 +156,7 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
                   <Label htmlFor="partName">Part Name *</Label>
                   <Input
                     id="partName"
-                    value={newPart.part_name}
+                    value={newPart.part_name || ''}
                     onChange={(e) => handleInputChange('part_name', e.target.value)}
                     placeholder="Enter part name"
                   />
@@ -153,7 +166,7 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
                   <div className="flex space-x-2">
                     <Input
                       id="partNumber"
-                      value={newPart.part_number}
+                      value={newPart.part_number || ''}
                       onChange={(e) => handleInputChange('part_number', e.target.value)}
                       placeholder="Enter part number"
                       className="flex-1"
@@ -209,7 +222,7 @@ const PartsManager = ({ parts, onChange, applianceType, applianceBrand }: PartsM
                 <div>
                   <Label>Final Price</Label>
                   <div className="text-lg font-semibold text-green-600 dark:text-green-400 pt-2">
-                    ${calculateFinalPrice(newPart.part_cost || 0, newPart.markup_percentage).toFixed(2)}
+                    ${calculateFinalPrice(Number(newPart.part_cost) || 0, Number(newPart.markup_percentage) || 15).toFixed(2)}
                   </div>
                 </div>
               </div>
