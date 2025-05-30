@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,9 +18,9 @@ const ModernCaseForm = () => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [parts, setParts] = useState<any[]>([]);
   const [expandedSections, setExpandedSections] = useState({
-    customer: true,
-    appliance: true,
-    service: true,
+    customer: false,
+    appliance: false,
+    service: false,
     pricing: false,
     photos: false,
     notes: false
