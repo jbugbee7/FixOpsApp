@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,11 +17,47 @@ interface CaseDetailsProps {
   onStatusUpdate: (caseId: string, newStatus: string) => void;
 }
 
+interface CasePart {
+  id: string;
+  part_name: string;
+  part_number: string;
+  part_cost: number;
+  quantity: number;
+  markup_percentage: number;
+  final_price: number;
+}
+
 const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProps) => {
   const { user } = useAuth();
   const [status, setStatus] = useState(caseData.status);
   const [isEditing, setIsEditing] = useState(false);
   const [currentCase, setCurrentCase] = useState(caseData);
+  const [caseParts, setCaseParts] = useState<CasePart[]>([]);
+
+  // Load case parts
+  useEffect(() => {
+    const loadCaseParts = async () => {
+      if (!user || !currentCase.id) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('case_parts')
+          .select('*')
+          .eq('case_id', currentCase.id);
+
+        if (error) {
+          console.error('Error loading case parts:', error);
+          return;
+        }
+
+        setCaseParts(data || []);
+      } catch (error) {
+        console.error('Error loading case parts:', error);
+      }
+    };
+
+    loadCaseParts();
+  }, [user, currentCase.id]);
 
   const handleStatusChange = (newStatus: string) => {
     setStatus(newStatus);
@@ -125,7 +161,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
   const getTotalCost = () => {
     const laborCost = currentCase.labor_cost_calculated || 0;
     const diagnosticFee = currentCase.diagnostic_fee_amount || 0;
-    const partsCost = parseFloat(currentCase.parts_cost || '0');
+    const partsCost = caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
     return laborCost + diagnosticFee + partsCost;
   };
 
@@ -231,7 +267,18 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Parts Cost</label>
-                  <p className="text-lg dark:text-slate-100">${currentCase.parts_cost || '0.00'}</p>
+                  <p className="text-lg dark:text-slate-100">
+                    ${caseParts.reduce((total, part) => total + (part.final_price * part.quantity), 0).toFixed(2)}
+                  </p>
+                  {caseParts.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {caseParts.map((part, index) => (
+                        <div key={index} className="text-sm text-slate-600 dark:text-slate-400">
+                          {part.part_name} (#{part.part_number}) - Qty: {part.quantity} - ${(part.final_price * part.quantity).toFixed(2)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-600 dark:text-slate-400">Total Estimate</label>

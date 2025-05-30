@@ -10,6 +10,9 @@ import { Calendar, Wrench, Search, ExternalLink, ArrowLeft } from 'lucide-react'
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 import CameraCapture from './CameraCapture';
+import LaborCostSelector from './forms/LaborCostSelector';
+import DiagnosticFeeSelector from './forms/DiagnosticFeeSelector';
+import PartsManager from './forms/PartsManager';
 import { Case } from '@/types/case';
 
 interface EditCaseFormProps {
@@ -18,10 +21,21 @@ interface EditCaseFormProps {
   onSave: (updatedCase: Case) => void;
 }
 
+interface Part {
+  id?: string;
+  part_name: string;
+  part_number: string;
+  part_cost: number;
+  quantity: number;
+  markup_percentage: number;
+  final_price: number;
+}
+
 const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photos, setPhotos] = useState<string[]>(caseData.photos || []);
+  const [parts, setParts] = useState<Part[]>([]);
   const [formData, setFormData] = useState({
     // Customer Information
     customerName: caseData.customer_name || '',
@@ -51,6 +65,11 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     technicianNotes: caseData.technician_notes || '',
   });
 
+  // Pricing state
+  const [laborLevel, setLaborLevel] = useState(caseData.labor_level || 0);
+  const [diagnosticFeeType, setDiagnosticFeeType] = useState(caseData.diagnostic_fee_type || '');
+  const [diagnosticFeeAmount, setDiagnosticFeeAmount] = useState(caseData.diagnostic_fee_amount || 0);
+
   const applianceBrands = [
     'Whirlpool', 'GE', 'Samsung', 'LG', 'Maytag', 'Frigidaire', 'KitchenAid', 
     'Bosch', 'Electrolux', 'Kenmore', 'Amana', 'Hotpoint', 'Fisher & Paykel'
@@ -64,6 +83,31 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
   const usStates = [
     'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
   ];
+
+  // Load parts for this case
+  useEffect(() => {
+    const loadCaseParts = async () => {
+      if (!user || !caseData.id) return;
+
+      try {
+        const { data, error } = await supabase
+          .from('case_parts')
+          .select('*')
+          .eq('case_id', caseData.id);
+
+        if (error) {
+          console.error('Error loading parts:', error);
+          return;
+        }
+
+        setParts(data || []);
+      } catch (error) {
+        console.error('Error loading parts:', error);
+      }
+    };
+
+    loadCaseParts();
+  }, [user, caseData.id]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -100,6 +144,23 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     }
   };
 
+  const calculateLaborCost = (level: number) => {
+    if (level === 0) return 0;
+    if (level === 1) return 110;
+    return 110 + ((level - 1) * 40);
+  };
+
+  const handleDiagnosticFeeChange = (type: string, amount: number) => {
+    setDiagnosticFeeType(type);
+    setDiagnosticFeeAmount(amount);
+  };
+
+  const getTotalCost = () => {
+    const laborCost = calculateLaborCost(laborLevel);
+    const partsCost = parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
+    return laborCost + diagnosticFeeAmount + partsCost;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -124,6 +185,10 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     setIsSubmitting(true);
 
     try {
+      // Calculate parts cost
+      const totalPartsCost = parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
+
+      // Update the case
       const { data, error } = await supabase
         .from('cases')
         .update({
@@ -147,6 +212,11 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
           estimated_time: formData.estimatedTime,
           technician_notes: formData.technicianNotes,
           photos: photos.length > 0 ? photos : null,
+          labor_level: laborLevel,
+          labor_cost_calculated: calculateLaborCost(laborLevel),
+          diagnostic_fee_type: diagnosticFeeType,
+          diagnostic_fee_amount: diagnosticFeeAmount,
+          parts_cost: totalPartsCost.toString(),
         })
         .eq('id', caseData.id)
         .eq('user_id', user.id)
@@ -163,9 +233,12 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
         return;
       }
 
+      // Update parts in the database
+      await handlePartsUpdate();
+
       toast({
         title: "Work Order Updated Successfully",
-        description: `The work order has been updated.${photos.length > 0 ? ` ${photos.length} photos attached.` : ''}`,
+        description: `The work order has been updated. Total: $${getTotalCost().toFixed(2)}`,
       });
 
       onSave(data);
@@ -178,6 +251,46 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handlePartsUpdate = async () => {
+    if (!user || !caseData.id) return;
+
+    try {
+      // Delete existing parts for this case
+      await supabase
+        .from('case_parts')
+        .delete()
+        .eq('case_id', caseData.id);
+
+      // Insert new parts
+      if (parts.length > 0) {
+        const partsToInsert = parts.map(part => ({
+          case_id: caseData.id,
+          part_name: part.part_name,
+          part_number: part.part_number,
+          part_cost: part.part_cost,
+          quantity: part.quantity,
+          markup_percentage: part.markup_percentage,
+          final_price: part.final_price
+        }));
+
+        const { error } = await supabase
+          .from('case_parts')
+          .insert(partsToInsert);
+
+        if (error) {
+          console.error('Error updating parts:', error);
+          toast({
+            title: "Error Updating Parts",
+            description: "There was an error updating the parts.",
+            variant: "destructive"
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error updating parts:', error);
     }
   };
 
@@ -201,6 +314,37 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Pricing Section */}
+          <Card className="dark:bg-slate-800 dark:border-slate-700">
+            <CardHeader>
+              <CardTitle className="dark:text-slate-100">Pricing & Labor</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <LaborCostSelector 
+                  value={laborLevel} 
+                  onChange={setLaborLevel} 
+                />
+                <DiagnosticFeeSelector 
+                  value={diagnosticFeeType} 
+                  onChange={handleDiagnosticFeeChange} 
+                />
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg">
+                <div className="flex justify-between items-center text-lg font-semibold">
+                  <span>Total Estimate:</span>
+                  <span className="text-green-600 dark:text-green-400">${getTotalCost().toFixed(2)}</span>
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                  Labor: ${calculateLaborCost(laborLevel)} | Diagnostic: ${diagnosticFeeAmount} | Parts: ${parts.reduce((total, part) => total + (part.final_price * part.quantity), 0).toFixed(2)}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Parts Management */}
+          <PartsManager parts={parts} onChange={setParts} />
+
           {/* Customer Information */}
           <Card className="dark:bg-slate-800 dark:border-slate-700">
             <CardHeader>

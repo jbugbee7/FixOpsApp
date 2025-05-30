@@ -45,6 +45,53 @@ export type Database = {
         }
         Relationships: []
       }
+      case_parts: {
+        Row: {
+          case_id: string
+          created_at: string
+          final_price: number
+          id: string
+          markup_percentage: number
+          part_cost: number
+          part_name: string
+          part_number: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          final_price?: number
+          id?: string
+          markup_percentage?: number
+          part_cost?: number
+          part_name: string
+          part_number: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          final_price?: number
+          id?: string
+          markup_percentage?: number
+          part_cost?: number
+          part_name?: string
+          part_number?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_parts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cases: {
         Row: {
           appliance_brand: string
