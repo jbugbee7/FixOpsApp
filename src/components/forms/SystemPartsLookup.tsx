@@ -48,68 +48,22 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
     setLoading(true);
     try {
       console.log('Searching for parts with term:', searchTerm);
+      console.log('Current user:', user.id);
       
-      // Start with basic search by part name and part number
-      let query = supabase
+      // Simple search - look for the search term in part_name OR part_number
+      const { data, error } = await supabase
         .from('parts')
         .select('*')
-        .or(`part_name.ilike.%${searchTerm}%,part_number.ilike.%${searchTerm}%`);
+        .or(`part_name.ilike.%${searchTerm}%,part_number.ilike.%${searchTerm}%`)
+        .limit(20);
 
-      // If we have appliance info, we'll do a more sophisticated filter
-      // that prioritizes matching appliance info but doesn't exclude non-matching parts
-      if (applianceType || applianceBrand) {
-        // First, get all parts that match the search term
-        const { data: allParts, error: allPartsError } = await query.limit(20);
-        
-        if (allPartsError) {
-          console.error('Error searching all parts:', allPartsError);
-          return;
-        }
-
-        // Sort the results to prioritize parts that match appliance info
-        const sortedParts = (allParts || []).sort((a, b) => {
-          let aScore = 0;
-          let bScore = 0;
-
-          // Give higher score for exact appliance type match
-          if (applianceType) {
-            if (a.appliance_type?.toLowerCase() === applianceType.toLowerCase()) aScore += 3;
-            else if (a.appliance_type?.toLowerCase().includes(applianceType.toLowerCase())) aScore += 2;
-            else if (!a.appliance_type) aScore += 1; // Generic parts (no specific appliance type)
-
-            if (b.appliance_type?.toLowerCase() === applianceType.toLowerCase()) bScore += 3;
-            else if (b.appliance_type?.toLowerCase().includes(applianceType.toLowerCase())) bScore += 2;
-            else if (!b.appliance_type) bScore += 1;
-          }
-
-          // Give higher score for exact appliance brand match
-          if (applianceBrand) {
-            if (a.appliance_brand?.toLowerCase() === applianceBrand.toLowerCase()) aScore += 3;
-            else if (a.appliance_brand?.toLowerCase().includes(applianceBrand.toLowerCase())) aScore += 2;
-            else if (!a.appliance_brand) aScore += 1; // Generic parts (no specific brand)
-
-            if (b.appliance_brand?.toLowerCase() === applianceBrand.toLowerCase()) bScore += 3;
-            else if (b.appliance_brand?.toLowerCase().includes(applianceBrand.toLowerCase())) bScore += 2;
-            else if (!b.appliance_brand) bScore += 1;
-          }
-
-          return bScore - aScore; // Sort descending by score
-        });
-
-        setSystemParts(sortedParts.slice(0, 10)); // Limit to top 10 results
-      } else {
-        // No appliance filters, just search by name/number
-        const { data, error } = await query.limit(10);
-
-        if (error) {
-          console.error('Error searching parts:', error);
-          return;
-        }
-
-        setSystemParts(data || []);
+      if (error) {
+        console.error('Error searching parts:', error);
+        return;
       }
 
-      console.log('Parts search completed, found:', systemParts.length);
+      console.log('Found parts:', data);
+      setSystemParts(data || []);
     } catch (error) {
       console.error('Error searching parts:', error);
     } finally {
@@ -138,7 +92,7 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
     } else {
       setSystemParts([]);
     }
-  }, [searchTerm, applianceType, applianceBrand]);
+  }, [searchTerm]);
 
   return (
     <Card className="dark:bg-slate-800 dark:border-slate-700">
@@ -176,10 +130,7 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
               </Button>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              {applianceType || applianceBrand 
-                ? `Prioritizing: ${applianceBrand || 'Any brand'} - ${applianceType || 'Any type'} (but showing all matches)`
-                : 'Searching all parts'
-              }
+              Search by part name or part number
             </p>
           </div>
 
@@ -207,12 +158,6 @@ const SystemPartsLookup = ({ onAddPart, applianceType, applianceBrand }: SystemP
                     {(part.appliance_type || part.appliance_brand) && (
                       <div className="text-xs text-slate-500 dark:text-slate-400">
                         {part.appliance_brand} {part.appliance_type}
-                        {applianceType && part.appliance_type?.toLowerCase() === applianceType.toLowerCase() && (
-                          <Badge variant="outline" className="ml-2 text-xs">Type Match</Badge>
-                        )}
-                        {applianceBrand && part.appliance_brand?.toLowerCase() === applianceBrand.toLowerCase() && (
-                          <Badge variant="outline" className="ml-2 text-xs">Brand Match</Badge>
-                        )}
                       </div>
                     )}
                   </div>
