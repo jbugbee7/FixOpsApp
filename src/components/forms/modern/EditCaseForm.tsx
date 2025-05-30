@@ -1,11 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, CreditCard, ChevronDown, ChevronUp, Save } from 'lucide-react';
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from '@/contexts/AuthContext';
 import CustomerSection from './CustomerSection';
 import ApplianceSection from './ApplianceSection';
 import ServiceSection from './ServiceSection';
@@ -15,6 +12,8 @@ import NotesSection from './NotesSection';
 import StatusUpdateSection from './StatusUpdateSection';
 import PaymentPage from '../../PaymentPage';
 import { Case } from '@/types/case';
+import { useEditCaseForm } from '@/hooks/useEditCaseForm';
+import { useEditCaseSubmit } from '@/hooks/useEditCaseSubmit';
 
 interface EditCaseFormProps {
   case: Case;
@@ -22,21 +21,7 @@ interface EditCaseFormProps {
   onSave: (updatedCase: Case) => void;
 }
 
-interface Part {
-  id?: string;
-  part_name: string;
-  part_number: string;
-  part_cost: number;
-  quantity: number;
-  markup_percentage: number;
-  final_price: number;
-}
-
 const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => {
-  const { user } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photos, setPhotos] = useState<string[]>(caseData.photos || []);
-  const [parts, setParts] = useState<Part[]>([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     status: false,
@@ -48,62 +33,22 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     notes: false
   });
 
-  const [formData, setFormData] = useState({
-    // Customer Information
-    customerName: caseData.customer_name || '',
-    customerPhone: caseData.customer_phone || '',
-    customerEmail: caseData.customer_email || '',
-    customerAddress: caseData.customer_address || '',
-    customerAddressLine2: caseData.customer_address_line_2 || '',
-    customerCity: caseData.customer_city || '',
-    customerState: caseData.customer_state || '',
-    customerZipCode: caseData.customer_zip_code || '',
-    
-    // Appliance Information
-    applianceBrand: caseData.appliance_brand || '',
-    applianceModel: caseData.appliance_model || '',
-    applianceType: caseData.appliance_type || '',
-    serialNumber: caseData.serial_number || '',
-    warrantyStatus: caseData.warranty_status || '',
-    
-    // Service Details
-    serviceType: caseData.service_type || '',
-    problemDescription: caseData.problem_description || '',
-    initialDiagnosis: caseData.initial_diagnosis || '',
-    partsNeeded: caseData.parts_needed || '',
-    estimatedTime: caseData.estimated_time || '',
-    technicianNotes: caseData.technician_notes || '',
+  const {
+    formData,
+    photos,
+    parts,
+    isSubmitting,
+    setPhotos,
+    setParts,
+    setIsSubmitting,
+    handleInputChange,
+    handleDiagnosticFeeChange,
+    getTotalPartsValue,
+    getLaborCost,
+    getTotalCost
+  } = useEditCaseForm(caseData);
 
-    // Pricing fields
-    laborLevel: caseData.labor_level || 0,
-    diagnosticFeeType: caseData.diagnostic_fee_type || '',
-    diagnosticFeeAmount: caseData.diagnostic_fee_amount || 0,
-  });
-
-  // Load parts for this case
-  useEffect(() => {
-    const loadCaseParts = async () => {
-      if (!user || !caseData.id) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('case_parts')
-          .select('*')
-          .eq('case_id', caseData.id);
-
-        if (error) {
-          console.error('Error loading parts:', error);
-          return;
-        }
-
-        setParts(data || []);
-      } catch (error) {
-        console.error('Error loading parts:', error);
-      }
-    };
-
-    loadCaseParts();
-  }, [user, caseData.id]);
+  const { handleSubmit } = useEditCaseSubmit(caseData, onSave);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -112,174 +57,20 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
     }));
   };
 
-  const handleInputChange = (field: string, value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleDiagnosticFeeChange = (type: string, amount: number) => {
-    setFormData(prev => ({
-      ...prev,
-      diagnosticFeeType: type,
-      diagnosticFeeAmount: amount
-    }));
-  };
-
-  const calculateLaborCost = (level: number) => {
-    if (level === 0) return 0;
-    if (level === 1) return 110;
-    return 110 + ((level - 1) * 40);
-  };
-
-  const getTotalPartsValue = () => {
-    return parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
-  };
-
-  const getLaborCost = () => {
-    return calculateLaborCost(formData.laborLevel);
-  };
-
-  const getTotalCost = () => {
-    return getLaborCost() + formData.diagnosticFeeAmount + getTotalPartsValue();
-  };
-
-  const handlePartsUpdate = async () => {
-    if (!user || !caseData.id) return;
-
-    try {
-      // Delete existing parts for this case
-      await supabase
-        .from('case_parts')
-        .delete()
-        .eq('case_id', caseData.id);
-
-      // Insert new parts
-      if (parts.length > 0) {
-        const partsToInsert = parts.map(part => ({
-          case_id: caseData.id,
-          part_name: part.part_name,
-          part_number: part.part_number,
-          part_cost: part.part_cost,
-          quantity: part.quantity,
-          markup_percentage: part.markup_percentage,
-          final_price: part.final_price
-        }));
-
-        const { error } = await supabase
-          .from('case_parts')
-          .insert(partsToInsert);
-
-        if (error) {
-          console.error('Error updating parts:', error);
-          toast({
-            title: "Error Updating Parts",
-            description: "There was an error updating the parts.",
-            variant: "destructive"
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Error updating parts:', error);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in to update work orders.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
-      toast({
-        title: "Required Fields Missing",
-        description: "Please fill in appliance brand, type, and problem description.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      // Calculate parts cost
-      const totalPartsCost = parts.reduce((total, part) => total + (part.final_price * part.quantity), 0);
-
-      // Update the case
-      const { data, error } = await supabase
-        .from('cases')
-        .update({
-          customer_name: formData.customerName,
-          customer_phone: formData.customerPhone,
-          customer_email: formData.customerEmail,
-          customer_address: formData.customerAddress,
-          customer_address_line_2: formData.customerAddressLine2,
-          customer_city: formData.customerCity,
-          customer_state: formData.customerState,
-          customer_zip_code: formData.customerZipCode,
-          appliance_brand: formData.applianceBrand,
-          appliance_model: formData.applianceModel,
-          appliance_type: formData.applianceType,
-          serial_number: formData.serialNumber,
-          warranty_status: formData.warrantyStatus,
-          service_type: formData.serviceType,
-          problem_description: formData.problemDescription,
-          initial_diagnosis: formData.initialDiagnosis,
-          parts_needed: formData.partsNeeded,
-          estimated_time: formData.estimatedTime,
-          technician_notes: formData.technicianNotes,
-          photos: photos.length > 0 ? photos : null,
-          labor_level: formData.laborLevel,
-          labor_cost_calculated: getLaborCost(),
-          diagnostic_fee_type: formData.diagnosticFeeType,
-          diagnostic_fee_amount: formData.diagnosticFeeAmount,
-          parts_cost: totalPartsCost.toString(),
-        })
-        .eq('id', caseData.id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error updating work order:', error);
-        toast({
-          title: "Error Updating Work Order",
-          description: "There was an error updating the work order. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Update parts in the database
-      await handlePartsUpdate();
-
-      toast({
-        title: "Work Order Updated Successfully",
-        description: `The work order has been updated. Total: $${getTotalCost().toFixed(2)}`,
-      });
-
-      onSave(data);
-    } catch (error) {
-      console.error('Error updating work order:', error);
-      toast({
-        title: "Error Updating Work Order",
-        description: "There was an error updating the work order. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const getSectionIcon = (section: keyof typeof expandedSections) => {
     return expandedSections[section] ? ChevronUp : ChevronDown;
+  };
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSubmit(
+      formData,
+      parts,
+      photos,
+      getLaborCost,
+      getTotalCost,
+      setIsSubmitting
+    );
   };
 
   if (showPaymentPage) {
@@ -321,7 +112,7 @@ const EditCaseForm = ({ case: caseData, onBack, onSave }: EditCaseFormProps) => 
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4">
           {/* Status Update Section */}
           <StatusUpdateSection
             currentCase={caseData}
