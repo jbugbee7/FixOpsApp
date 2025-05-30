@@ -42,7 +42,6 @@ const DashboardCompletedOrders = React.memo(({
       {/* Completed Work Orders List */}
       <WorkOrdersList 
         cases={completedCases} 
-        loading={loading} 
         onCaseClick={onCaseClick} 
       />
 

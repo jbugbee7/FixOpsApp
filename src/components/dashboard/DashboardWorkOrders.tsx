@@ -65,7 +65,6 @@ const DashboardWorkOrders = React.memo(({
       {/* Work Orders List */}
       <WorkOrdersList 
         cases={activeCases} 
-        loading={loading} 
         onCaseClick={onCaseClick} 
       />
 
