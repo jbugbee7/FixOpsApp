@@ -13,7 +13,7 @@ export const useBasicCaseStatusUpdate = (
   publicCases: PublicCase[],
   setPublicCases: (publicCases: PublicCase[]) => void
 ) => {
-  const updateCaseStatus = async (caseId: string, newStatus: string) => {
+  const updateCaseStatus = async (caseId: string, newStatus: string): Promise<boolean> => {
     try {
       if (!isOnline) {
         toast({
@@ -21,7 +21,7 @@ export const useBasicCaseStatusUpdate = (
           description: "Cannot update work orders while offline. Changes will be lost.",
           variant: "destructive"
         });
-        return;
+        return false;
       }
 
       // Check if this is a public case or regular case
@@ -41,7 +41,7 @@ export const useBasicCaseStatusUpdate = (
             description: "Failed to update work order status.",
             variant: "destructive"
           });
-          return;
+          return false;
         }
 
         // Remove from public cases list since it's moved to cases table
@@ -52,6 +52,7 @@ export const useBasicCaseStatusUpdate = (
           title: "Work Order Claimed",
           description: `Work order status updated to ${newStatus} and moved to your cases.`,
         });
+        return true;
       } else {
         // Update regular case
         const { error } = await supabase
@@ -66,7 +67,7 @@ export const useBasicCaseStatusUpdate = (
             description: "Failed to update work order status.",
             variant: "destructive"
           });
-          return;
+          return false;
         }
 
         // Update local state
@@ -82,6 +83,7 @@ export const useBasicCaseStatusUpdate = (
           title: "Work Order Updated",
           description: `Work order status updated to ${newStatus}.`,
         });
+        return true;
       }
     } catch (error) {
       console.error('Error updating case status:', error);
@@ -90,6 +92,7 @@ export const useBasicCaseStatusUpdate = (
         description: "An unexpected error occurred while updating the work order.",
         variant: "destructive"
       });
+      return false;
     }
   };
 

@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
-import { fetchAllCases, addSampleWorkOrders } from '@/services/casesService';
+import { fetchAllCases } from '@/services/casesService';
 
 export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -121,28 +121,15 @@ export const useSafariCaseOperations = (user: any, isOnline: boolean) => {
 
     if (isOnline) {
       try {
-        console.log('Adding sample work orders and syncing...');
+        console.log('Syncing all cases from database...');
         
-        // Add sample work orders to database
-        const addResult = await addSampleWorkOrders(user.id);
-        
-        if (addResult.error) {
-          console.error('Error adding sample work orders:', addResult.error);
-          toast({
-            title: "Sync Error",
-            description: "Failed to add new work orders to database.",
-            variant: "destructive"
-          });
-          return;
-        }
-
         // Fetch all cases including newly added ones
         initializedRef.current = false;
         await fetchCases();
         
         toast({
           title: "Sync Complete",
-          description: `Added ${addResult.cases?.length || 0} new work orders. All users will see updates in real-time.`,
+          description: "All work orders synchronized successfully.",
         });
       } catch (error) {
         console.error('Sync error:', error);
