@@ -31,7 +31,16 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
   });
 
   const handleSaveNewPart = async () => {
-    if (!user || !newPart.part_name || !newPart.part_number) {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to add parts to the directory.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newPart.part_name || !newPart.part_number) {
       toast({
         title: "Missing Information",
         description: "Please enter both part name and part number.",
@@ -43,6 +52,18 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
     setIsAdding(true);
     try {
       const finalPrice = calculateFinalPrice(newPart.part_cost, newPart.markup_percentage);
+      
+      console.log('Attempting to save part with user_id:', user.id);
+      console.log('Part data:', {
+        part_name: newPart.part_name,
+        part_number: newPart.part_number,
+        part_cost: newPart.part_cost,
+        markup_percentage: newPart.markup_percentage,
+        final_price: finalPrice,
+        appliance_type: newPart.appliance_type || null,
+        appliance_brand: newPart.appliance_brand || null,
+        user_id: user.id
+      });
       
       const { data, error } = await supabase
         .from('parts')
@@ -62,8 +83,8 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
       if (error) {
         console.error('Error saving part:', error);
         toast({
-          title: "Error",
-          description: "Failed to save part to directory.",
+          title: "Error Saving Part",
+          description: `Failed to save part: ${error.message}`,
           variant: "destructive"
         });
         return;
@@ -71,6 +92,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
 
       console.log('Part saved successfully:', data);
       
+      // Reset form
       setNewPart({
         part_name: '',
         part_number: '',
@@ -85,15 +107,15 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
       }
 
       toast({
-        title: "Part Saved",
+        title: "Part Saved Successfully",
         description: `${data.part_name} has been added to the parts directory.`,
       });
 
     } catch (error) {
-      console.error('Error saving part:', error);
+      console.error('Unexpected error saving part:', error);
       toast({
-        title: "Error",
-        description: "Failed to save part to directory.",
+        title: "Unexpected Error",
+        description: "An unexpected error occurred while saving the part. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -124,6 +146,14 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
       </CardHeader>
       {isExpanded && (
         <CardContent className="space-y-4">
+          {!user && (
+            <div className="p-3 border border-amber-200 rounded-lg bg-amber-50 dark:bg-amber-900/20 dark:border-amber-800">
+              <p className="text-sm text-amber-700 dark:text-amber-400">
+                Please log in to add parts to the directory.
+              </p>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="newPartName">Part Name *</Label>
@@ -132,6 +162,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
                 value={newPart.part_name}
                 onChange={(e) => handleInputChange('part_name', e.target.value)}
                 placeholder="Enter part name"
+                disabled={!user}
               />
             </div>
             <div>
@@ -141,6 +172,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
                 value={newPart.part_number}
                 onChange={(e) => handleInputChange('part_number', e.target.value)}
                 placeholder="Enter part number"
+                disabled={!user}
               />
             </div>
           </div>
@@ -156,6 +188,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
                 value={newPart.part_cost || ''}
                 onChange={(e) => handleInputChange('part_cost', parseFloat(e.target.value) || 0)}
                 placeholder="0.00"
+                disabled={!user}
               />
             </div>
             <div>
@@ -168,6 +201,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
                 value={newPart.markup_percentage}
                 onChange={(e) => handleInputChange('markup_percentage', parseFloat(e.target.value) || 75)}
                 placeholder="75"
+                disabled={!user}
               />
             </div>
           </div>
@@ -180,6 +214,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
                 value={newPart.appliance_brand}
                 onChange={(e) => handleInputChange('appliance_brand', e.target.value)}
                 placeholder="e.g., GE, Whirlpool"
+                disabled={!user}
               />
             </div>
             <div>
@@ -189,6 +224,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
                 value={newPart.appliance_type}
                 onChange={(e) => handleInputChange('appliance_type', e.target.value)}
                 placeholder="e.g., Washer, Dryer"
+                disabled={!user}
               />
             </div>
           </div>
@@ -202,7 +238,7 @@ const AddPartToDirectory = ({ applianceType, applianceBrand, onPartAdded }: AddP
             </div>
             <Button
               onClick={handleSaveNewPart}
-              disabled={isAdding || !newPart.part_name || !newPart.part_number}
+              disabled={isAdding || !user || !newPart.part_name || !newPart.part_number}
               className="flex items-center space-x-2"
             >
               <Save className="h-4 w-4" />
