@@ -370,9 +370,12 @@ export type Database = {
       public_cases: {
         Row: {
           appliance_brand: string
+          appliance_brand_selection: string | null
+          appliance_model: string | null
           appliance_type: string
           created_at: string
           customer_address: string | null
+          customer_email: string | null
           customer_name: string
           customer_phone: string | null
           diagnostic_fee_amount: number | null
@@ -384,9 +387,12 @@ export type Database = {
         }
         Insert: {
           appliance_brand: string
+          appliance_brand_selection?: string | null
+          appliance_model?: string | null
           appliance_type: string
           created_at?: string
           customer_address?: string | null
+          customer_email?: string | null
           customer_name: string
           customer_phone?: string | null
           diagnostic_fee_amount?: number | null
@@ -398,9 +404,12 @@ export type Database = {
         }
         Update: {
           appliance_brand?: string
+          appliance_brand_selection?: string | null
+          appliance_model?: string | null
           appliance_type?: string
           created_at?: string
           customer_address?: string | null
+          customer_email?: string | null
           customer_name?: string
           customer_phone?: string | null
           diagnostic_fee_amount?: number | null
