@@ -11,9 +11,10 @@ import { Case } from '@/types/case';
 import { useEditCaseForm } from '@/hooks/useEditCaseForm';
 import { useEditCaseSubmit } from '@/hooks/useEditCaseSubmit';
 import { useCaseDetailsActions } from './case/CaseDetailsActions';
+import { updatePublicCase } from '@/services/publicCasesService';
 
 interface CaseDetailsProps {
-  case: Case;
+  case: Case | any;
   onBack: () => void;
   onStatusUpdate: (caseId: string, newStatus: string) => void;
 }
@@ -35,6 +36,8 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
   const [currentCase, setCurrentCase] = useState(caseData);
   const [caseParts, setCaseParts] = useState<CasePart[]>([]);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
+
+  const isPublicCase = !currentCase.user_id;
 
   const {
     formData,
@@ -66,9 +69,9 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
     onBack
   });
 
-  // Load case parts from database
+  // Load case parts from database (only for owned cases)
   const loadCaseParts = async () => {
-    if (!user || !currentCase.id) return;
+    if (!user || !currentCase.id || isPublicCase) return;
 
     try {
       console.log('Loading case parts for case:', currentCase.id);
@@ -112,17 +115,58 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
   };
 
   const onSubmit = async () => {
-    await handleSubmit(
-      formData,
-      parts,
-      photos,
-      getLaborCost,
-      getTotalCost,
-      setIsSubmitting
-    );
+    if (isPublicCase) {
+      // For public cases, update the public_cases table which will trigger the move
+      try {
+        setIsSubmitting(true);
+        const result = await updatePublicCase(currentCase.id, {
+          customer_name: formData.customer_name,
+          customer_phone: formData.customer_phone || undefined,
+          customer_address: formData.customer_address || undefined,
+          appliance_brand: formData.appliance_brand,
+          appliance_type: formData.appliance_type,
+          problem_description: formData.problem_description,
+          diagnostic_fee_type: formData.diagnostic_fee_type || undefined,
+          diagnostic_fee_amount: formData.diagnostic_fee_amount || undefined,
+          status: formData.status,
+          updated_at: new Date().toISOString()
+        });
+
+        if (!result.success) {
+          throw result.error;
+        }
+
+        toast({
+          title: "Work Order Claimed",
+          description: "You've successfully claimed this work order!",
+        });
+        
+        // Go back to list since the case is now moved to the user's cases
+        onBack();
+      } catch (error) {
+        console.error('Error claiming public case:', error);
+        toast({
+          title: "Error Claiming Work Order",
+          description: "Failed to claim the work order. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      // Regular case update
+      await handleSubmit(
+        formData,
+        parts,
+        photos,
+        getLaborCost,
+        getTotalCost,
+        setIsSubmitting
+      );
+    }
   };
 
-  if (showPaymentPage) {
+  if (showPaymentPage && !isPublicCase) {
     return (
       <PaymentPage 
         case={currentCase}
@@ -147,6 +191,18 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
       />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isPublicCase && !isEditing && (
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+              <Globe className="h-5 w-5" />
+              <span className="font-medium">Public Work Order</span>
+            </div>
+            <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+              This is a public work order. Click "Edit" to claim ownership and move it to your cases.
+            </p>
+          </div>
+        )}
+
         {isEditing ? (
           <CaseDetailsForm
             currentCase={currentCase}
@@ -172,7 +228,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
             onSPTComplete={handleSPTComplete}
             onStatusChange={handleStatusChange}
             getTotalCostValue={getTotalCostValue}
-            setShowPaymentPage={setShowPaymentPage}
+            setShowPaymentPage={!isPublicCase ? setShowPaymentPage : undefined}
           />
         )}
       </div>

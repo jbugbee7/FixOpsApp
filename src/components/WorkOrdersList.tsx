@@ -1,12 +1,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, User, Wrench } from 'lucide-react';
+import { Calendar, MapPin, User, Wrench, Globe } from 'lucide-react';
 import { Case } from '@/types/case';
 
 interface WorkOrdersListProps {
-  cases: Case[];
-  onCaseClick: (caseItem: Case) => void;
+  cases: (Case | any)[];
+  onCaseClick: (caseItem: Case | any) => void;
 }
 
 const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
@@ -33,6 +33,10 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
     });
   };
 
+  const isPublicCase = (caseItem: any) => {
+    return !caseItem.user_id; // Public cases don't have user_id
+  };
+
   if (cases.length === 0) {
     return (
       <div className="text-center py-12">
@@ -53,12 +57,22 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
         >
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg dark:text-slate-100">
+              <CardTitle className="text-lg dark:text-slate-100 flex items-center gap-2">
+                {isPublicCase(caseItem) && (
+                  <Globe className="h-4 w-4 text-blue-500" title="Public work order" />
+                )}
                 {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
               </CardTitle>
-              <Badge className={getStatusColor(caseItem.status)}>
-                {caseItem.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {isPublicCase(caseItem) && (
+                  <Badge variant="outline" className="text-xs">
+                    Public
+                  </Badge>
+                )}
+                <Badge className={getStatusColor(caseItem.status)}>
+                  {caseItem.status}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -90,6 +104,14 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
             <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
               {caseItem.problem_description}
             </p>
+
+            {isPublicCase(caseItem) && (
+              <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  🌍 This is a public work order. Edit it to claim ownership.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}

@@ -367,6 +367,51 @@ export type Database = {
         }
         Relationships: []
       }
+      public_cases: {
+        Row: {
+          appliance_brand: string
+          appliance_type: string
+          created_at: string
+          customer_address: string | null
+          customer_name: string
+          customer_phone: string | null
+          diagnostic_fee_amount: number | null
+          diagnostic_fee_type: string | null
+          id: string
+          problem_description: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appliance_brand: string
+          appliance_type: string
+          created_at?: string
+          customer_address?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          diagnostic_fee_amount?: number | null
+          diagnostic_fee_type?: string | null
+          id?: string
+          problem_description: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appliance_brand?: string
+          appliance_type?: string
+          created_at?: string
+          customer_address?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          diagnostic_fee_amount?: number | null
+          diagnostic_fee_type?: string | null
+          id?: string
+          problem_description?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

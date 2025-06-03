@@ -1,13 +1,13 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
-import { fetchAllCases } from '@/services/casesService';
+import { fetchAllCasesAndPublicCases, PublicCase } from '@/services/publicCasesService';
 
 export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
+  const [publicCases, setPublicCases] = useState<PublicCase[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const fetchingRef = useRef(false);
@@ -20,6 +20,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
       if (mountedRef.current) {
         setLoading(false);
         setCases([]);
+        setPublicCases([]);
       }
       return;
     }
@@ -45,7 +46,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     }
     
     try {
-      console.log('Starting fetch for ALL cases - cross-user visibility enabled');
+      console.log('Starting fetch for cases and public cases');
       
       // If offline or explicitly requesting offline data, try AsyncStorage first
       if (!isOnline || useOfflineData) {
@@ -53,6 +54,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
         if (offlineData && offlineData.cases && mountedRef.current) {
           console.log('Using cached data:', offlineData.cases.length, 'cases');
           setCases(offlineData.cases);
+          setPublicCases([]); // No offline public cases for now
           if (!isOnline) {
             toast({
               title: "Offline Mode",
@@ -66,47 +68,42 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
         }
       }
 
-      // Fetch ALL cases for cross-user visibility if online
+      // Fetch from both tables if online
       if (isOnline) {
-        console.log('Fetching ALL cases from database - all authenticated users can see all work orders');
+        console.log('Fetching from both cases and public_cases tables');
         
-        const result = await fetchAllCases();
+        const result = await fetchAllCasesAndPublicCases();
 
         if (!mountedRef.current) return;
 
         if (result.error) {
-          console.error('Supabase error:', result.error);
+          console.error('Fetch error:', result.error);
           setHasError(true);
           
-          // Handle specific errors more efficiently
-          if (result.error.code === '42P17' || result.error.message.includes('policy')) {
-            console.log('Database policy error - showing empty state');
-            setCases([]);
+          // Try cached data as fallback
+          const offlineData = await AsyncStorage.getCases();
+          if (offlineData?.cases?.length) {
+            setCases(offlineData.cases);
+            setPublicCases([]);
             toast({
-              title: "Welcome to FixOps",
-              description: "Ready to get started!",
+              title: "Using Cached Data",
+              description: "Connection issues detected.",
               variant: "default"
             });
           } else {
-            // Try cached data for other errors
-            const offlineData = await AsyncStorage.getCases();
-            if (offlineData?.cases?.length) {
-              setCases(offlineData.cases);
-              toast({
-                title: "Using Cached Data",
-                description: "Connection issues detected.",
-                variant: "default"
-              });
-            } else {
-              setCases([]);
-            }
+            setCases([]);
+            setPublicCases([]);
           }
         } else {
-          console.log('Successfully fetched ALL cases:', result.cases?.length || 0, 'cases from all users');
+          console.log('Successfully fetched:', {
+            cases: result.cases?.length || 0,
+            publicCases: result.publicCases?.length || 0
+          });
           setCases(result.cases || []);
+          setPublicCases(result.publicCases || []);
           setHasError(false);
           
-          // Efficiently store data only if changed
+          // Store owned cases in cache
           if (result.cases?.length) {
             AsyncStorage.storeCases(result.cases);
           }
@@ -122,6 +119,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
           const offlineData = await AsyncStorage.getCases();
           if (offlineData?.cases?.length) {
             setCases(offlineData.cases);
+            setPublicCases([]);
             toast({
               title: "Using Cached Data",
               description: "Connection error detected.",
@@ -129,17 +127,19 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
             });
           } else {
             setCases([]);
+            setPublicCases([]);
           }
         } catch (storageError) {
           console.error('Error accessing cached data:', storageError);
           setCases([]);
+          setPublicCases([]);
         }
       }
     } finally {
       if (mountedRef.current) {
         setLoading(false);
         fetchingRef.current = false;
-        console.log('Case fetch completed - cross-user visibility active');
+        console.log('Case fetch completed');
       }
     }
   }, [user?.id, isOnline]);
@@ -170,7 +170,9 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
 
   return {
     cases,
+    publicCases,
     setCases,
+    setPublicCases,
     loading,
     hasError,
     fetchCases
