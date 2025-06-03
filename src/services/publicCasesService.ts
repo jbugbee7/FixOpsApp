@@ -73,6 +73,7 @@ export const fetchAllCasesAndPublicCases = async (): Promise<CombinedCasesResult
       cases: casesResult.data?.length || 0,
       publicCases: publicCasesResult.data?.length || 0
     });
+    console.log('Public cases details:', publicCasesResult.data);
 
     return {
       cases: casesResult.data || [],
@@ -96,22 +97,22 @@ export const removeTestCases = async (): Promise<{ success: boolean; error?: any
   console.log('Removing test cases from both tables');
   
   try {
-    // Remove test cases from cases table
+    // Remove test cases from cases table - using case-insensitive search
     const { error: casesError } = await supabase
       .from('cases')
       .delete()
-      .ilike('customer_name', '%test%');
+      .or('customer_name.ilike.%test%,customer_name.ilike.%TEST%,customer_name.ilike.%Test%');
 
     if (casesError) {
       console.error('Error removing test cases from cases table:', casesError);
       return { success: false, error: casesError };
     }
 
-    // Remove test cases from public_cases table
+    // Remove test cases from public_cases table - using case-insensitive search
     const { error: publicCasesError } = await supabase
       .from('public_cases')
       .delete()
-      .ilike('customer_name', '%test%');
+      .or('customer_name.ilike.%test%,customer_name.ilike.%TEST%,customer_name.ilike.%Test%');
 
     if (publicCasesError) {
       console.error('Error removing test cases from public_cases table:', publicCasesError);

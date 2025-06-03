@@ -99,7 +99,8 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
             cases: result.cases?.length || 0,
             publicCases: result.publicCases?.length || 0
           });
-          console.log('Public cases data:', result.publicCases);
+          console.log('Cases data sample:', result.cases?.slice(0, 2));
+          console.log('Public cases data sample:', result.publicCases?.slice(0, 2));
           setCases(result.cases || []);
           setPublicCases(result.publicCases || []);
           setHasError(false);
