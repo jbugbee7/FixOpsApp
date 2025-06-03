@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -129,7 +128,7 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
           problem_description: formData.problemDescription,
           diagnostic_fee_type: formData.diagnosticFeeType || undefined,
           diagnostic_fee_amount: formData.diagnosticFeeAmount || undefined,
-          status: formData.status,
+          status: currentCase.status, // Use currentCase.status instead of formData.status
           updated_at: new Date().toISOString()
         });
 

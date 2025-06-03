@@ -92,6 +92,40 @@ export const fetchAllCasesAndPublicCases = async (): Promise<CombinedCasesResult
   }
 };
 
+export const removeTestCases = async (): Promise<{ success: boolean; error?: any }> => {
+  console.log('Removing test cases from both tables');
+  
+  try {
+    // Remove test cases from cases table
+    const { error: casesError } = await supabase
+      .from('cases')
+      .delete()
+      .ilike('customer_name', '%test%');
+
+    if (casesError) {
+      console.error('Error removing test cases from cases table:', casesError);
+      return { success: false, error: casesError };
+    }
+
+    // Remove test cases from public_cases table
+    const { error: publicCasesError } = await supabase
+      .from('public_cases')
+      .delete()
+      .ilike('customer_name', '%test%');
+
+    if (publicCasesError) {
+      console.error('Error removing test cases from public_cases table:', publicCasesError);
+      return { success: false, error: publicCasesError };
+    }
+
+    console.log('Test cases removed successfully from both tables');
+    return { success: true };
+  } catch (error) {
+    console.error('Unexpected error removing test cases:', error);
+    return { success: false, error };
+  }
+};
+
 export const updatePublicCase = async (caseId: string, updates: Partial<PublicCase>): Promise<{ success: boolean; error?: any }> => {
   console.log('Updating public case:', caseId, updates);
   

@@ -2,6 +2,7 @@
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
+import { removeTestCases } from '@/services/publicCasesService';
 
 export const useBasicResyncOperations = (
   isOnline: boolean,
@@ -28,13 +29,22 @@ export const useBasicResyncOperations = (
           });
         }
       } else {
-        // If online, fetch fresh data from Supabase
+        // If online, remove test cases first, then fetch fresh data from Supabase
+        console.log('Removing test cases before sync...');
+        const removeResult = await removeTestCases();
+        
+        if (removeResult.success) {
+          console.log('Test cases removed successfully');
+        } else {
+          console.warn('Failed to remove test cases:', removeResult.error);
+        }
+        
         await fetchCases();
         await AsyncStorage.clearCases(); // Clear old cache
         setHasOfflineData(false);
         toast({
           title: "Resync Complete",
-          description: "All data has been synchronized with the server.",
+          description: "All data has been synchronized with the server and test cases removed.",
         });
       }
     } catch (error) {

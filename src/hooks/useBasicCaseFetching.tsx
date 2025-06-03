@@ -99,6 +99,7 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
             cases: result.cases?.length || 0,
             publicCases: result.publicCases?.length || 0
           });
+          console.log('Public cases data:', result.publicCases);
           setCases(result.cases || []);
           setPublicCases(result.publicCases || []);
           setHasError(false);
@@ -157,7 +158,6 @@ export const useBasicCaseFetching = (user: any, isOnline: boolean) => {
     
     return () => {
       clearTimeout(timeoutId);
-      mountedRef.current = false;
     };
   }, [fetchCases]);
 
