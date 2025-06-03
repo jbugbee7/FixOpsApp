@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
+import { Globe } from 'lucide-react';
 import CaseDetailsHeader from './case/CaseDetailsHeader';
 import CaseDetailsViewMode from './case/CaseDetailsViewMode';
 import CaseDetailsForm from './case/CaseDetailsForm';
@@ -120,14 +121,14 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
       try {
         setIsSubmitting(true);
         const result = await updatePublicCase(currentCase.id, {
-          customer_name: formData.customer_name,
-          customer_phone: formData.customer_phone || undefined,
-          customer_address: formData.customer_address || undefined,
-          appliance_brand: formData.appliance_brand,
-          appliance_type: formData.appliance_type,
-          problem_description: formData.problem_description,
-          diagnostic_fee_type: formData.diagnostic_fee_type || undefined,
-          diagnostic_fee_amount: formData.diagnostic_fee_amount || undefined,
+          customer_name: formData.customerName,
+          customer_phone: formData.customerPhone || undefined,
+          customer_address: formData.customerAddress || undefined,
+          appliance_brand: formData.applianceBrand,
+          appliance_type: formData.applianceType,
+          problem_description: formData.problemDescription,
+          diagnostic_fee_type: formData.diagnosticFeeType || undefined,
+          diagnostic_fee_amount: formData.diagnosticFeeAmount || undefined,
           status: formData.status,
           updated_at: new Date().toISOString()
         });

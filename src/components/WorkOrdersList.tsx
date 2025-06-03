@@ -59,7 +59,7 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg dark:text-slate-100 flex items-center gap-2">
                 {isPublicCase(caseItem) && (
-                  <Globe className="h-4 w-4 text-blue-500" title="Public work order" />
+                  <Globe className="h-4 w-4 text-blue-500" />
                 )}
                 {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
               </CardTitle>
