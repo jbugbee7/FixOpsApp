@@ -10,6 +10,10 @@ interface WorkOrdersListProps {
 }
 
 const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
+  // Add logging to see what cases are being passed
+  console.log('WorkOrdersList received cases:', cases);
+  console.log('Cases count:', cases.length);
+  
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'scheduled':
@@ -49,72 +53,75 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
 
   return (
     <div className="space-y-4">
-      {cases.map((caseItem) => (
-        <Card 
-          key={caseItem.id} 
-          className="cursor-pointer hover:shadow-md transition-shadow dark:bg-slate-800 dark:border-slate-700"
-          onClick={() => onCaseClick(caseItem)}
-        >
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg dark:text-slate-100 flex items-center gap-2">
-                {isPublicCase(caseItem) && (
-                  <Globe className="h-4 w-4 text-blue-500" />
-                )}
-                {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                {isPublicCase(caseItem) && (
-                  <Badge variant="outline" className="text-xs">
-                    Public
+      {cases.map((caseItem) => {
+        console.log('Rendering case:', caseItem.id, 'isPublic:', isPublicCase(caseItem));
+        return (
+          <Card 
+            key={caseItem.id} 
+            className="cursor-pointer hover:shadow-md transition-shadow dark:bg-slate-800 dark:border-slate-700"
+            onClick={() => onCaseClick(caseItem)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg dark:text-slate-100 flex items-center gap-2">
+                  {isPublicCase(caseItem) && (
+                    <Globe className="h-4 w-4 text-blue-500" />
+                  )}
+                  {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  {isPublicCase(caseItem) && (
+                    <Badge variant="outline" className="text-xs">
+                      Public
+                    </Badge>
+                  )}
+                  <Badge className={getStatusColor(caseItem.status)}>
+                    {caseItem.status}
                   </Badge>
-                )}
-                <Badge className={getStatusColor(caseItem.status)}>
-                  {caseItem.status}
-                </Badge>
+                </div>
               </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <User className="h-4 w-4" />
-              <span>{caseItem.customer_name}</span>
-            </div>
-            
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <Wrench className="h-4 w-4" />
-              <span>{caseItem.appliance_brand} {caseItem.appliance_type}</span>
-            </div>
-
-            <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-              <Calendar className="h-4 w-4" />
-              <span>{formatDate(caseItem.created_at)}</span>
-            </div>
-
-            {(caseItem.customer_city || caseItem.customer_state) && (
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <MapPin className="h-4 w-4" />
-                <span>
-                  {caseItem.customer_city}{caseItem.customer_city && caseItem.customer_state ? ', ' : ''}
-                  {caseItem.customer_state}
-                </span>
+                <User className="h-4 w-4" />
+                <span>{caseItem.customer_name}</span>
               </div>
-            )}
-            
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-              {caseItem.problem_description}
-            </p>
+              
+              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                <Wrench className="h-4 w-4" />
+                <span>{caseItem.appliance_brand} {caseItem.appliance_type}</span>
+              </div>
 
-            {isPublicCase(caseItem) && (
-              <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                <p className="text-xs text-blue-600 dark:text-blue-400">
-                  🌍 This is a public work order. Edit it to claim ownership.
-                </p>
+              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                <Calendar className="h-4 w-4" />
+                <span>{formatDate(caseItem.created_at)}</span>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+
+              {(caseItem.customer_city || caseItem.customer_state) && (
+                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                  <MapPin className="h-4 w-4" />
+                  <span>
+                    {caseItem.customer_city}{caseItem.customer_city && caseItem.customer_state ? ', ' : ''}
+                    {caseItem.customer_state}
+                  </span>
+                </div>
+              )}
+              
+              <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
+                {caseItem.problem_description}
+              </p>
+
+              {isPublicCase(caseItem) && (
+                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                    🌍 This is a public work order. Edit it to claim ownership.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };
