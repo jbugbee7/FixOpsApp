@@ -51,14 +51,14 @@ const FixChatPage = () => {
 
   // Auto-select General Discussion first, then fall back to first conversation
   React.useEffect(() => {
-    if (!selectedConversation && conversations.length > 0) {
+    if (!selectedConversation && conversations.length > 0 && !conversationsLoading) {
       if (generalDiscussion) {
         setSelectedConversation(generalDiscussion.id);
       } else {
         setSelectedConversation(conversations[0].id);
       }
     }
-  }, [conversations, selectedConversation, generalDiscussion]);
+  }, [conversations, selectedConversation, generalDiscussion, conversationsLoading]);
 
   const getPlaceholderText = () => {
     if (!currentConversation) return "Select a conversation to start chatting";
