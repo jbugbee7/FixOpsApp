@@ -28,14 +28,6 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
 
   const statusOptions = [
     { 
-      value: 'Scheduled', 
-      label: 'Scheduled', 
-      icon: Calendar, 
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50 hover:bg-blue-100',
-      description: 'Schedule this work order' 
-    },
-    { 
       value: 'travel', 
       label: 'Travel', 
       icon: MapPin, 
@@ -70,6 +62,14 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
   ];
 
   const sptOptions = [
+    { 
+      value: 'Scheduled', 
+      label: 'Scheduled', 
+      icon: Calendar, 
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50 hover:bg-blue-100',
+      description: 'Schedule this work order' 
+    },
     { 
       value: 'spr', 
       label: 'SPR', 
@@ -134,13 +134,20 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
     if (!user) return;
 
     try {
-      const updateData: any = { spt_status: sptStatus };
+      const updateData: any = {};
       
       if (sptStatus === 'complete') {
+        updateData.spt_status = sptStatus;
         updateData.status = 'Completed';
       } else if (sptStatus === 'spr') {
+        updateData.spt_status = sptStatus;
         // SPR should keep the work order in active status, not completed
         updateData.status = 'Scheduled';
+      } else if (sptStatus === 'Scheduled') {
+        // Handle the moved "Scheduled" option
+        updateData.status = 'Scheduled';
+        // Clear any existing spt_status when scheduling
+        updateData.spt_status = null;
       }
 
       const { error } = await supabase
@@ -151,10 +158,22 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Job Status Updated",
-        description: sptStatus === 'complete' ? "Work order marked as complete." : "SPR scheduled.",
-      });
+      if (sptStatus === 'complete') {
+        toast({
+          title: "Job Status Updated",
+          description: "Work order marked as complete.",
+        });
+      } else if (sptStatus === 'spr') {
+        toast({
+          title: "Job Status Updated",
+          description: "SPR scheduled.",
+        });
+      } else if (sptStatus === 'Scheduled') {
+        toast({
+          title: "Status Updated",
+          description: "Work order status updated to Scheduled.",
+        });
+      }
 
       // Reload the page to reflect changes in the dashboard tabs
       window.location.reload();
@@ -228,7 +247,7 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56 bg-white dark:bg-slate-800 border shadow-lg z-50">
-            <DropdownMenuLabel className="text-sm font-medium">Job Completion</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-sm font-medium">Job Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {sptOptions.map((option) => {
               const OptionIcon = option.icon;
@@ -237,7 +256,8 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
                   key={option.value}
                   onClick={() => handleSPTComplete(option.value)}
                   className={`flex items-center gap-3 p-3 cursor-pointer ${option.bgColor} border-l-4 border-transparent hover:border-current ${
-                    currentCase.spt_status === option.value ? 'border-current' : ''
+                    (currentCase.spt_status === option.value) || 
+                    (option.value === 'Scheduled' && currentCase.status === 'Scheduled') ? 'border-current' : ''
                   }`}
                 >
                   <OptionIcon className={`h-4 w-4 ${option.color}`} />
