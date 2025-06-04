@@ -1,20 +1,31 @@
 
-import { AlertTriangle } from 'lucide-react';
+import React from 'react';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 
 interface ConnectionStatusProps {
   hasConnectionError: boolean;
 }
 
 const ConnectionStatus = ({ hasConnectionError }: ConnectionStatusProps) => {
-  if (!hasConnectionError) return null;
+  if (hasConnectionError) {
+    return (
+      <Alert variant="destructive" className="border-red-200 bg-red-50 dark:bg-red-950">
+        <WifiOff className="h-4 w-4" />
+        <AlertDescription className="text-red-700 dark:text-red-400">
+          Connection lost. Messages may not sync properly. Check your internet connection.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
-    <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-      <div className="flex items-center justify-center space-x-2 text-yellow-800 dark:text-yellow-200">
-        <AlertTriangle className="h-4 w-4" />
-        <span className="text-sm">Connection issues detected - forum may be limited</span>
-      </div>
-    </div>
+    <Alert className="border-green-200 bg-green-50 dark:bg-green-950">
+      <CheckCircle className="h-4 w-4 text-green-600" />
+      <AlertDescription className="text-green-700 dark:text-green-400">
+        Connected to repair forum
+      </AlertDescription>
+    </Alert>
   );
 };
 

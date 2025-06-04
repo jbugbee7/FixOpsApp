@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Send, Loader2 } from 'lucide-react';
+import { MessageCircle, Send, Loader2, RefreshCw } from 'lucide-react';
 import { useConversationMessages } from '@/hooks/useConversationMessages';
 import { useConversations } from '@/hooks/useConversations';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -19,7 +19,7 @@ const FixChatPage = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const isMobile = useIsMobile();
   
-  const { conversations } = useConversations();
+  const { conversations, isLoading: conversationsLoading, error: conversationsError, refetch: refetchConversations } = useConversations();
   const {
     messages,
     inputMessage,
@@ -67,6 +67,10 @@ const FixChatPage = () => {
       return "Join the general discussion...";
     }
     return "Share your repair tips, ask questions, or help fellow technicians...";
+  };
+
+  const handleRetryConversations = () => {
+    refetchConversations();
   };
 
   return (
@@ -120,13 +124,44 @@ const FixChatPage = () => {
             <div className="px-4 py-2">
               <ConnectionStatus hasConnectionError={hasConnectionError} />
             </div>
+
+            {/* Error State for Conversations */}
+            {conversationsError && (
+              <div className="px-4 py-2">
+                <div className="bg-red-50 dark:bg-red-950 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-red-700 dark:text-red-400 text-sm">
+                      Failed to load conversations. Please try refreshing.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRetryConversations}
+                      className="ml-2"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-1" />
+                      Retry
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
             
-            {!selectedConversation ? (
+            {conversationsLoading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <Loader2 className="h-8 w-8 text-slate-400 mx-auto mb-4 animate-spin" />
+                  <p className="text-slate-500 dark:text-slate-400">
+                    Loading conversations...
+                  </p>
+                </div>
+              </div>
+            ) : !selectedConversation ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
                   <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
                   <p className="text-slate-500 dark:text-slate-400">
-                    Loading conversations...
+                    {conversations.length === 0 ? 'No conversations available' : 'Select a conversation to start chatting'}
                   </p>
                 </div>
               </div>
