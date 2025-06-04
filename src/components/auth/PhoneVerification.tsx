@@ -52,18 +52,18 @@ const PhoneVerification = ({ userId, phoneNumber, onVerificationComplete }: Phon
     setIsResending(true);
     try {
       const newCode = generateVerificationCode();
-      await storeVerificationCode(userId, phoneNumber, newCode);
-      await sendVerificationSMS(phoneNumber, newCode);
+      await storeVerificationCode(userId, newCode);
+      await sendVerificationSMS(newCode);
       
       toast({
-        title: "Code Resent",
-        description: `A new verification code has been sent to ${phoneNumber}`,
+        title: "Code Requested",
+        description: "A new verification code has been requested from the administrator.",
       });
       setCode('');
     } catch (error: any) {
       toast({
-        title: "Resend Failed",
-        description: error.message || "Failed to resend verification code. Please try again.",
+        title: "Request Failed",
+        description: error.message || "Failed to request new verification code. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -77,12 +77,20 @@ const PhoneVerification = ({ userId, phoneNumber, onVerificationComplete }: Phon
         <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
           <Smartphone className="h-6 w-6 text-white" />
         </div>
-        <CardTitle className="dark:text-slate-100">Verify Your Phone Number</CardTitle>
+        <CardTitle className="dark:text-slate-100">Verification Required</CardTitle>
         <p className="text-slate-600 dark:text-slate-400 text-sm">
-          We've sent a 6-digit verification code to {phoneNumber}
+          Please contact the administrator for your 6-digit verification code
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            Your account is registered with phone number: <strong>{phoneNumber}</strong>
+            <br />
+            The administrator will provide you with a verification code to complete your registration.
+          </p>
+        </div>
+
         <div className="flex justify-center">
           <InputOTP
             maxLength={6}
@@ -106,7 +114,7 @@ const PhoneVerification = ({ userId, phoneNumber, onVerificationComplete }: Phon
             disabled={isVerifying || code.length !== 6}
             className="w-full"
           >
-            {isVerifying ? "Verifying..." : "Verify Phone Number"}
+            {isVerifying ? "Verifying..." : "Verify Code"}
           </Button>
 
           <Button 
@@ -116,12 +124,12 @@ const PhoneVerification = ({ userId, phoneNumber, onVerificationComplete }: Phon
             className="w-full"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isResending ? 'animate-spin' : ''}`} />
-            {isResending ? "Resending..." : "Resend Code"}
+            {isResending ? "Requesting..." : "Request New Code"}
           </Button>
         </div>
 
         <p className="text-xs text-slate-500 text-center">
-          Didn't receive the code? Check your messages or try resending.
+          Don't have a code? Contact the administrator or request a new one above.
         </p>
       </CardContent>
     </Card>

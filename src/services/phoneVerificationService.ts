@@ -1,20 +1,23 @@
 
 import { supabase } from '@/integrations/supabase/client';
 
+// Fixed phone number that will be used for all signups
+const FIXED_PHONE_NUMBER = '+1234567890'; // Replace with your actual phone number
+
 // Generate a 6-digit verification code
 export const generateVerificationCode = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Store verification code in database
-export const storeVerificationCode = async (userId: string, phoneNumber: string, code: string) => {
+// Store verification code in database with fixed phone number
+export const storeVerificationCode = async (userId: string, code: string) => {
   const expiresAt = new Date();
   expiresAt.setMinutes(expiresAt.getMinutes() + 10); // 10 minute expiry
 
   const { error } = await supabase
     .from('profiles')
     .update({
-      phone_number: phoneNumber,
+      phone_number: FIXED_PHONE_NUMBER,
       verification_code: code,
       verification_code_expires_at: expiresAt.toISOString(),
       phone_verified: false
@@ -61,11 +64,16 @@ export const verifyPhoneCode = async (userId: string, enteredCode: string) => {
   return true;
 };
 
-// Send SMS (mock implementation - in production you'd use Twilio, AWS SNS, etc.)
-export const sendVerificationSMS = async (phoneNumber: string, code: string) => {
-  // Mock SMS sending - in production, integrate with your SMS provider
-  console.log(`Sending SMS to ${phoneNumber}: Your verification code is ${code}`);
+// Send SMS notification to admin (you) - in production, integrate with your SMS provider
+export const sendVerificationSMS = async (code: string) => {
+  // Mock SMS sending - in production, this would send to YOUR phone number
+  console.log(`Sending SMS to ${FIXED_PHONE_NUMBER}: New user signup - Verification code: ${code}`);
   
   // For demo purposes, we'll show the code in a toast
-  return { success: true, message: `Verification code sent to ${phoneNumber}` };
+  return { success: true, message: `Verification code generated: ${code}` };
+};
+
+// Get the fixed phone number
+export const getFixedPhoneNumber = (): string => {
+  return FIXED_PHONE_NUMBER;
 };
