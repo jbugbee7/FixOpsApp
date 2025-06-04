@@ -9,7 +9,7 @@ export const useCaseSubmission = (
   isPublicCase: boolean,
   onBack: () => void,
   loadCaseParts: () => void,
-  setCurrentCase: (case: Case) => void,
+  setCurrentCase: (caseData: Case) => void,
   setIsEditing: (editing: boolean) => void
 ) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
