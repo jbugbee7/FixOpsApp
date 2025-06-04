@@ -30,7 +30,6 @@ interface FormData {
 export const useCreateCaseForm = () => {
   const { user, userProfile } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photos, setPhotos] = useState<string[]>([]);
   const [parts, setParts] = useState<any[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
@@ -98,7 +97,6 @@ export const useCreateCaseForm = () => {
       diagnosticFeeType: '',
       diagnosticFeeAmount: 0,
     });
-    setPhotos([]);
     setParts([]);
   };
 
@@ -122,11 +120,9 @@ export const useCreateCaseForm = () => {
 
   return {
     formData,
-    photos,
     parts,
     isSubmitting,
     user,
-    setPhotos,
     setParts,
     setIsSubmitting,
     handleInputChange,

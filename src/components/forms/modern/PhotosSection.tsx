@@ -2,7 +2,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera } from 'lucide-react';
 import { LucideIcon } from 'lucide-react';
-import CameraCapture from '../../CameraCapture';
 
 interface PhotosSectionProps {
   photos: string[];
@@ -36,7 +35,11 @@ const PhotosSection = ({ photos, onPhotosChange, expanded, onToggle, icon: Icon 
       </CardHeader>
       {expanded && (
         <CardContent className="animate-fade-in">
-          <CameraCapture photos={photos} onPhotosChange={onPhotosChange} />
+          <div className="text-center py-8 text-slate-500 dark:text-slate-400">
+            <Camera className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Camera functionality has been temporarily disabled.</p>
+            <p className="text-sm mt-2">Photos can be added in a future update.</p>
+          </div>
         </CardContent>
       )}
     </Card>

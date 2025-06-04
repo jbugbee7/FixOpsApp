@@ -43,7 +43,6 @@ interface FormData {
 export const useEditCaseForm = (caseData: Case) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photos, setPhotos] = useState<string[]>(caseData.photos || []);
   const [parts, setParts] = useState<Part[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
@@ -131,10 +130,8 @@ export const useEditCaseForm = (caseData: Case) => {
 
   return {
     formData,
-    photos,
     parts,
     isSubmitting,
-    setPhotos,
     setParts,
     setIsSubmitting,
     handleInputChange,
