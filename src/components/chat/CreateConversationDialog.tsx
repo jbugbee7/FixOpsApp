@@ -43,7 +43,13 @@ const CreateConversationDialog = ({ open, onOpenChange, onConversationCreated }:
         .select()
         .single();
 
-      if (conversationError) throw conversationError;
+      if (conversationError) {
+        // Check if it's a permission error
+        if (conversationError.code === '42501' || conversationError.message.includes('policy')) {
+          throw new Error('Only administrators can create conversations. Please contact an admin if you need a new conversation.');
+        }
+        throw conversationError;
+      }
 
       // Add the creator as a member
       const { error: memberError } = await supabase
@@ -53,7 +59,9 @@ const CreateConversationDialog = ({ open, onOpenChange, onConversationCreated }:
           user_id: user.id
         });
 
-      if (memberError) throw memberError;
+      if (memberError) {
+        console.warn('Could not add creator as member, they may need to be added by an admin:', memberError);
+      }
 
       toast({
         title: "Conversation Created",

@@ -1,7 +1,9 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Menu, Users, Shield, UserCog, MessageCircle } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Menu, Users, Shield } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
 import ConversationMembersDialog from './ConversationMembersDialog';
 
 interface ChatHeaderProps {
@@ -14,74 +16,53 @@ interface ChatHeaderProps {
 
 const ChatHeader = ({ 
   conversationName, 
-  conversationId, 
+  conversationId,
   memberCount, 
   onToggleSidebar, 
   showMenuButton 
 }: ChatHeaderProps) => {
   const [membersDialogOpen, setMembersDialogOpen] = useState(false);
-
-  const getConversationIcon = (name?: string) => {
-    if (!name) return MessageCircle;
-    if (name.toLowerCase().includes('general')) return Users;
-    if (name.toLowerCase().includes('technician')) return Shield;
-    if (name.toLowerCase().includes('manager')) return UserCog;
-    return MessageCircle;
-  };
-
-  const IconComponent = getConversationIcon(conversationName);
+  const { isAdmin } = useUserRole();
 
   return (
-    <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+    <div className="h-16 border-b border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 flex items-center justify-between px-4">
       <div className="flex items-center space-x-3">
         {showMenuButton && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleSidebar}
-            className="md:hidden"
-          >
+          <Button variant="ghost" size="icon" onClick={onToggleSidebar}>
             <Menu className="h-5 w-5" />
           </Button>
         )}
-        
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
-            <IconComponent className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {conversationName || 'Select a conversation'}
-            </h1>
-            {memberCount !== undefined && conversationId && (
-              <button 
-                onClick={() => setMembersDialogOpen(true)}
-                className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-              >
-                {memberCount} {memberCount === 1 ? 'member' : 'members'}
-              </button>
-            )}
-          </div>
+        <div className="flex items-center space-x-2">
+          <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {conversationName || 'Repair Forum'}
+          </h1>
+          {isAdmin && (
+            <Badge variant="secondary" className="text-xs">
+              <Shield className="h-3 w-3 mr-1" />
+              Admin
+            </Badge>
+          )}
         </div>
       </div>
       
-      {!showMenuButton && (
+      {conversationId && memberCount !== undefined && (
         <Button
           variant="ghost"
-          size="icon"
-          onClick={onToggleSidebar}
-          className="hidden md:flex"
+          size="sm"
+          onClick={() => setMembersDialogOpen(true)}
+          className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
         >
-          <Menu className="h-5 w-5" />
+          <Users className="h-4 w-4 mr-2" />
+          {memberCount} {memberCount === 1 ? 'member' : 'members'}
         </Button>
       )}
 
-      {conversationId && conversationName && (
+      {conversationId && (
         <ConversationMembersDialog
           open={membersDialogOpen}
           onOpenChange={setMembersDialogOpen}
           conversationId={conversationId}
-          conversationName={conversationName}
+          conversationName={conversationName || 'Conversation'}
         />
       )}
     </div>

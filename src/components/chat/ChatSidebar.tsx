@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, MessageCircle, Loader2, Users, Shield, UserCog, Plus } from 'lucide-react';
 import { useConversations } from '@/hooks/useConversations';
+import { useUserRole } from '@/hooks/useUserRole';
 import ChatConversationItem from './ChatConversationItem';
 import CreateConversationDialog from './CreateConversationDialog';
 
@@ -16,6 +17,7 @@ interface ChatSidebarProps {
 
 const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }: ChatSidebarProps) => {
   const { conversations, isLoading, error, refetch } = useConversations();
+  const { isAdmin, isLoading: roleLoading } = useUserRole();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const getConversationIcon = (name: string) => {
@@ -32,15 +34,17 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
   if (isCollapsed) {
     return (
       <div className="w-16 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center py-4 space-y-4">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => setCreateDialogOpen(true)}
-          className="w-10 h-10 text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-          title="Create Conversation"
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
+        {isAdmin && !roleLoading && (
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => setCreateDialogOpen(true)}
+            className="w-10 h-10 text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            title="Create Conversation"
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
+        )}
         
         {isLoading ? (
           <div className="w-10 h-10 flex items-center justify-center">
@@ -66,11 +70,13 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
           })
         )}
 
-        <CreateConversationDialog
-          open={createDialogOpen}
-          onOpenChange={setCreateDialogOpen}
-          onConversationCreated={handleConversationCreated}
-        />
+        {isAdmin && (
+          <CreateConversationDialog
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+            onConversationCreated={handleConversationCreated}
+          />
+        )}
       </div>
     );
   }
@@ -85,14 +91,16 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
               Conversations
             </h2>
           </div>
-          <Button
-            size="sm"
-            onClick={() => setCreateDialogOpen(true)}
-            className="h-8 px-3 text-xs"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            Create
-          </Button>
+          {isAdmin && !roleLoading && (
+            <Button
+              size="sm"
+              onClick={() => setCreateDialogOpen(true)}
+              className="h-8 px-3 text-xs"
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Create
+            </Button>
+          )}
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -120,6 +128,11 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
               <p className="text-slate-500 dark:text-slate-400 text-sm">
                 No conversations available
               </p>
+              {isAdmin && !roleLoading && (
+                <p className="text-slate-400 dark:text-slate-500 text-xs mt-2">
+                  Create the first conversation to get started
+                </p>
+              )}
             </div>
           ) : (
             conversations.map((conversation) => {
@@ -149,11 +162,13 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
         </div>
       </ScrollArea>
 
-      <CreateConversationDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onConversationCreated={handleConversationCreated}
-      />
+      {isAdmin && (
+        <CreateConversationDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onConversationCreated={handleConversationCreated}
+        />
+      )}
     </div>
   );
 };
