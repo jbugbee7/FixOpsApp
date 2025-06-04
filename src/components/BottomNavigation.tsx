@@ -50,25 +50,36 @@ const TabItem = ({
         </div>
       )}
       
-      {/* Active state - purple circle with scoop effect */}
+      {/* Active state - raised purple circle with cut-out effect */}
       {isActive && (
-        <div className="absolute -top-2 inset-x-0 flex items-start justify-center">
-          {/* Main purple circle that extends above the tab bar */}
-          <div className="relative">
-            <div className="w-14 h-14 bg-purple-600 rounded-full flex items-center justify-center shadow-lg relative z-10">
+        <>
+          {/* Cut-out effect - creates the notch in the tab bar */}
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-20 h-12 bg-transparent">
+            {/* Left curve */}
+            <div className="absolute top-6 -left-2 w-4 h-6 bg-white dark:bg-slate-900">
+              <div className="absolute top-0 right-0 w-4 h-6 bg-transparent rounded-bl-full shadow-[0_0_0_0_#fff] dark:shadow-[0_0_0_0_rgb(15_23_42)]" 
+                   style={{ boxShadow: 'inset 8px 0 0 0 white', filter: 'drop-shadow(0 0 0 white)' }}></div>
+            </div>
+            
+            {/* Right curve */}
+            <div className="absolute top-6 -right-2 w-4 h-6 bg-white dark:bg-slate-900">
+              <div className="absolute top-0 left-0 w-4 h-6 bg-transparent rounded-br-full shadow-[0_0_0_0_#fff] dark:shadow-[0_0_0_0_rgb(15_23_42)]" 
+                   style={{ boxShadow: 'inset -8px 0 0 0 white', filter: 'drop-shadow(0 0 0 white)' }}></div>
+            </div>
+            
+            {/* Main cut-out area */}
+            <div className="absolute top-6 left-2 right-2 h-6 bg-transparent"></div>
+          </div>
+          
+          {/* Raised purple circle */}
+          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
               {React.cloneElement(icon as React.ReactElement, { 
                 className: "h-6 w-6 text-white",
               })}
             </div>
-            
-            {/* Bottom extension that creates the scoop effect */}
-            <div className="absolute top-7 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-purple-600"></div>
-            
-            {/* Curved sides to blend with the background */}
-            <div className="absolute top-7 -left-2 w-4 h-8 bg-white dark:bg-slate-900 rounded-br-full"></div>
-            <div className="absolute top-7 -right-2 w-4 h-8 bg-white dark:bg-slate-900 rounded-bl-full"></div>
           </div>
-        </div>
+        </>
       )}
     </TabsTrigger>
   );
