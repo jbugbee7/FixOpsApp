@@ -11,7 +11,6 @@ export interface ConversationMessage {
   message: string;
   created_at: string;
   updated_at: string;
-  conversation_id: string;
 }
 
 export const useConversationMessages = (conversationId: string | null) => {
@@ -32,7 +31,7 @@ export const useConversationMessages = (conversationId: string | null) => {
   }, []);
 
   const fetchMessages = useCallback(async () => {
-    if (!conversationId || !user || !mountedRef.current) {
+    if (!user || !mountedRef.current) {
       setMessages([]);
       setIsFetching(false);
       return;
@@ -42,10 +41,10 @@ export const useConversationMessages = (conversationId: string | null) => {
     try {
       setHasConnectionError(false);
       
+      // For now, we'll fetch all forum messages since we only have a global forum
       const { data, error } = await supabase
         .from('forum_messages')
         .select('*')
-        .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
       if (!mountedRef.current) return;
@@ -63,7 +62,7 @@ export const useConversationMessages = (conversationId: string | null) => {
         setIsFetching(false);
       }
     }
-  }, [conversationId, user]);
+  }, [user]);
 
   // Fetch messages when conversation changes
   useEffect(() => {
@@ -72,19 +71,18 @@ export const useConversationMessages = (conversationId: string | null) => {
 
   // Real-time subscription for messages
   useEffect(() => {
-    if (!conversationId || !user || !mountedRef.current) {
+    if (!user || !mountedRef.current) {
       return;
     }
 
     const channel = supabase
-      .channel(`conversation_${conversationId}_messages`)
+      .channel('forum_messages_realtime')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'forum_messages',
-          filter: `conversation_id=eq.${conversationId}`
+          table: 'forum_messages'
         },
         (payload) => {
           if (!mountedRef.current) return;
@@ -98,8 +96,7 @@ export const useConversationMessages = (conversationId: string | null) => {
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'forum_messages',
-          filter: `conversation_id=eq.${conversationId}`
+          table: 'forum_messages'
         },
         (payload) => {
           if (!mountedRef.current) return;
@@ -125,10 +122,10 @@ export const useConversationMessages = (conversationId: string | null) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, user]);
+  }, [user]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !user || !userProfile || !conversationId || !mountedRef.current) {
+    if (!inputMessage.trim() || !user || !userProfile || !mountedRef.current) {
       return;
     }
 
@@ -142,8 +139,7 @@ export const useConversationMessages = (conversationId: string | null) => {
         .insert({
           user_id: user.id,
           author_name: authorName,
-          message: inputMessage.trim(),
-          conversation_id: conversationId
+          message: inputMessage.trim()
         });
 
       if (error) throw error;

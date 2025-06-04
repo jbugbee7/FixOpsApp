@@ -82,15 +82,7 @@ const FixChatPage = () => {
         conversationsLoading={false}
         conversationsError={null}
         conversations={[]}
-        messages={messages.map(msg => ({
-          id: msg.id,
-          user_id: msg.user_id,
-          author_name: msg.author_name,
-          message: msg.message,
-          created_at: msg.created_at,
-          updated_at: msg.updated_at,
-          conversation_id: 'global-chat'
-        }))}
+        messages={messages}
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
         isLoading={isLoading}
