@@ -2,7 +2,7 @@
 import React from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Search, MessageCircle, Loader2 } from 'lucide-react';
+import { Search, MessageCircle, Loader2, Users, Shield, UserCog } from 'lucide-react';
 import { useConversations } from '@/hooks/useConversations';
 import ChatConversationItem from './ChatConversationItem';
 
@@ -15,6 +15,13 @@ interface ChatSidebarProps {
 const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }: ChatSidebarProps) => {
   const { conversations, isLoading, error } = useConversations();
 
+  const getConversationIcon = (name: string) => {
+    if (name.toLowerCase().includes('general')) return Users;
+    if (name.toLowerCase().includes('technician')) return Shield;
+    if (name.toLowerCase().includes('manager')) return UserCog;
+    return MessageCircle;
+  };
+
   if (isCollapsed) {
     return (
       <div className="w-16 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center py-4 space-y-4">
@@ -23,20 +30,23 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
             <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
           </div>
         ) : (
-          conversations.map((conversation) => (
-            <div
-              key={conversation.id}
-              className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer text-lg transition-colors ${
-                selectedConversation === conversation.id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
-              }`}
-              onClick={() => onSelectConversation(conversation.id)}
-              title={conversation.name}
-            >
-              {conversation.name.charAt(0)}
-            </div>
-          ))
+          conversations.map((conversation) => {
+            const IconComponent = getConversationIcon(conversation.name);
+            return (
+              <div
+                key={conversation.id}
+                className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
+                  selectedConversation === conversation.id
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400'
+                }`}
+                onClick={() => onSelectConversation(conversation.id)}
+                title={conversation.name}
+              >
+                <IconComponent className="h-5 w-5" />
+              </div>
+            );
+          })
         )}
       </div>
     );
@@ -48,7 +58,7 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
         <div className="flex items-center space-x-2 mb-4">
           <MessageCircle className="h-6 w-6 text-blue-500" />
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Repair Forum
+            Conversations
           </h2>
         </div>
         <div className="relative">
@@ -79,25 +89,29 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
               </p>
             </div>
           ) : (
-            conversations.map((conversation) => (
-              <ChatConversationItem
-                key={conversation.id}
-                conversation={{
-                  id: conversation.id,
-                  name: conversation.name,
-                  lastMessage: conversation.last_message || 'No messages yet',
-                  time: new Date(conversation.last_message_time || conversation.created_at).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  }),
-                  unread: conversation.unread_count || 0,
-                  avatar: conversation.name.charAt(0),
-                  online: true // We'll implement proper online status later
-                }}
-                isSelected={selectedConversation === conversation.id}
-                onClick={() => onSelectConversation(conversation.id)}
-              />
-            ))
+            conversations.map((conversation) => {
+              const IconComponent = getConversationIcon(conversation.name);
+              return (
+                <ChatConversationItem
+                  key={conversation.id}
+                  conversation={{
+                    id: conversation.id,
+                    name: conversation.name,
+                    lastMessage: conversation.last_message || 'No messages yet',
+                    time: new Date(conversation.last_message_time || conversation.created_at).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }),
+                    unread: conversation.unread_count || 0,
+                    avatar: conversation.name.charAt(0),
+                    online: true,
+                    icon: IconComponent
+                  }}
+                  isSelected={selectedConversation === conversation.id}
+                  onClick={() => onSelectConversation(conversation.id)}
+                />
+              );
+            })
           )}
         </div>
       </ScrollArea>

@@ -1,22 +1,44 @@
 
 import React, { useState } from 'react';
-import { useSimplifiedForumMessages } from '@/hooks/useSimplifiedForumMessages';
+import { useConversationMessages } from '@/hooks/useConversationMessages';
+import { useConversations } from '@/hooks/useConversations';
 import { useBasicCaseOperations } from '@/hooks/useBasicCaseOperations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ChatLayout from '@/components/chat/ChatLayout';
+import ChatSidebar from '@/components/chat/ChatSidebar';
 import EnhancedChatMainArea from '@/components/chat/EnhancedChatMainArea';
 import { Case } from '@/types/case';
 
 const FixChatPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<Case | null>(null);
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const isOnline = useNetworkStatus();
   
+  // Get conversations
+  const { 
+    conversations, 
+    isLoading: conversationsLoading, 
+    error: conversationsError,
+    refetch: refetchConversations 
+  } = useConversations();
+
+  // Auto-select first conversation when conversations load
+  React.useEffect(() => {
+    if (conversations.length > 0 && !selectedConversation) {
+      // Try to select "General Discussion" first, or the first conversation
+      const generalConversation = conversations.find(c => 
+        c.name.toLowerCase().includes('general')
+      );
+      setSelectedConversation(generalConversation?.id || conversations[0].id);
+    }
+  }, [conversations, selectedConversation]);
+
   const {
     messages,
     inputMessage,
@@ -25,7 +47,7 @@ const FixChatPage = () => {
     isFetching,
     hasConnectionError,
     sendMessage,
-  } = useSimplifiedForumMessages();
+  } = useConversationMessages(selectedConversation);
 
   // Get work orders for referencing
   const { cases } = useBasicCaseOperations(user, isOnline);
@@ -54,7 +76,9 @@ const FixChatPage = () => {
   };
 
   const getPlaceholderText = () => {
-    return "Share your repair tips, ask questions, reference work orders (e.g., WO-123), or help fellow technicians...";
+    const currentConversation = conversations.find(c => c.id === selectedConversation);
+    const conversationName = currentConversation?.name || 'this conversation';
+    return `Share your message in ${conversationName}...`;
   };
 
   // If viewing a work order, show work order details
@@ -66,7 +90,7 @@ const FixChatPage = () => {
             onClick={handleBackFromWorkOrder}
             className="mb-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
           >
-            ← Back to Repair Forum
+            ← Back to Chat
           </button>
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
             <h2 className="text-xl font-bold mb-4">
@@ -102,35 +126,15 @@ const FixChatPage = () => {
     );
   }
 
-  // Create a proper mock conversation object
-  const mockConversation = {
-    id: 'repair-forum',
-    name: 'Repair Forum',
-    description: 'Repair forum for technicians',
-    member_count: undefined,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    created_by: 'system'
-  };
+  // Find current conversation
+  const currentConversation = conversations.find(c => c.id === selectedConversation);
 
-  // Simple sidebar for repair forum
   const sidebar = (
-    <div className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 ${
-      isMobile ? 'w-80' : sidebarCollapsed ? 'w-16' : 'w-80'
-    } transition-all duration-300`}>
-      <div className="p-4">
-        <h2 className={`font-semibold text-slate-900 dark:text-slate-100 ${
-          sidebarCollapsed && !isMobile ? 'text-center text-sm' : 'text-lg'
-        }`}>
-          {sidebarCollapsed && !isMobile ? 'Forum' : 'Repair Forum'}
-        </h2>
-        {!sidebarCollapsed || isMobile ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-            Connect with fellow repair technicians, share knowledge, get help with your cases, and reference work orders (type WO-123).
-          </p>
-        ) : null}
-      </div>
-    </div>
+    <ChatSidebar
+      selectedConversation={selectedConversation || undefined}
+      onSelectConversation={setSelectedConversation}
+      isCollapsed={sidebarCollapsed && !isMobile}
+    />
   );
 
   return (
@@ -140,11 +144,11 @@ const FixChatPage = () => {
       sidebar={sidebar}
     >
       <EnhancedChatMainArea
-        currentConversation={mockConversation}
-        selectedConversation="repair-forum"
-        conversationsLoading={false}
-        conversationsError={null}
-        conversations={[]}
+        currentConversation={currentConversation}
+        selectedConversation={selectedConversation}
+        conversationsLoading={conversationsLoading}
+        conversationsError={conversationsError}
+        conversations={conversations}
         messages={messages}
         workOrders={cases}
         inputMessage={inputMessage}
@@ -156,7 +160,7 @@ const FixChatPage = () => {
         onToggleSidebar={handleToggleSidebar}
         onViewWorkOrder={handleViewWorkOrder}
         showMenuButton={isMobile}
-        onRetryConversations={() => {}}
+        onRetryConversations={refetchConversations}
         handleKeyPress={handleKeyPress}
         getPlaceholderText={getPlaceholderText}
       />
