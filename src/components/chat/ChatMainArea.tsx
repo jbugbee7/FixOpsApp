@@ -67,10 +67,12 @@ const ChatMainArea = ({
           </div>
 
           {/* Error State for Conversations */}
-          <ChatErrorStates 
-            conversationsError={conversationsError}
-            onRetryConversations={onRetryConversations}
-          />
+          {conversationsError && (
+            <ChatErrorStates 
+              type="conversations"
+              onRetry={onRetryConversations}
+            />
+          )}
           
           {conversationsLoading ? (
             <ChatLoadingIndicator type="conversations" />
@@ -89,8 +91,7 @@ const ChatMainArea = ({
                 setInputMessage={setInputMessage}
                 onSendMessage={sendMessage}
                 isLoading={isLoading}
-                isFetching={isFetching}
-                placeholderText={getPlaceholderText()}
+                placeholder={getPlaceholderText()}
                 onKeyPress={handleKeyPress}
               />
             </>
