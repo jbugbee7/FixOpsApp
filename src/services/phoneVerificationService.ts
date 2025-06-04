@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 // Fixed phone number that will be used for all signups
-const FIXED_PHONE_NUMBER = '+1234567890'; // Replace with your actual phone number
+const FIXED_PHONE_NUMBER = '+18283182617'; // Replace with your actual phone number
 
 // Generate a 6-digit verification code
 export const generateVerificationCode = (): string => {
