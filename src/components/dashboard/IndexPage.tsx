@@ -145,7 +145,7 @@ const IndexPage = ({
           />
         </div>
 
-        <BottomNavigation />
+        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       </Tabs>
     </div>
   );
