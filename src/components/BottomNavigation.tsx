@@ -50,32 +50,20 @@ const TabItem = ({
         </div>
       )}
       
-      {/* Active state - raised purple circle with cut-out effect */}
+      {/* Active state - smaller raised purple circle with cut-out effect */}
       {isActive && (
         <>
           {/* Cut-out effect - creates the notch in the tab bar */}
-          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-20 h-12 bg-transparent">
-            {/* Left curve */}
-            <div className="absolute top-6 -left-2 w-4 h-6 bg-white dark:bg-slate-900">
-              <div className="absolute top-0 right-0 w-4 h-6 bg-transparent rounded-bl-full shadow-[0_0_0_0_#fff] dark:shadow-[0_0_0_0_rgb(15_23_42)]" 
-                   style={{ boxShadow: 'inset 8px 0 0 0 white', filter: 'drop-shadow(0 0 0 white)' }}></div>
-            </div>
-            
-            {/* Right curve */}
-            <div className="absolute top-6 -right-2 w-4 h-6 bg-white dark:bg-slate-900">
-              <div className="absolute top-0 left-0 w-4 h-6 bg-transparent rounded-br-full shadow-[0_0_0_0_#fff] dark:shadow-[0_0_0_0_rgb(15_23_42)]" 
-                   style={{ boxShadow: 'inset -8px 0 0 0 white', filter: 'drop-shadow(0 0 0 white)' }}></div>
-            </div>
-            
+          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-16 h-8 bg-transparent">
             {/* Main cut-out area */}
-            <div className="absolute top-6 left-2 right-2 h-6 bg-transparent"></div>
+            <div className="absolute top-4 left-2 right-2 h-4 bg-transparent"></div>
           </div>
           
-          {/* Raised purple circle */}
-          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
-            <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
+          {/* Smaller raised purple circle */}
+          <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg">
               {React.cloneElement(icon as React.ReactElement, { 
-                className: "h-6 w-6 text-white",
+                className: "h-5 w-5 text-white",
               })}
             </div>
           </div>
