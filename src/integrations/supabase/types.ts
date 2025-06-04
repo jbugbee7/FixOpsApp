@@ -551,6 +551,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_user_conversations: {
+        Args: { user_id: string }
+        Returns: {
+          conversation_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -563,6 +569,10 @@ export type Database = {
         Returns: boolean
       }
       is_conversation_member: {
+        Args: { conversation_id: string; user_id: string }
+        Returns: boolean
+      }
+      user_is_conversation_member: {
         Args: { conversation_id: string; user_id: string }
         Returns: boolean
       }
