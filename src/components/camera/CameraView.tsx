@@ -17,7 +17,7 @@ const CameraView = forwardRef<HTMLVideoElement, CameraViewProps>(
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Camera ready to start</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Tap "Start Camera" to begin</p>
           </div>
         </div>
       );
@@ -34,38 +34,45 @@ const CameraView = forwardRef<HTMLVideoElement, CameraViewProps>(
             muted
             className="w-full h-full object-cover"
             style={{ 
-              transform: 'scaleX(-1)', // Mirror the video for selfie-like experience
+              // Don't mirror for rear camera documentation
+              transform: 'none',
             }}
           />
           
           {/* Live indicator */}
-          <div className="absolute top-4 left-4 flex items-center space-x-2">
+          <div className="absolute top-4 left-4 flex items-center space-x-2 z-10">
             <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
             <span className="text-white text-sm font-medium bg-black/50 px-2 py-1 rounded-full">
               LIVE
             </span>
           </div>
 
-          {/* Camera overlay grid */}
+          {/* Camera overlay grid (rule of thirds) */}
           <div className="absolute inset-0 pointer-events-none">
-            <div className="w-full h-full border border-white/20 rounded-xl">
-              <div className="grid grid-cols-3 grid-rows-3 w-full h-full">
-                {[...Array(9)].map((_, i) => (
-                  <div key={i} className="border border-white/10"></div>
-                ))}
-              </div>
+            <div className="w-full h-full grid grid-cols-3 grid-rows-3 opacity-30">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="border border-white/40"></div>
+              ))}
             </div>
           </div>
 
-          {/* Corner focus indicators */}
+          {/* Focus corners */}
           <div className="absolute top-4 right-4 w-6 h-6">
-            <div className="border-t-2 border-r-2 border-white/60 w-full h-full rounded-tr-lg"></div>
+            <div className="border-t-2 border-r-2 border-white/80 w-full h-full rounded-tr-lg"></div>
           </div>
           <div className="absolute bottom-4 left-4 w-6 h-6">
-            <div className="border-b-2 border-l-2 border-white/60 w-full h-full rounded-bl-lg"></div>
+            <div className="border-b-2 border-l-2 border-white/80 w-full h-full rounded-bl-lg"></div>
           </div>
           <div className="absolute bottom-4 right-4 w-6 h-6">
-            <div className="border-b-2 border-r-2 border-white/60 w-full h-full rounded-br-lg"></div>
+            <div className="border-b-2 border-r-2 border-white/80 w-full h-full rounded-br-lg"></div>
+          </div>
+          <div className="absolute top-4 left-4 w-6 h-6">
+            <div className="border-t-2 border-l-2 border-white/80 w-full h-full rounded-tl-lg"></div>
+          </div>
+
+          {/* Center focus indicator */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="w-8 h-8 border-2 border-white/60 rounded-full animate-pulse"></div>
           </div>
         </div>
       </div>
