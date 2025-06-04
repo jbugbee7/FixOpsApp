@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useSimplifiedChat } from '@/hooks/useSimplifiedChat';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -8,7 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Menu, Users, Plus, MessageCircle, Loader2, Shield, UserCog, UserPlus, MoreVertical } from 'lucide-react';
+import { Send, Menu, Users, Plus, MessageCircle, Loader2, Shield, UserCog, UserPlus, MoreVertical, RefreshCw } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Case } from '@/types/case';
 import CreateConversationDialog from './chat/CreateConversationDialog';
@@ -161,15 +162,20 @@ const SimplifiedChatPage = () => {
               </div>
             ) : error ? (
               <div className="text-center py-8">
-                <p className="text-red-500 text-sm">{error}</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={refetchConversations}
-                  className="mt-2"
-                >
-                  Retry
-                </Button>
+                <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                  <p className="text-red-700 dark:text-red-400 text-sm mb-3">
+                    {error}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={refetchConversations}
+                    className="text-red-600 border-red-200 hover:bg-red-50"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Retry
+                  </Button>
+                </div>
               </div>
             ) : conversations.length === 0 ? (
               <div className="text-center py-8">
