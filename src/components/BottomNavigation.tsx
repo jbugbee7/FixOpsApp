@@ -1,4 +1,5 @@
 
+import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle, Settings, Home, Bot, GraduationCap } from 'lucide-react';
 import { Fragment } from "react";
