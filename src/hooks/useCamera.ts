@@ -90,7 +90,6 @@ export const useCamera = () => {
       }
       
       console.log('Camera stream obtained:', stream);
-      console.log('Video tracks:', stream.getVideoTracks());
       streamRef.current = stream;
       
       if (videoRef.current) {

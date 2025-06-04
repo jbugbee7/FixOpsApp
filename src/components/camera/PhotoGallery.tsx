@@ -14,6 +14,7 @@ const PhotoGallery = ({ photos, onRemovePhoto }: PhotoGalleryProps) => {
     const link = document.createElement('a');
     link.href = photoUrl;
     link.download = `case-photo-${index + 1}.jpg`;
+    link.target = '_blank';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -38,6 +39,11 @@ const PhotoGallery = ({ photos, onRemovePhoto }: PhotoGalleryProps) => {
                 src={photo}
                 alt={`Case photo ${index + 1}`}
                 className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                onError={(e) => {
+                  console.error('Failed to load image:', photo);
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
               />
               
               {/* Overlay with actions */}

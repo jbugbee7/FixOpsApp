@@ -18,6 +18,11 @@ export const usePhotoCapture = (
   ) => {
     if (!videoRef.current || !canvasRef.current || !user) {
       console.error('Missing required elements for photo capture');
+      toast({
+        title: "Camera Error",
+        description: "Camera not ready or user not authenticated. Please try again.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -50,6 +55,11 @@ export const usePhotoCapture = (
     canvas.toBlob(async (blob) => {
       if (!blob) {
         console.error('Failed to create blob from canvas');
+        toast({
+          title: "Capture Error",
+          description: "Failed to process photo. Please try again.",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -61,7 +71,8 @@ export const usePhotoCapture = (
         const { data, error } = await supabase.storage
           .from('case-photos')
           .upload(fileName, blob, {
-            contentType: 'image/jpeg'
+            contentType: 'image/jpeg',
+            upsert: false
           });
 
         if (error) {
@@ -86,7 +97,7 @@ export const usePhotoCapture = (
         
         toast({
           title: "Photo Captured",
-          description: "Photo uploaded successfully.",
+          description: "Photo uploaded successfully!",
         });
         
         stopCamera();
@@ -104,14 +115,28 @@ export const usePhotoCapture = (
   };
 
   const removePhoto = async (photoUrl: string, index: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to delete photos.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       // Extract file path from URL for deletion
       const urlParts = photoUrl.split('/');
-      const fileName = `${user?.id}/${urlParts[urlParts.length - 1]}`;
+      const fileName = `${user.id}/${urlParts[urlParts.length - 1]}`;
       
-      await supabase.storage
+      const { error } = await supabase.storage
         .from('case-photos')
         .remove([fileName]);
+
+      if (error) {
+        console.error('Error removing photo from storage:', error);
+        // Still remove from local state even if storage deletion fails
+      }
 
       const updatedPhotos = photos.filter((_, i) => i !== index);
       onPhotosChange(updatedPhotos);
