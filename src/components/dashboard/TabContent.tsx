@@ -1,13 +1,12 @@
 
 import { TabsContent } from "@/components/ui/tabs";
-import { Settings } from 'lucide-react';
-import AiAssistantPage from '@/components/AiAssistantPage';
-import TrainingPage from '@/components/TrainingPage';
-import SettingsPage from '@/components/SettingsPage';
+import DashboardMain from '@/components/dashboard/DashboardMain';
 import FixChatPage from '@/components/FixChatPage';
-import CaseForm from '@/components/CaseForm';
-import DashboardMain from './DashboardMain';
-import type { Case } from '@/types/case';
+import DiscussionPage from '@/components/DiscussionPage';
+import AiAssistantPage from '@/components/AiAssistantPage';
+import AnalyticsPage from '@/components/AnalyticsPage';
+import SettingsPage from '@/components/SettingsPage';
+import { Case } from '@/types/case';
 
 interface TabContentProps {
   isOnline: boolean;
@@ -19,48 +18,59 @@ interface TabContentProps {
   onNavigate: (tab: string) => void;
   onModelFound: (model: any) => void;
   onPartFound: (part: any) => void;
-  onCaseClick: (case_: Case) => void;
+  onCaseClick: (caseItem: Case) => void;
   onResync: () => void;
 }
 
-const TabContent = (props: TabContentProps) => {
+const TabContent = ({
+  isOnline,
+  hasOfflineData,
+  cases,
+  loading,
+  isResyncing,
+  displayName,
+  onNavigate,
+  onModelFound,
+  onPartFound,
+  onCaseClick,
+  onResync
+}: TabContentProps) => {
   return (
     <>
-      <TabsContent value="dashboard" className="m-0">
-        <DashboardMain {...props} />
+      <TabsContent value="dashboard" className="mt-0">
+        <DashboardMain
+          isOnline={isOnline}
+          hasOfflineData={hasOfflineData}
+          cases={cases}
+          loading={loading}
+          isResyncing={isResyncing}
+          displayName={displayName}
+          onNavigate={onNavigate}
+          onModelFound={onModelFound}
+          onPartFound={onPartFound}
+          onCaseClick={onCaseClick}
+          onResync={onResync}
+        />
       </TabsContent>
 
-      <TabsContent value="add-case" className="m-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <CaseForm />
-        </div>
-      </TabsContent>
-
-      <TabsContent value="fixchat" className="m-0">
+      <TabsContent value="fixchat" className="mt-0">
         <FixChatPage />
       </TabsContent>
 
-      <TabsContent value="ai-assistant" className="m-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <AiAssistantPage />
-        </div>
+      <TabsContent value="discussion" className="mt-0">
+        <DiscussionPage />
       </TabsContent>
 
-      <TabsContent value="analytics" className="m-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <TrainingPage />
-        </div>
+      <TabsContent value="ai-assistant" className="mt-0">
+        <AiAssistantPage />
       </TabsContent>
 
-      <TabsContent value="settings" className="m-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center mb-8">
-            <Settings className="h-16 w-16 text-slate-500 mx-auto mb-6" />
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">Settings</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">App configuration and preferences</p>
-          </div>
-          <SettingsPage />
-        </div>
+      <TabsContent value="analytics" className="mt-0">
+        <AnalyticsPage />
+      </TabsContent>
+
+      <TabsContent value="settings" className="mt-0">
+        <SettingsPage />
       </TabsContent>
     </>
   );
