@@ -39,6 +39,17 @@ const FixChatPage = () => {
     return "Share your repair tips, ask questions, or help fellow technicians...";
   };
 
+  // Create a proper mock conversation object
+  const mockConversation = {
+    id: 'global-chat',
+    name: 'Repair Forum Chat',
+    description: 'Global chat for repair technicians',
+    member_count: undefined,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    created_by: 'system'
+  };
+
   // Simple sidebar for global chat
   const sidebar = (
     <div className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 ${
@@ -66,7 +77,7 @@ const FixChatPage = () => {
       sidebar={sidebar}
     >
       <ChatMainArea
-        currentConversation={{ name: 'Repair Forum Chat', member_count: undefined }}
+        currentConversation={mockConversation}
         selectedConversation="global"
         conversationsLoading={false}
         conversationsError={null}
@@ -78,7 +89,7 @@ const FixChatPage = () => {
           message: msg.message,
           created_at: msg.created_at,
           updated_at: msg.updated_at,
-          conversation_id: null
+          conversation_id: 'global-chat'
         }))}
         inputMessage={inputMessage}
         setInputMessage={setInputMessage}
