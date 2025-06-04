@@ -43,7 +43,7 @@ export const useSimplifiedChat = () => {
     };
   }, []);
 
-  // Fetch conversations - simplified to work with new RLS policies
+  // Fetch conversations
   const fetchConversations = useCallback(async () => {
     if (!user || !mountedRef.current) {
       setConversations([]);
@@ -53,21 +53,15 @@ export const useSimplifiedChat = () => {
 
     try {
       setError(null);
-      console.log('Fetching conversations for user:', user.id);
       
-      // Direct fetch of conversations - RLS will handle filtering
       const { data: conversationsData, error: conversationsError } = await supabase
         .from('conversations')
         .select('*')
         .order('updated_at', { ascending: false });
 
-      if (conversationsError) {
-        console.error('Error fetching conversations:', conversationsError);
-        throw conversationsError;
-      }
+      if (conversationsError) throw conversationsError;
 
       if (!conversationsData || conversationsData.length === 0) {
-        console.log('No conversations found');
         setConversations([]);
         setIsFetching(false);
         return;
@@ -77,11 +71,9 @@ export const useSimplifiedChat = () => {
       const conversationsWithMetadata = await Promise.all(
         conversationsData.map(async (conv) => {
           try {
-            // Get member count using the safe function
             const { data: memberCountData } = await supabase
               .rpc('get_active_member_count', { conversation_id: conv.id });
 
-            // Get last message
             const { data: lastMessage } = await supabase
               .from('forum_messages')
               .select('message, created_at')
@@ -99,7 +91,6 @@ export const useSimplifiedChat = () => {
               last_message_time: lastMessage?.created_at || conv.created_at,
             };
           } catch (error) {
-            console.error('Error processing conversation metadata:', error);
             return {
               id: conv.id,
               name: conv.name,
@@ -112,10 +103,8 @@ export const useSimplifiedChat = () => {
         })
       );
 
-      console.log('Conversations with metadata:', conversationsWithMetadata.length);
       setConversations(conversationsWithMetadata);
     } catch (error: any) {
-      console.error('Error fetching conversations:', error);
       setError('Failed to load conversations');
     } finally {
       setIsFetching(false);
@@ -130,22 +119,15 @@ export const useSimplifiedChat = () => {
     }
 
     try {
-      console.log('Fetching messages for conversation:', selectedConversation);
       const { data, error } = await supabase
         .from('forum_messages')
         .select('*')
         .eq('conversation_id', selectedConversation)
         .order('created_at', { ascending: true });
 
-      if (error) {
-        console.error('Error fetching messages:', error);
-        throw error;
-      }
-      
-      console.log('Messages fetched:', data?.length || 0);
+      if (error) throw error;
       setMessages(data || []);
     } catch (error) {
-      console.error('Error fetching messages:', error);
       setError('Failed to load messages');
     }
   }, [user, selectedConversation]);
@@ -160,13 +142,6 @@ export const useSimplifiedChat = () => {
     try {
       const authorName = userProfile.full_name || user.email || 'Unknown User';
       
-      console.log('Sending message:', {
-        user_id: user.id,
-        author_name: authorName,
-        message: inputMessage.trim(),
-        conversation_id: selectedConversation
-      });
-
       const { error } = await supabase
         .from('forum_messages')
         .insert({
@@ -176,20 +151,16 @@ export const useSimplifiedChat = () => {
           conversation_id: selectedConversation
         });
 
-      if (error) {
-        console.error('Error sending message:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       if (mountedRef.current) {
         setInputMessage('');
       }
     } catch (error: any) {
-      console.error('Error sending message:', error);
       if (mountedRef.current) {
         toast({
           title: "Failed to Send Message",
-          description: error.message || "Please try again.",
+          description: "Please try again.",
           variant: "destructive",
         });
       }
@@ -207,7 +178,6 @@ export const useSimplifiedChat = () => {
         c.name.toLowerCase().includes('general')
       );
       const targetConversation = generalConversation?.id || conversations[0].id;
-      console.log('Auto-selecting conversation:', targetConversation);
       setSelectedConversation(targetConversation);
     }
   }, [conversations, selectedConversation, isFetching]);
@@ -225,21 +195,17 @@ export const useSimplifiedChat = () => {
   useEffect(() => {
     if (!user || !mountedRef.current) return;
 
-    console.log('Setting up conversations real-time subscription');
     const conversationsChannel = supabase
       .channel('conversations_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, (payload) => {
-        console.log('Conversation change detected:', payload);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, () => {
         fetchConversations();
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'conversation_members' }, (payload) => {
-        console.log('Conversation members change detected:', payload);
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'conversation_members' }, () => {
         fetchConversations();
       })
       .subscribe();
 
     return () => {
-      console.log('Cleaning up conversations subscription');
       supabase.removeChannel(conversationsChannel);
     };
   }, [user, fetchConversations]);
@@ -247,7 +213,6 @@ export const useSimplifiedChat = () => {
   useEffect(() => {
     if (!user || !selectedConversation || !mountedRef.current) return;
 
-    console.log('Setting up messages real-time subscription for:', selectedConversation);
     const messagesChannel = supabase
       .channel(`conversation_${selectedConversation}_messages`)
       .on(
@@ -259,7 +224,6 @@ export const useSimplifiedChat = () => {
           filter: `conversation_id=eq.${selectedConversation}`
         },
         (payload) => {
-          console.log('New message received:', payload);
           if (mountedRef.current && payload.new) {
             setMessages(prev => [...prev, payload.new as SimplifiedMessage]);
           }
@@ -268,7 +232,6 @@ export const useSimplifiedChat = () => {
       .subscribe();
 
     return () => {
-      console.log('Cleaning up messages subscription');
       supabase.removeChannel(messagesChannel);
     };
   }, [user, selectedConversation]);
