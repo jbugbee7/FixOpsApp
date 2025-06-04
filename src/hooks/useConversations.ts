@@ -34,21 +34,43 @@ export const useConversations = () => {
       setError(null);
       console.log('Fetching conversations for user:', user.id);
       
-      // Fetch conversations - RLS will handle the filtering
-      const { data, error } = await supabase
-        .from('conversations')
-        .select('*')
-        .order('updated_at', { ascending: false });
+      // First, get all conversations that the user is a member of
+      const { data: memberData, error: memberError } = await supabase
+        .from('conversation_members')
+        .select('conversation_id')
+        .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error fetching conversations:', error);
-        throw error;
+      if (memberError) {
+        console.error('Error fetching conversation memberships:', memberError);
+        throw memberError;
       }
 
-      console.log('Raw conversations fetched:', data?.length || 0);
+      if (!memberData || memberData.length === 0) {
+        console.log('User is not a member of any conversations');
+        setConversations([]);
+        setIsLoading(false);
+        return;
+      }
 
-      if (!data || data.length === 0) {
-        console.log('No conversations found');
+      const conversationIds = memberData.map(m => m.conversation_id);
+      console.log('User is member of conversations:', conversationIds);
+
+      // Now fetch the conversation details
+      const { data: conversationsData, error: conversationsError } = await supabase
+        .from('conversations')
+        .select('*')
+        .in('id', conversationIds)
+        .order('updated_at', { ascending: false });
+
+      if (conversationsError) {
+        console.error('Error fetching conversations:', conversationsError);
+        throw conversationsError;
+      }
+
+      console.log('Raw conversations fetched:', conversationsData?.length || 0);
+
+      if (!conversationsData || conversationsData.length === 0) {
+        console.log('No conversation details found');
         setConversations([]);
         setIsLoading(false);
         return;
@@ -56,7 +78,7 @@ export const useConversations = () => {
 
       // Get member counts and last messages for each conversation
       const conversationsWithMetadata = await Promise.all(
-        data.map(async (conv) => {
+        conversationsData.map(async (conv) => {
           try {
             // Get member count using the safe function
             const { data: memberCountData, error: memberCountError } = await supabase
@@ -130,7 +152,7 @@ export const useConversations = () => {
         },
         (payload) => {
           console.log('Conversation change detected:', payload);
-          // Refetch to update the list with proper RLS filtering
+          // Refetch to update the list with proper filtering
           fetchConversations();
         }
       )
@@ -143,7 +165,7 @@ export const useConversations = () => {
         },
         (payload) => {
           console.log('Conversation members change detected:', payload);
-          // Refetch to update member counts
+          // Refetch to update member counts and available conversations
           fetchConversations();
         }
       )
