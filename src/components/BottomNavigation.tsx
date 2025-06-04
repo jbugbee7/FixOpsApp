@@ -1,18 +1,20 @@
 
 import React from "react";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle, Settings, Home, Bot, GraduationCap } from 'lucide-react';
 
 const BottomNavigation = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-lg pb-safe-bottom">
-      <TabsList className="grid w-full grid-cols-5 h-16 bg-white dark:bg-slate-900 rounded-none relative overflow-visible">
-        <TabItem value="dashboard" icon={<Home />} />
-        <TabItem value="fixchat" icon={<MessageCircle />} />
-        <TabItem value="ai-assistant" icon={<Bot />} />
-        <TabItem value="analytics" icon={<GraduationCap />} />
-        <TabItem value="settings" icon={<Settings />} />
-      </TabsList>
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-5 h-16 bg-white dark:bg-slate-900 rounded-none relative overflow-visible">
+          <TabItem value="dashboard" icon={<Home />} />
+          <TabItem value="fixchat" icon={<MessageCircle />} />
+          <TabItem value="ai-assistant" icon={<Bot />} />
+          <TabItem value="analytics" icon={<GraduationCap />} />
+          <TabItem value="settings" icon={<Settings />} />
+        </TabsList>
+      </Tabs>
     </div>
   );
 };
