@@ -265,7 +265,7 @@ export type Database = {
       forum_messages: {
         Row: {
           author_name: string
-          conversation_id: string | null
+          conversation_id: string
           created_at: string
           id: string
           message: string
@@ -274,7 +274,7 @@ export type Database = {
         }
         Insert: {
           author_name: string
-          conversation_id?: string | null
+          conversation_id: string
           created_at?: string
           id?: string
           message: string
@@ -283,7 +283,7 @@ export type Database = {
         }
         Update: {
           author_name?: string
-          conversation_id?: string | null
+          conversation_id?: string
           created_at?: string
           id?: string
           message?: string
