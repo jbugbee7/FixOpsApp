@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from 'lucide-react';
+import SearchBar from '@/components/SearchBar';
 import ConnectionStatusBanner from '@/components/ConnectionStatusBanner';
 import WorkOrdersList from '@/components/WorkOrdersList';
 import type { Case } from '@/types/case';
@@ -26,6 +27,9 @@ const DashboardCompletedOrders = React.memo(({
   cases,
   loading,
   isResyncing,
+  onNavigate,
+  onModelFound,
+  onPartFound,
   onCaseClick,
   onResync
 }: DashboardCompletedOrdersProps) => {
@@ -36,6 +40,15 @@ const DashboardCompletedOrders = React.memo(({
 
   return (
     <div className="space-y-6">
+      {/* Search Bar */}
+      <SearchBar 
+        onNavigate={onNavigate} 
+        onModelFound={onModelFound}
+        onPartFound={onPartFound}
+        onCaseClick={onCaseClick}
+        cases={cases}
+      />
+
       {/* Connection Status */}
       <ConnectionStatusBanner isOnline={isOnline} hasOfflineData={hasOfflineData} />
 

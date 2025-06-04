@@ -45,6 +45,8 @@ const DashboardWorkOrders = React.memo(({
         onNavigate={onNavigate} 
         onModelFound={onModelFound}
         onPartFound={onPartFound}
+        onCaseClick={onCaseClick}
+        cases={cases}
       />
 
       {/* Add Button */}

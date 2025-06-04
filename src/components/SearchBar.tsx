@@ -5,14 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Case } from '@/types/case';
 
 interface SearchBarProps {
   onNavigate: (tab: string) => void;
   onModelFound: (model: any) => void;
   onPartFound: (part: any) => void;
+  onCaseClick?: (case_: Case) => void;
+  cases?: Case[];
 }
 
-const SearchBar = ({ onNavigate, onModelFound, onPartFound }: SearchBarProps) => {
+const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases = [] }: SearchBarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
@@ -23,6 +26,27 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound }: SearchBarProps) =>
     { keywords: ['analytics', 'stats', 'reports', 'data'], tab: 'analytics', label: 'Analytics' },
     { keywords: ['settings', 'config', 'preferences'], tab: 'settings', label: 'Settings' },
   ];
+
+  const searchWorkOrders = (query: string) => {
+    const searchTerm = query.toLowerCase().trim();
+    
+    const matchingCases = cases.filter(case_ => {
+      const customerName = case_.customer_name?.toLowerCase() || '';
+      const applianceType = case_.appliance_type?.toLowerCase() || '';
+      const applianceBrand = case_.appliance_brand?.toLowerCase() || '';
+      const woNumber = case_.wo_number?.toLowerCase() || '';
+      const createdDate = new Date(case_.created_at).toLocaleDateString().toLowerCase();
+      
+      return customerName.includes(searchTerm) ||
+             applianceType.includes(searchTerm) ||
+             applianceBrand.includes(searchTerm) ||
+             woNumber.includes(searchTerm) ||
+             createdDate.includes(searchTerm) ||
+             `${applianceBrand} ${applianceType}`.includes(searchTerm);
+    });
+
+    return matchingCases;
+  };
 
   const searchDatabase = async (query: string) => {
     setIsSearching(true);
@@ -92,7 +116,22 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound }: SearchBarProps) =>
 
     const query = searchQuery.toLowerCase().trim();
     
-    // First try to search the database
+    // First try to search work orders if we have cases data and onCaseClick handler
+    if (cases.length > 0 && onCaseClick) {
+      const matchingCases = searchWorkOrders(query);
+      
+      if (matchingCases.length > 0) {
+        onCaseClick(matchingCases[0]); // Show first matching work order
+        setSearchQuery('');
+        toast({
+          title: "Work Order Found",
+          description: `Found work order for ${matchingCases[0].customer_name}`,
+        });
+        return;
+      }
+    }
+    
+    // Then try to search the database
     const foundInDatabase = await searchDatabase(query);
     
     if (!foundInDatabase) {
@@ -111,7 +150,7 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound }: SearchBarProps) =>
       } else {
         toast({
           title: "No Results",
-          description: "Try searching for model numbers, part numbers, or: dashboard, add wo, fixbot, analytics, settings",
+          description: "Try searching for customer names, appliance types, dates, model numbers, part numbers, or: dashboard, add wo, fixbot, analytics, settings",
           variant: "destructive"
         });
       }
@@ -130,7 +169,7 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound }: SearchBarProps) =>
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         onKeyPress={handleKeyPress}
-        placeholder="Search for models, parts, or navigation..."
+        placeholder="Search work orders, models, parts, or navigation..."
         className="flex-1"
         disabled={isSearching}
       />
