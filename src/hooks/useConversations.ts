@@ -24,6 +24,7 @@ export const useConversations = () => {
 
   const fetchConversations = useCallback(async () => {
     if (!user) {
+      console.log('No user, clearing conversations');
       setConversations([]);
       setIsLoading(false);
       return;
@@ -33,7 +34,7 @@ export const useConversations = () => {
       setError(null);
       console.log('Fetching conversations for user:', user.id);
       
-      // Fetch conversations with a simple query - RLS will handle the filtering
+      // Fetch conversations - RLS will handle the filtering
       const { data, error } = await supabase
         .from('conversations')
         .select('*')
@@ -44,41 +45,64 @@ export const useConversations = () => {
         throw error;
       }
 
-      console.log('Fetched conversations:', data);
+      console.log('Raw conversations fetched:', data?.length || 0);
+
+      if (!data || data.length === 0) {
+        console.log('No conversations found');
+        setConversations([]);
+        setIsLoading(false);
+        return;
+      }
 
       // Get member counts and last messages for each conversation
       const conversationsWithMetadata = await Promise.all(
-        (data || []).map(async (conv) => {
-          // Get member count
-          const { data: memberCountData, error: memberCountError } = await supabase
-            .rpc('get_active_member_count', { conversation_id: conv.id });
+        data.map(async (conv) => {
+          try {
+            // Get member count using the safe function
+            const { data: memberCountData, error: memberCountError } = await supabase
+              .rpc('get_active_member_count', { conversation_id: conv.id });
 
-          if (memberCountError) {
-            console.error('Error getting member count for', conv.id, ':', memberCountError);
+            if (memberCountError) {
+              console.error('Error getting member count for', conv.id, ':', memberCountError);
+            }
+
+            // Get last message
+            const { data: lastMessage, error: lastMessageError } = await supabase
+              .from('forum_messages')
+              .select('message, created_at')
+              .eq('conversation_id', conv.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+
+            if (lastMessageError) {
+              console.error('Error getting last message for', conv.id, ':', lastMessageError);
+            }
+
+            return {
+              ...conv,
+              member_count: memberCountData || 0,
+              last_message: lastMessage?.message || 'No messages yet',
+              last_message_time: lastMessage?.created_at || conv.created_at,
+              unread_count: 0 // We'll implement this later
+            };
+          } catch (error) {
+            console.error('Error processing conversation metadata for', conv.id, ':', error);
+            return {
+              ...conv,
+              member_count: 0,
+              last_message: 'No messages yet',
+              last_message_time: conv.created_at,
+              unread_count: 0
+            };
           }
-
-          // Get last message
-          const { data: lastMessage } = await supabase
-            .from('forum_messages')
-            .select('message, created_at')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-          return {
-            ...conv,
-            member_count: memberCountData || 0,
-            last_message: lastMessage?.message || 'No messages yet',
-            last_message_time: lastMessage?.created_at || conv.created_at,
-            unread_count: 0 // We'll implement this later
-          };
         })
       );
 
+      console.log('Conversations with metadata:', conversationsWithMetadata.length);
       setConversations(conversationsWithMetadata);
     } catch (error: any) {
-      console.error('Error fetching conversations:', error);
+      console.error('Error in fetchConversations:', error);
       setError(error.message || 'Failed to load conversations');
     } finally {
       setIsLoading(false);
@@ -106,7 +130,8 @@ export const useConversations = () => {
         },
         (payload) => {
           console.log('Conversation change detected:', payload);
-          fetchConversations(); // Refetch to update the list
+          // Refetch to update the list with proper RLS filtering
+          fetchConversations();
         }
       )
       .on(
@@ -118,7 +143,8 @@ export const useConversations = () => {
         },
         (payload) => {
           console.log('Conversation members change detected:', payload);
-          fetchConversations(); // Refetch to update member counts
+          // Refetch to update member counts
+          fetchConversations();
         }
       )
       .subscribe((status) => {

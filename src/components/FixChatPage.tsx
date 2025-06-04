@@ -36,9 +36,9 @@ const FixChatPage = () => {
     user: user?.id
   });
 
-  // Auto-select first conversation when conversations load
+  // Auto-select first conversation when conversations load and none is selected
   React.useEffect(() => {
-    if (conversations.length > 0 && !selectedConversation) {
+    if (conversations.length > 0 && !selectedConversation && !conversationsLoading) {
       // Try to select "General Discussion" first, or the first conversation
       const generalConversation = conversations.find(c => 
         c.name.toLowerCase().includes('general')
@@ -47,7 +47,7 @@ const FixChatPage = () => {
       console.log('Auto-selecting conversation:', targetConversation);
       setSelectedConversation(targetConversation);
     }
-  }, [conversations, selectedConversation]);
+  }, [conversations, selectedConversation, conversationsLoading]);
 
   const {
     messages,
