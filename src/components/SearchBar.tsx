@@ -1,10 +1,12 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import SearchResults from './SearchResults';
+import SearchSuggestions from './SearchSuggestions';
 import type { Case } from '@/types/case';
 
 interface SearchBarProps {
@@ -18,6 +20,10 @@ interface SearchBarProps {
 const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases = [] }: SearchBarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchResults, setSearchResults] = useState<Case[]>([]);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const searchableItems = [
     { keywords: ['dashboard', 'home', 'overview'], tab: 'dashboard', label: 'Dashboard' },
@@ -27,26 +33,60 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
     { keywords: ['settings', 'config', 'preferences'], tab: 'settings', label: 'Settings' },
   ];
 
-  const searchWorkOrders = (query: string) => {
-    const searchTerm = query.toLowerCase().trim();
-    
-    const matchingCases = cases.filter(case_ => {
-      const customerName = case_.customer_name?.toLowerCase() || '';
-      const applianceType = case_.appliance_type?.toLowerCase() || '';
-      const applianceBrand = case_.appliance_brand?.toLowerCase() || '';
-      const woNumber = case_.wo_number?.toLowerCase() || '';
-      const createdDate = new Date(case_.created_at).toLocaleDateString().toLowerCase();
-      
-      return customerName.includes(searchTerm) ||
-             applianceType.includes(searchTerm) ||
-             applianceBrand.includes(searchTerm) ||
-             woNumber.includes(searchTerm) ||
-             createdDate.includes(searchTerm) ||
-             `${applianceBrand} ${applianceType}`.includes(searchTerm);
-    });
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+        setShowSuggestions(false);
+      }
+    };
 
-    return matchingCases;
-  };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Real-time search as user types
+  useEffect(() => {
+    const searchWorkOrders = () => {
+      if (!searchQuery.trim()) {
+        setSearchResults([]);
+        setShowResults(false);
+        setShowSuggestions(false);
+        return;
+      }
+
+      const searchTerm = searchQuery.toLowerCase().trim();
+      const matchingCases = cases.filter(case_ => {
+        const customerName = case_.customer_name?.toLowerCase() || '';
+        const applianceType = case_.appliance_type?.toLowerCase() || '';
+        const applianceBrand = case_.appliance_brand?.toLowerCase() || '';
+        const woNumber = case_.wo_number?.toLowerCase() || '';
+        const status = case_.status?.toLowerCase() || '';
+        const createdDate = new Date(case_.created_at).toLocaleDateString().toLowerCase();
+        const problemDesc = case_.problem_description?.toLowerCase() || '';
+        
+        return customerName.includes(searchTerm) ||
+               applianceType.includes(searchTerm) ||
+               applianceBrand.includes(searchTerm) ||
+               woNumber.includes(searchTerm) ||
+               status.includes(searchTerm) ||
+               createdDate.includes(searchTerm) ||
+               problemDesc.includes(searchTerm) ||
+               `${applianceBrand} ${applianceType}`.includes(searchTerm);
+      });
+
+      setSearchResults(matchingCases);
+      
+      if (cases.length > 0) {
+        setShowResults(matchingCases.length > 0);
+        setShowSuggestions(matchingCases.length === 0 && searchQuery.length > 0);
+      }
+    };
+
+    const timeoutId = setTimeout(searchWorkOrders, 150); // Debounce search
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, cases]);
 
   const searchDatabase = async (query: string) => {
     setIsSearching(true);
@@ -76,8 +116,10 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
 
       // Check if we found any results
       if (models && models.length > 0) {
-        onModelFound(models[0]); // Show first result
+        onModelFound(models[0]);
         setSearchQuery('');
+        setShowResults(false);
+        setShowSuggestions(false);
         toast({
           title: "Model Found",
           description: `Found ${models[0].brand} ${models[0].model}`,
@@ -86,8 +128,10 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
       }
 
       if (parts && parts.length > 0) {
-        onPartFound(parts[0]); // Show first result
+        onPartFound(parts[0]);
         setSearchQuery('');
+        setShowResults(false);
+        setShowSuggestions(false);
         toast({
           title: "Part Found",
           description: `Found ${parts[0].part_name}`,
@@ -116,22 +160,13 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
 
     const query = searchQuery.toLowerCase().trim();
     
-    // First try to search work orders if we have cases data and onCaseClick handler
-    if (cases.length > 0 && onCaseClick) {
-      const matchingCases = searchWorkOrders(query);
-      
-      if (matchingCases.length > 0) {
-        onCaseClick(matchingCases[0]); // Show first matching work order
-        setSearchQuery('');
-        toast({
-          title: "Work Order Found",
-          description: `Found work order for ${matchingCases[0].customer_name}`,
-        });
-        return;
-      }
+    // If we have search results from work orders, show them
+    if (searchResults.length > 0 && onCaseClick) {
+      // Don't automatically select, let user see all results
+      return;
     }
     
-    // Then try to search the database
+    // Try to search the database
     const foundInDatabase = await searchDatabase(query);
     
     if (!foundInDatabase) {
@@ -143,6 +178,8 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
       if (match) {
         onNavigate(match.tab);
         setSearchQuery('');
+        setShowResults(false);
+        setShowSuggestions(false);
         toast({
           title: "Navigation",
           description: `Navigated to ${match.label}`,
@@ -157,18 +194,60 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
     }
   };
 
+  const handleCaseClick = (selectedCase: Case) => {
+    if (onCaseClick) {
+      onCaseClick(selectedCase);
+      setSearchQuery('');
+      setShowResults(false);
+      setShowSuggestions(false);
+      toast({
+        title: "Work Order Selected",
+        description: `Opened work order for ${selectedCase.customer_name}`,
+      });
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    setShowSuggestions(false);
+    // Trigger search with the suggestion
+    setTimeout(() => {
+      setShowResults(true);
+    }, 100);
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      handleSearch();
+      if (searchResults.length > 0 && onCaseClick) {
+        handleCaseClick(searchResults[0]); // Select first result on Enter
+      } else {
+        handleSearch();
+      }
+    } else if (e.key === 'Escape') {
+      setShowResults(false);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleInputFocus = () => {
+    if (searchQuery && searchResults.length > 0) {
+      setShowResults(true);
+    } else if (searchQuery && cases.length > 0) {
+      setShowSuggestions(true);
     }
   };
 
   return (
-    <div className="flex space-x-2 w-full max-w-md mx-auto">
+    <div ref={searchRef} className="relative flex space-x-2 w-full max-w-md mx-auto">
       <Input
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={handleInputChange}
         onKeyPress={handleKeyPress}
+        onFocus={handleInputFocus}
         placeholder="Search work orders, models, parts, or navigation..."
         className="flex-1"
         disabled={isSearching}
@@ -176,6 +255,24 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
       <Button onClick={handleSearch} size="sm" className="px-3" disabled={isSearching}>
         <Search className="h-4 w-4" />
       </Button>
+      
+      {/* Search Results */}
+      {showResults && onCaseClick && (
+        <SearchResults 
+          results={searchResults}
+          onCaseClick={handleCaseClick}
+          searchQuery={searchQuery}
+        />
+      )}
+      
+      {/* Search Suggestions */}
+      {showSuggestions && (
+        <SearchSuggestions
+          cases={cases}
+          onSuggestionClick={handleSuggestionClick}
+          searchQuery={searchQuery}
+        />
+      )}
     </div>
   );
 };
