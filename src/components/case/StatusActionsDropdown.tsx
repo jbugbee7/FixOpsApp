@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +27,14 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
   const [showCancellationDialog, setShowCancellationDialog] = useState(false);
 
   const statusOptions = [
+    { 
+      value: 'Scheduled', 
+      label: 'Scheduled', 
+      icon: Calendar, 
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50 hover:bg-blue-100',
+      description: 'Schedule this work order' 
+    },
     { 
       value: 'travel', 
       label: 'Travel', 
@@ -64,8 +71,8 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
 
   const sptOptions = [
     { 
-      value: 'spt', 
-      label: 'SPT', 
+      value: 'spr', 
+      label: 'SPR', 
       icon: Clock,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50 hover:bg-yellow-100',
@@ -110,6 +117,9 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
           description: `Work order status updated to ${status}.`,
         });
       }
+
+      // Reload the page to reflect changes in the dashboard tabs
+      window.location.reload();
     } catch (error) {
       console.error('Error updating status:', error);
       toast({
@@ -128,6 +138,9 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
       
       if (sptStatus === 'complete') {
         updateData.status = 'Completed';
+      } else if (sptStatus === 'spr') {
+        // SPR should keep the work order in active status, not completed
+        updateData.status = 'Scheduled';
       }
 
       const { error } = await supabase
@@ -140,10 +153,13 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
 
       toast({
         title: "Job Status Updated",
-        description: sptStatus === 'complete' ? "Work order marked as complete." : "SPT scheduled.",
+        description: sptStatus === 'complete' ? "Work order marked as complete." : "SPR scheduled.",
       });
+
+      // Reload the page to reflect changes in the dashboard tabs
+      window.location.reload();
     } catch (error) {
-      console.error('Error updating SPT status:', error);
+      console.error('Error updating SPR status:', error);
       toast({
         title: "Error",
         description: "Failed to update job status.",

@@ -20,7 +20,8 @@ interface DashboardSubTabsProps {
 }
 
 const DashboardSubTabs = (props: DashboardSubTabsProps) => {
-  // Filter out cancelled work orders from both tabs
+  // Filter cases: Only "Completed" status goes to completed tab
+  // Everything else (including "Scheduled", "SPR", etc.) goes to work orders tab
   const activeCases = props.cases.filter(case_ => 
     case_.status !== 'Completed' && case_.status !== 'cancel'
   );
