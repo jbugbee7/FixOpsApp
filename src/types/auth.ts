@@ -11,6 +11,10 @@ export interface UserProfile {
   terms_agreed?: boolean;
   agreements_date?: string;
   created_at?: string;
+  phone_number?: string;
+  phone_verified?: boolean;
+  verification_code?: string;
+  verification_code_expires_at?: string;
 }
 
 export interface AuthContextType {

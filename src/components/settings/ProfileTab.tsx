@@ -2,7 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from '@/contexts/AuthContext';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 const ProfileTab = () => {
   const { userProfile, user } = useAuth();
@@ -37,6 +39,38 @@ const ProfileTab = () => {
             <p className="text-xs text-slate-500">
               Contact support to change your email address
             </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="profile-phone" className="text-sm font-medium">Phone Number</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                id="profile-phone"
+                value={userProfile?.phone_number || 'Not provided'}
+                disabled
+                className="bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+              />
+              {userProfile?.phone_number && (
+                <Badge variant={userProfile?.phone_verified ? "default" : "destructive"} className="whitespace-nowrap">
+                  {userProfile?.phone_verified ? (
+                    <>
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Verified
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Unverified
+                    </>
+                  )}
+                </Badge>
+              )}
+            </div>
+            {userProfile?.phone_number && !userProfile?.phone_verified && (
+              <p className="text-xs text-orange-600 dark:text-orange-400">
+                Phone number requires verification
+              </p>
+            )}
           </div>
         </div>
 

@@ -341,9 +341,13 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          phone_number: string | null
+          phone_verified: boolean | null
           policy_agreed: boolean | null
           terms_agreed: boolean | null
           updated_at: string
+          verification_code: string | null
+          verification_code_expires_at: string | null
         }
         Insert: {
           agreements_date?: string | null
@@ -351,9 +355,13 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          phone_number?: string | null
+          phone_verified?: boolean | null
           policy_agreed?: boolean | null
           terms_agreed?: boolean | null
           updated_at?: string
+          verification_code?: string | null
+          verification_code_expires_at?: string | null
         }
         Update: {
           agreements_date?: string | null
@@ -361,9 +369,13 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          phone_number?: string | null
+          phone_verified?: boolean | null
           policy_agreed?: boolean | null
           terms_agreed?: boolean | null
           updated_at?: string
+          verification_code?: string | null
+          verification_code_expires_at?: string | null
         }
         Relationships: []
       }
