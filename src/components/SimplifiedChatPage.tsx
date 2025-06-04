@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSimplifiedChat } from '@/hooks/useSimplifiedChat';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -143,6 +142,7 @@ const SimplifiedChatPage = () => {
                 size="sm"
                 onClick={() => setCreateDialogOpen(true)}
                 className="h-8 px-3 text-xs bg-purple-500 hover:bg-purple-600"
+                title="Create New Conversation"
               >
                 <Plus className="h-4 w-4 mr-1" />
                 Create
@@ -177,6 +177,11 @@ const SimplifiedChatPage = () => {
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
                   No conversations available
                 </p>
+                {isAdmin && (
+                  <p className="text-slate-400 dark:text-slate-500 text-xs mt-2">
+                    Create conversations and manually add users to get started
+                  </p>
+                )}
               </div>
             ) : (
               conversations.map((conversation) => {
@@ -232,6 +237,7 @@ const SimplifiedChatPage = () => {
                                   size="sm"
                                   className="h-6 w-6 p-0 hover:bg-purple-100 dark:hover:bg-slate-700"
                                   onClick={(e) => e.stopPropagation()}
+                                  title="Manage Conversation"
                                 >
                                   <MoreVertical className="h-3 w-3" />
                                 </Button>
@@ -284,9 +290,30 @@ const SimplifiedChatPage = () => {
           </div>
           
           {currentConversation && (
-            <div className="text-slate-500 dark:text-slate-400 text-sm flex items-center">
-              <Users className="h-4 w-4 mr-2" />
-              {currentConversation.member_count} members
+            <div className="flex items-center space-x-4">
+              <div className="text-slate-500 dark:text-slate-400 text-sm flex items-center">
+                <Users className="h-4 w-4 mr-2" />
+                {currentConversation.member_count} members
+              </div>
+              {isAdmin && currentConversation && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 px-2">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setAddUsersDialogOpen(true)}>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add Users to Chat
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setMembersDialogOpen(true)}>
+                      <Users className="h-4 w-4 mr-2" />
+                      Manage Members
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           )}
         </div>
@@ -300,6 +327,11 @@ const SimplifiedChatPage = () => {
                 <p className="text-slate-500 dark:text-slate-400">
                   No messages yet. Start the conversation!
                 </p>
+                {!selectedConversation && (
+                  <p className="text-slate-400 dark:text-slate-500 text-xs mt-2">
+                    Select or create a conversation to begin chatting
+                  </p>
+                )}
               </div>
             ) : (
               messages.map((message) => (
@@ -321,7 +353,7 @@ const SimplifiedChatPage = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={`Share your message in ${currentConversation?.name || 'this conversation'}...`}
+              placeholder={currentConversation ? `Share your message in ${currentConversation.name}...` : 'Select a conversation to start chatting...'}
               className="flex-1 bg-purple-50 dark:bg-slate-800 border-purple-200 dark:border-slate-700 focus:border-purple-500 focus:ring-purple-500"
               disabled={isLoading || !selectedConversation}
             />
@@ -340,7 +372,7 @@ const SimplifiedChatPage = () => {
         </div>
       </div>
 
-      {/* Dialogs */}
+      {/* Admin Dialogs */}
       {isAdmin && (
         <>
           <CreateConversationDialog
