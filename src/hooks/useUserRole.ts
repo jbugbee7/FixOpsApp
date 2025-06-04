@@ -22,11 +22,13 @@ export const useUserRole = () => {
         const { data, error } = await supabase
           .rpc('get_current_user_role');
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-          throw error;
+        if (error) {
+          console.error('Error fetching user role:', error);
+          // If no role found, default to 'user'
+          setUserRole('user');
+        } else {
+          setUserRole(data || 'user');
         }
-
-        setUserRole(data || 'user');
       } catch (error) {
         console.error('Error fetching user role:', error);
         setUserRole('user'); // Default to user role

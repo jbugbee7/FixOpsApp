@@ -31,28 +31,30 @@ export const useConversations = () => {
 
     try {
       setError(null);
+      console.log('Fetching conversations for user:', user.id);
       
-      // Fetch conversations the user is a member of
+      // Fetch conversations with a simple query - RLS will handle the filtering
       const { data, error } = await supabase
         .from('conversations')
-        .select(`
-          *,
-          conversation_members!inner(user_id)
-        `)
-        .eq('conversation_members.user_id', user.id)
+        .select('*')
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching conversations:', error);
+        throw error;
+      }
+
+      console.log('Fetched conversations:', data);
 
       // Get member counts and last messages for each conversation
       const conversationsWithMetadata = await Promise.all(
         (data || []).map(async (conv) => {
-          // Get member count using the new function
+          // Get member count
           const { data: memberCountData, error: memberCountError } = await supabase
             .rpc('get_active_member_count', { conversation_id: conv.id });
 
           if (memberCountError) {
-            console.error('Error getting member count:', memberCountError);
+            console.error('Error getting member count for', conv.id, ':', memberCountError);
           }
 
           // Get last message
@@ -77,7 +79,7 @@ export const useConversations = () => {
       setConversations(conversationsWithMetadata);
     } catch (error: any) {
       console.error('Error fetching conversations:', error);
-      setError(error.message);
+      setError(error.message || 'Failed to load conversations');
     } finally {
       setIsLoading(false);
     }
@@ -86,6 +88,48 @@ export const useConversations = () => {
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
+
+  // Set up real-time subscription for conversations
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('Setting up conversations real-time subscription');
+
+    const channel = supabase
+      .channel('conversations_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations'
+        },
+        (payload) => {
+          console.log('Conversation change detected:', payload);
+          fetchConversations(); // Refetch to update the list
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversation_members'
+        },
+        (payload) => {
+          console.log('Conversation members change detected:', payload);
+          fetchConversations(); // Refetch to update member counts
+        }
+      )
+      .subscribe((status) => {
+        console.log('Conversations subscription status:', status);
+      });
+
+    return () => {
+      console.log('Cleaning up conversations subscription');
+      supabase.removeChannel(channel);
+    };
+  }, [user, fetchConversations]);
 
   return {
     conversations,

@@ -28,6 +28,14 @@ const FixChatPage = () => {
     refetch: refetchConversations 
   } = useConversations();
 
+  console.log('FixChatPage render:', {
+    conversationsCount: conversations.length,
+    conversationsLoading,
+    conversationsError,
+    selectedConversation,
+    user: user?.id
+  });
+
   // Auto-select first conversation when conversations load
   React.useEffect(() => {
     if (conversations.length > 0 && !selectedConversation) {
@@ -35,7 +43,9 @@ const FixChatPage = () => {
       const generalConversation = conversations.find(c => 
         c.name.toLowerCase().includes('general')
       );
-      setSelectedConversation(generalConversation?.id || conversations[0].id);
+      const targetConversation = generalConversation?.id || conversations[0].id;
+      console.log('Auto-selecting conversation:', targetConversation);
+      setSelectedConversation(targetConversation);
     }
   }, [conversations, selectedConversation]);
 
