@@ -1,16 +1,26 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Menu, Users, Shield, UserCog, MessageCircle } from 'lucide-react';
+import ConversationMembersDialog from './ConversationMembersDialog';
 
 interface ChatHeaderProps {
   conversationName?: string;
+  conversationId?: string;
   memberCount?: number;
   onToggleSidebar: () => void;
   showMenuButton: boolean;
 }
 
-const ChatHeader = ({ conversationName, memberCount, onToggleSidebar, showMenuButton }: ChatHeaderProps) => {
+const ChatHeader = ({ 
+  conversationName, 
+  conversationId, 
+  memberCount, 
+  onToggleSidebar, 
+  showMenuButton 
+}: ChatHeaderProps) => {
+  const [membersDialogOpen, setMembersDialogOpen] = useState(false);
+
   const getConversationIcon = (name?: string) => {
     if (!name) return MessageCircle;
     if (name.toLowerCase().includes('general')) return Users;
@@ -43,10 +53,13 @@ const ChatHeader = ({ conversationName, memberCount, onToggleSidebar, showMenuBu
             <h1 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {conversationName || 'Select a conversation'}
             </h1>
-            {memberCount !== undefined && (
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+            {memberCount !== undefined && conversationId && (
+              <button 
+                onClick={() => setMembersDialogOpen(true)}
+                className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
                 {memberCount} {memberCount === 1 ? 'member' : 'members'}
-              </p>
+              </button>
             )}
           </div>
         </div>
@@ -61,6 +74,15 @@ const ChatHeader = ({ conversationName, memberCount, onToggleSidebar, showMenuBu
         >
           <Menu className="h-5 w-5" />
         </Button>
+      )}
+
+      {conversationId && conversationName && (
+        <ConversationMembersDialog
+          open={membersDialogOpen}
+          onOpenChange={setMembersDialogOpen}
+          conversationId={conversationId}
+          conversationName={conversationName}
+        />
       )}
     </div>
   );

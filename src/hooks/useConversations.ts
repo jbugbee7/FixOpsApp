@@ -47,11 +47,13 @@ export const useConversations = () => {
       // Get member counts and last messages for each conversation
       const conversationsWithMetadata = await Promise.all(
         (data || []).map(async (conv) => {
-          // Get member count
-          const { count: memberCount } = await supabase
-            .from('conversation_members')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id);
+          // Get member count using the new function
+          const { data: memberCountData, error: memberCountError } = await supabase
+            .rpc('get_active_member_count', { conversation_id: conv.id });
+
+          if (memberCountError) {
+            console.error('Error getting member count:', memberCountError);
+          }
 
           // Get last message
           const { data: lastMessage } = await supabase
@@ -64,7 +66,7 @@ export const useConversations = () => {
 
           return {
             ...conv,
-            member_count: memberCount || 0,
+            member_count: memberCountData || 0,
             last_message: lastMessage?.message || 'No messages yet',
             last_message_time: lastMessage?.created_at || conv.created_at,
             unread_count: 0 // We'll implement this later

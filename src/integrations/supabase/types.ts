@@ -513,6 +513,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_active_member_count: {
+        Args: { conversation_id: string }
+        Returns: number
+      }
+      get_conversation_members: {
+        Args: { conversation_id: string }
+        Returns: {
+          user_id: string
+          full_name: string
+          email: string
+          joined_at: string
+        }[]
+      }
       is_authorized_to_delete: {
         Args: Record<PropertyKey, never>
         Returns: boolean

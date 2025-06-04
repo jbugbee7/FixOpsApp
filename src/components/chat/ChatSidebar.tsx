@@ -1,10 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Search, MessageCircle, Loader2, Users, Shield, UserCog } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Search, MessageCircle, Loader2, Users, Shield, UserCog, Plus } from 'lucide-react';
 import { useConversations } from '@/hooks/useConversations';
 import ChatConversationItem from './ChatConversationItem';
+import CreateConversationDialog from './CreateConversationDialog';
 
 interface ChatSidebarProps {
   selectedConversation?: string;
@@ -13,7 +15,8 @@ interface ChatSidebarProps {
 }
 
 const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }: ChatSidebarProps) => {
-  const { conversations, isLoading, error } = useConversations();
+  const { conversations, isLoading, error, refetch } = useConversations();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const getConversationIcon = (name: string) => {
     if (name.toLowerCase().includes('general')) return Users;
@@ -22,9 +25,23 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
     return MessageCircle;
   };
 
+  const handleConversationCreated = () => {
+    refetch();
+  };
+
   if (isCollapsed) {
     return (
       <div className="w-16 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center py-4 space-y-4">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => setCreateDialogOpen(true)}
+          className="w-10 h-10 text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+          title="Create Conversation"
+        >
+          <Plus className="h-5 w-5" />
+        </Button>
+        
         {isLoading ? (
           <div className="w-10 h-10 flex items-center justify-center">
             <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
@@ -48,6 +65,12 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
             );
           })
         )}
+
+        <CreateConversationDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onConversationCreated={handleConversationCreated}
+        />
       </div>
     );
   }
@@ -55,11 +78,21 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
   return (
     <div className="w-80 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col">
       <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-        <div className="flex items-center space-x-2 mb-4">
-          <MessageCircle className="h-6 w-6 text-blue-500" />
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            Conversations
-          </h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <MessageCircle className="h-6 w-6 text-blue-500" />
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Conversations
+            </h2>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setCreateDialogOpen(true)}
+            className="h-8 px-3 text-xs"
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Create
+          </Button>
         </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -115,6 +148,12 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
           )}
         </div>
       </ScrollArea>
+
+      <CreateConversationDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onConversationCreated={handleConversationCreated}
+      />
     </div>
   );
 };
