@@ -19,6 +19,7 @@ export interface SimplifiedMessage {
   author_name: string;
   message: string;
   created_at: string;
+  updated_at: string;
   conversation_id: string;
 }
 
