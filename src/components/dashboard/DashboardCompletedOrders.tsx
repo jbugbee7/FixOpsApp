@@ -40,13 +40,13 @@ const DashboardCompletedOrders = React.memo(({
 
   return (
     <div className="space-y-6">
-      {/* Search Bar */}
+      {/* Search Bar - only shows completed cases */}
       <SearchBar 
         onNavigate={onNavigate} 
         onModelFound={onModelFound}
         onPartFound={onPartFound}
         onCaseClick={onCaseClick}
-        cases={cases}
+        cases={completedCases}
       />
 
       {/* Connection Status */}

@@ -40,13 +40,13 @@ const DashboardWorkOrders = React.memo(({
 
   return (
     <div className="space-y-6">
-      {/* Search Bar */}
+      {/* Search Bar - only shows active cases */}
       <SearchBar 
         onNavigate={onNavigate} 
         onModelFound={onModelFound}
         onPartFound={onPartFound}
         onCaseClick={onCaseClick}
-        cases={cases}
+        cases={activeCases}
       />
 
       {/* Add Button */}

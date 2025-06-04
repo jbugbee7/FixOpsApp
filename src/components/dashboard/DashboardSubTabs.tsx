@@ -47,14 +47,14 @@ const DashboardSubTabs = (props: DashboardSubTabsProps) => {
       <TabsContent value="work-orders" className="m-0">
         <DashboardWorkOrders 
           {...props} 
-          cases={activeCases}
+          cases={props.cases}
         />
       </TabsContent>
 
       <TabsContent value="completed" className="m-0">
         <DashboardCompletedOrders 
           {...props} 
-          cases={completedCases}
+          cases={props.cases}
         />
       </TabsContent>
     </Tabs>
