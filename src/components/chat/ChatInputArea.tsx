@@ -9,8 +9,7 @@ interface ChatInputAreaProps {
   setInputMessage: (message: string) => void;
   onSendMessage: () => void;
   isLoading: boolean;
-  isFetching: boolean;
-  placeholderText: string;
+  placeholder: string;
   onKeyPress: (e: React.KeyboardEvent) => void;
 }
 
@@ -19,8 +18,7 @@ const ChatInputArea = ({
   setInputMessage,
   onSendMessage,
   isLoading,
-  isFetching,
-  placeholderText,
+  placeholder,
   onKeyPress
 }: ChatInputAreaProps) => {
   return (
@@ -30,13 +28,13 @@ const ChatInputArea = ({
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={onKeyPress}
-          placeholder={placeholderText}
+          placeholder={placeholder}
           className="flex-1 bg-slate-50 dark:bg-slate-800"
-          disabled={isLoading || isFetching}
+          disabled={isLoading}
         />
         <Button 
           onClick={onSendMessage}
-          disabled={!inputMessage.trim() || isLoading || isFetching}
+          disabled={!inputMessage.trim() || isLoading}
           className="bg-blue-500 hover:bg-blue-600 px-4"
         >
           {isLoading ? (

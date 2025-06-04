@@ -12,7 +12,7 @@ interface EnhancedChatMessagesAreaProps {
   workOrders?: Case[];
   onViewWorkOrder?: (workOrder: Case) => void;
   isFetching: boolean;
-  isLoading: boolean;
+  hasConnectionError: boolean;
 }
 
 const EnhancedChatMessagesArea = ({ 
@@ -20,7 +20,7 @@ const EnhancedChatMessagesArea = ({
   workOrders = [], 
   onViewWorkOrder,
   isFetching, 
-  isLoading 
+  hasConnectionError 
 }: EnhancedChatMessagesAreaProps) => {
   return (
     <ScrollArea className="flex-1 px-4">
@@ -39,7 +39,6 @@ const EnhancedChatMessagesArea = ({
             />
           ))
         )}
-        {isLoading && <ChatLoadingIndicator type="sending" />}
       </div>
     </ScrollArea>
   );
