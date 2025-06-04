@@ -19,14 +19,8 @@ const ConnectionStatus = ({ hasConnectionError }: ConnectionStatusProps) => {
     );
   }
 
-  return (
-    <Alert className="border-green-200 bg-green-50 dark:bg-green-950">
-      <CheckCircle className="h-4 w-4 text-green-600" />
-      <AlertDescription className="text-green-700 dark:text-green-400">
-        Connected to repair forum
-      </AlertDescription>
-    </Alert>
-  );
+  // Hide the connected message by returning null
+  return null;
 };
 
 export default ConnectionStatus;

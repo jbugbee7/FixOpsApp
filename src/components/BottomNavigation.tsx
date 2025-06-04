@@ -15,7 +15,7 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
         <TabItem value="dashboard" icon={<Home />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="fixchat" icon={<MessageCircle />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="ai-assistant" icon={<Bot />} activeTab={activeTab} onTabChange={onTabChange} />
-        <TabItem value="analytics" icon={<GraduationCap />} activeTab={activeTab} onTabChange={onTabChange} />
+        <TabItem value="training" icon={<GraduationCap />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="settings" icon={<Settings />} activeTab={activeTab} onTabChange={onTabChange} />
       </TabsList>
     </div>
