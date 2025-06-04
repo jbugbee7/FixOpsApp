@@ -41,10 +41,8 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
 
   const {
     formData,
-    photos,
     parts,
     isSubmitting,
-    setPhotos,
     setParts,
     setIsSubmitting,
     handleInputChange,
@@ -154,11 +152,11 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
         setIsSubmitting(false);
       }
     } else {
-      // Regular case update
+      // Regular case update - pass empty photos array since camera is disabled
       await handleSubmit(
         formData,
         parts,
-        photos,
+        [], // Empty photos array since camera functionality is disabled
         getLaborCost,
         getTotalCost,
         setIsSubmitting
@@ -207,12 +205,12 @@ const CaseDetails = ({ case: caseData, onBack, onStatusUpdate }: CaseDetailsProp
           <CaseDetailsForm
             currentCase={currentCase}
             formData={formData}
-            photos={photos}
+            photos={[]} // Empty array since camera is disabled
             parts={parts}
             isSubmitting={isSubmitting}
             onInputChange={handleInputChange}
             onDiagnosticFeeChange={handleDiagnosticFeeChange}
-            onPhotosChange={setPhotos}
+            onPhotosChange={() => {}} // No-op function since camera is disabled
             onPartsChange={setParts}
             getTotalCost={getTotalCost}
             getLaborCost={getLaborCost}

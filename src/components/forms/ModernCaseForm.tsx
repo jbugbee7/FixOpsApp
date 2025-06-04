@@ -24,11 +24,9 @@ const ModernCaseForm = () => {
 
   const {
     formData,
-    photos,
     parts,
     isSubmitting,
     user,
-    setPhotos,
     setParts,
     setIsSubmitting,
     handleInputChange,
@@ -59,7 +57,7 @@ const ModernCaseForm = () => {
     await submitCase(
       user,
       formData,
-      photos,
+      [], // Empty photos array since camera functionality is disabled
       parts,
       getCustomerName(),
       getLaborCost,
@@ -123,8 +121,8 @@ const ModernCaseForm = () => {
 
         {/* Photos Section */}
         <PhotosSection
-          photos={photos}
-          onPhotosChange={setPhotos}
+          photos={[]} // Empty array since camera is disabled
+          onPhotosChange={() => {}} // No-op function since camera is disabled
           expanded={expandedSections.photos}
           onToggle={() => toggleSection('photos')}
           icon={getSectionIcon('photos')}
