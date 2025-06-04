@@ -1,7 +1,7 @@
 
 import React from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MessageCircle, Settings, Home, Bot, GraduationCap, Users } from 'lucide-react';
+import { MessageCircle, Settings, Home, Bot, GraduationCap } from 'lucide-react';
 
 interface BottomNavigationProps {
   activeTab: string;
@@ -11,10 +11,9 @@ interface BottomNavigationProps {
 const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-lg pb-safe-bottom">
-      <TabsList className="grid w-full grid-cols-6 h-16 bg-white dark:bg-slate-900 rounded-none relative overflow-visible">
+      <TabsList className="grid w-full grid-cols-5 h-16 bg-white dark:bg-slate-900 rounded-none relative overflow-visible">
         <TabItem value="dashboard" icon={<Home />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="fixchat" icon={<MessageCircle />} activeTab={activeTab} onTabChange={onTabChange} />
-        <TabItem value="discussion" icon={<Users />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="ai-assistant" icon={<Bot />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="analytics" icon={<GraduationCap />} activeTab={activeTab} onTabChange={onTabChange} />
         <TabItem value="settings" icon={<Settings />} activeTab={activeTab} onTabChange={onTabChange} />

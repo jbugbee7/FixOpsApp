@@ -54,7 +54,7 @@ const FixChatPage = () => {
   };
 
   const getPlaceholderText = () => {
-    return "Share your repair tips, ask questions, reference work orders (e.g., WO-123), or help fellow technicians...";
+    return "Chat with your team, reference work orders (e.g., WO-123), share tips and ask questions...";
   };
 
   // If viewing a work order, show work order details
@@ -66,7 +66,7 @@ const FixChatPage = () => {
             onClick={handleBackFromWorkOrder}
             className="mb-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
           >
-            ← Back to Repair Forum
+            ← Back to General Chat
           </button>
           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-lg">
             <h2 className="text-xl font-bold mb-4">
@@ -104,16 +104,16 @@ const FixChatPage = () => {
 
   // Create a proper mock conversation object
   const mockConversation = {
-    id: 'global-chat',
-    name: 'Repair Forum Chat',
-    description: 'Global chat for repair technicians',
+    id: 'general-chat',
+    name: 'General Chat',
+    description: 'General chat for technicians',
     member_count: undefined,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by: 'system'
   };
 
-  // Simple sidebar for global chat
+  // Simple sidebar for general chat
   const sidebar = (
     <div className={`bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 ${
       isMobile ? 'w-80' : sidebarCollapsed ? 'w-16' : 'w-80'
@@ -122,11 +122,11 @@ const FixChatPage = () => {
         <h2 className={`font-semibold text-slate-900 dark:text-slate-100 ${
           sidebarCollapsed && !isMobile ? 'text-center text-sm' : 'text-lg'
         }`}>
-          {sidebarCollapsed && !isMobile ? 'Forum' : 'Repair Forum Chat'}
+          {sidebarCollapsed && !isMobile ? 'Chat' : 'General Chat'}
         </h2>
         {!sidebarCollapsed || isMobile ? (
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
-            Connect with fellow repair technicians, share knowledge, get help with your cases, and reference work orders (type WO-123).
+            Chat with your team, reference work orders by typing WO-123, share knowledge and get help.
           </p>
         ) : null}
       </div>
@@ -141,7 +141,7 @@ const FixChatPage = () => {
     >
       <EnhancedChatMainArea
         currentConversation={mockConversation}
-        selectedConversation="global"
+        selectedConversation="general"
         conversationsLoading={false}
         conversationsError={null}
         conversations={[]}
