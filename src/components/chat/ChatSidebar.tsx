@@ -33,13 +33,13 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
 
   if (isCollapsed) {
     return (
-      <div className="w-16 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center py-4 space-y-4">
+      <div className="w-16 border-r border-purple-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center py-4 space-y-4">
         {isAdmin && !roleLoading && (
           <Button
             size="icon"
             variant="ghost"
             onClick={() => setCreateDialogOpen(true)}
-            className="w-10 h-10 text-slate-600 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            className="w-10 h-10 text-slate-600 dark:text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
             title="Create Conversation"
           >
             <Plus className="h-5 w-5" />
@@ -48,7 +48,7 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
         
         {isLoading ? (
           <div className="w-10 h-10 flex items-center justify-center">
-            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+            <Loader2 className="h-4 w-4 animate-spin text-purple-400" />
           </div>
         ) : (
           conversations.map((conversation) => {
@@ -58,8 +58,8 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
                 key={conversation.id}
                 className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors ${
                   selectedConversation === conversation.id
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400'
+                    ? 'bg-purple-500 text-white'
+                    : 'bg-purple-100 dark:bg-slate-800 hover:bg-purple-200 dark:hover:bg-slate-700 text-purple-600 dark:text-slate-400'
                 }`}
                 onClick={() => onSelectConversation(conversation.id)}
                 title={conversation.name}
@@ -82,11 +82,11 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
   }
 
   return (
-    <div className="w-80 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col">
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+    <div className="w-80 border-r border-purple-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col">
+      <div className="p-4 border-b border-purple-200 dark:border-slate-700">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
-            <MessageCircle className="h-6 w-6 text-blue-500" />
+            <MessageCircle className="h-6 w-6 text-purple-500" />
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               Conversations
             </h2>
@@ -95,7 +95,7 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
             <Button
               size="sm"
               onClick={() => setCreateDialogOpen(true)}
-              className="h-8 px-3 text-xs"
+              className="h-8 px-3 text-xs bg-purple-500 hover:bg-purple-600"
             >
               <Plus className="h-4 w-4 mr-1" />
               Create
@@ -106,7 +106,7 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search conversations..."
-            className="pl-10 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+            className="pl-10 bg-purple-50 dark:bg-slate-800 border-purple-200 dark:border-slate-700"
           />
         </div>
       </div>
@@ -115,7 +115,7 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
         <div className="p-2">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+              <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
               <span className="ml-2 text-slate-500">Loading conversations...</span>
             </div>
           ) : error ? (
@@ -124,7 +124,7 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
             </div>
           ) : conversations.length === 0 ? (
             <div className="text-center py-8">
-              <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+              <MessageCircle className="h-12 w-12 text-purple-300 mx-auto mb-4" />
               <p className="text-slate-500 dark:text-slate-400 text-sm">
                 No conversations available
               </p>

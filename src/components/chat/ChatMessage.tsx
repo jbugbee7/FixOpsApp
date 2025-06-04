@@ -21,7 +21,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         <div
           className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
             message.sender === 'user'
-              ? 'bg-blue-500'
+              ? 'bg-purple-500'
               : 'bg-slate-200 dark:bg-slate-700'
           }`}
         >
@@ -34,7 +34,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
         <Card
           className={`${
             message.sender === 'user'
-              ? 'bg-blue-500 text-white border-blue-500'
+              ? 'bg-purple-500 text-white border-purple-500'
               : 'bg-white dark:bg-slate-800 dark:border-slate-700'
           } shadow-sm`}
         >
@@ -43,7 +43,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             <p
               className={`text-xs mt-1.5 ${
                 message.sender === 'user'
-                  ? 'text-blue-100'
+                  ? 'text-purple-100'
                   : 'text-slate-500 dark:text-slate-400'
               }`}
             >

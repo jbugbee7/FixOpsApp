@@ -9,14 +9,19 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Menu, Users, Plus, MessageCircle, Loader2, Shield, UserCog } from 'lucide-react';
+import { Send, Menu, Users, Plus, MessageCircle, Loader2, Shield, UserCog, UserPlus, MoreVertical } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Case } from '@/types/case';
 import CreateConversationDialog from './chat/CreateConversationDialog';
+import AddUsersToConversationDialog from './chat/AddUsersToConversationDialog';
+import ConversationMembersDialog from './chat/ConversationMembersDialog';
 import EnhancedForumMessage from './forum/EnhancedForumMessage';
 
 const SimplifiedChatPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [addUsersDialogOpen, setAddUsersDialogOpen] = useState(false);
+  const [membersDialogOpen, setMembersDialogOpen] = useState(false);
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<Case | null>(null);
   
   const isMobile = useIsMobile();
@@ -63,11 +68,11 @@ const SimplifiedChatPage = () => {
   // Work order details view
   if (selectedWorkOrder) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
         <div className="p-4">
           <button 
             onClick={() => setSelectedWorkOrder(null)}
-            className="mb-4 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+            className="mb-4 text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-200"
           >
             ← Back to Chat
           </button>
@@ -106,7 +111,7 @@ const SimplifiedChatPage = () => {
   }
 
   return (
-    <div className="h-screen flex bg-slate-50 dark:bg-slate-900">
+    <div className="h-screen flex bg-purple-50 dark:bg-slate-900">
       {/* Mobile Sidebar Overlay */}
       {isMobile && sidebarOpen && (
         <div 
@@ -122,13 +127,13 @@ const SimplifiedChatPage = () => {
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`
           : 'relative'
-      } w-80 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col`}>
+      } w-80 border-r border-purple-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col`}>
         
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+        <div className="p-4 border-b border-purple-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
-              <MessageCircle className="h-6 w-6 text-blue-500" />
+              <MessageCircle className="h-6 w-6 text-purple-500" />
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 Conversations
               </h2>
@@ -137,7 +142,7 @@ const SimplifiedChatPage = () => {
               <Button
                 size="sm"
                 onClick={() => setCreateDialogOpen(true)}
-                className="h-8 px-3 text-xs"
+                className="h-8 px-3 text-xs bg-purple-500 hover:bg-purple-600"
               >
                 <Plus className="h-4 w-4 mr-1" />
                 Create
@@ -151,7 +156,7 @@ const SimplifiedChatPage = () => {
           <div className="p-2">
             {isFetching ? (
               <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+                <Loader2 className="h-6 w-6 animate-spin text-purple-400" />
                 <span className="ml-2 text-slate-500">Loading conversations...</span>
               </div>
             ) : error ? (
@@ -168,7 +173,7 @@ const SimplifiedChatPage = () => {
               </div>
             ) : conversations.length === 0 ? (
               <div className="text-center py-8">
-                <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                <MessageCircle className="h-12 w-12 text-purple-300 mx-auto mb-4" />
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
                   No conversations available
                 </p>
@@ -181,8 +186,8 @@ const SimplifiedChatPage = () => {
                     key={conversation.id}
                     className={`p-3 rounded-lg cursor-pointer transition-colors mb-2 ${
                       selectedConversation === conversation.id
-                        ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800'
-                        : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+                        ? 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800'
+                        : 'hover:bg-purple-50 dark:hover:bg-slate-800'
                     }`}
                     onClick={() => {
                       setSelectedConversation(conversation.id);
@@ -192,8 +197,8 @@ const SimplifiedChatPage = () => {
                     <div className="flex items-start space-x-3">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                         selectedConversation === conversation.id
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400'
+                          ? 'bg-purple-500 text-white'
+                          : 'bg-purple-100 dark:bg-slate-700 text-purple-600 dark:text-slate-400'
                       }`}>
                         <IconComponent className="h-5 w-5" />
                       </div>
@@ -212,11 +217,45 @@ const SimplifiedChatPage = () => {
                         <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
                           {conversation.last_message}
                         </p>
-                        <div className="flex items-center mt-1">
-                          <Users className="h-3 w-3 text-slate-400 mr-1" />
-                          <span className="text-xs text-slate-400">
-                            {conversation.member_count} members
-                          </span>
+                        <div className="flex items-center justify-between mt-1">
+                          <div className="flex items-center">
+                            <Users className="h-3 w-3 text-slate-400 mr-1" />
+                            <span className="text-xs text-slate-400">
+                              {conversation.member_count} members
+                            </span>
+                          </div>
+                          {isAdmin && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 w-6 p-0 hover:bg-purple-100 dark:hover:bg-slate-700"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreVertical className="h-3 w-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedConversation(conversation.id);
+                                  setAddUsersDialogOpen(true);
+                                }}>
+                                  <UserPlus className="h-4 w-4 mr-2" />
+                                  Add Users
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedConversation(conversation.id);
+                                  setMembersDialogOpen(true);
+                                }}>
+                                  <Users className="h-4 w-4 mr-2" />
+                                  View Members
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -232,7 +271,7 @@ const SimplifiedChatPage = () => {
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* Chat Header */}
-        <div className="h-16 border-b border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 flex items-center justify-between px-4">
+        <div className="h-16 border-b border-purple-200 dark:border-slate-600 bg-white dark:bg-slate-900 flex items-center justify-between px-4">
           <div className="flex items-center space-x-3">
             {isMobile && (
               <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
@@ -257,7 +296,7 @@ const SimplifiedChatPage = () => {
           <div className="space-y-4 pb-4">
             {messages.length === 0 ? (
               <div className="text-center py-8">
-                <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+                <MessageCircle className="h-12 w-12 text-purple-300 mx-auto mb-4" />
                 <p className="text-slate-500 dark:text-slate-400">
                   No messages yet. Start the conversation!
                 </p>
@@ -276,20 +315,20 @@ const SimplifiedChatPage = () => {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="p-4 border-t border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900">
+        <div className="p-4 border-t border-purple-200 dark:border-slate-600 bg-white dark:bg-slate-900">
           <div className="flex space-x-3">
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder={`Share your message in ${currentConversation?.name || 'this conversation'}...`}
-              className="flex-1 bg-slate-50 dark:bg-slate-800"
+              className="flex-1 bg-purple-50 dark:bg-slate-800 border-purple-200 dark:border-slate-700 focus:border-purple-500 focus:ring-purple-500"
               disabled={isLoading || !selectedConversation}
             />
             <Button 
               onClick={sendMessage}
               disabled={!inputMessage.trim() || isLoading || !selectedConversation}
-              className="bg-blue-500 hover:bg-blue-600 px-4"
+              className="bg-purple-500 hover:bg-purple-600 px-4"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -301,13 +340,28 @@ const SimplifiedChatPage = () => {
         </div>
       </div>
 
-      {/* Create Conversation Dialog */}
+      {/* Dialogs */}
       {isAdmin && (
-        <CreateConversationDialog
-          open={createDialogOpen}
-          onOpenChange={setCreateDialogOpen}
-          onConversationCreated={refetchConversations}
-        />
+        <>
+          <CreateConversationDialog
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+            onConversationCreated={refetchConversations}
+          />
+          <AddUsersToConversationDialog
+            open={addUsersDialogOpen}
+            onOpenChange={setAddUsersDialogOpen}
+            conversationId={selectedConversation}
+            conversationName={currentConversation?.name || ''}
+            onUsersAdded={refetchConversations}
+          />
+          <ConversationMembersDialog
+            open={membersDialogOpen}
+            onOpenChange={setMembersDialogOpen}
+            conversationId={selectedConversation}
+            conversationName={currentConversation?.name || ''}
+          />
+        </>
       )}
     </div>
   );
