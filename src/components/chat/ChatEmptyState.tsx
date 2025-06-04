@@ -14,7 +14,10 @@ const ChatEmptyState = ({ type, conversationsCount }: ChatEmptyStateProps) => {
         <div className="text-center">
           <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
           <p className="text-slate-500 dark:text-slate-400">
-            {conversationsCount === 0 ? 'No conversations available' : 'Select a conversation to start chatting'}
+            Welcome to the Repair Forum Chat!
+          </p>
+          <p className="text-slate-400 dark:text-slate-500 text-sm mt-2">
+            Start a conversation with fellow technicians
           </p>
         </div>
       </div>

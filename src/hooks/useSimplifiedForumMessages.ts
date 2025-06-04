@@ -3,15 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-
-export interface ForumMessage {
-  id: string;
-  user_id: string;
-  author_name: string;
-  message: string;
-  created_at: string;
-  updated_at: string;
-}
+import { ForumMessage } from '@/types/forumMessage';
 
 export const useSimplifiedForumMessages = () => {
   const [messages, setMessages] = useState<ForumMessage[]>([]);
@@ -44,7 +36,7 @@ export const useSimplifiedForumMessages = () => {
         .from('forum_messages')
         .select('*')
         .order('created_at', { ascending: true })
-        .limit(50); // Limit to prevent performance issues
+        .limit(100);
 
       if (!mountedRef.current) return;
 
@@ -71,6 +63,33 @@ export const useSimplifiedForumMessages = () => {
     }
   }, [user, fetchMessages]);
 
+  // Set up real-time subscription
+  useEffect(() => {
+    if (!user || !hasInitializedRef.current) return;
+
+    const channel = supabase
+      .channel('forum_messages_channel')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'forum_messages'
+        },
+        (payload) => {
+          if (mountedRef.current && payload.new) {
+            const newMessage = payload.new as ForumMessage;
+            setMessages(prev => [...prev, newMessage]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, hasInitializedRef.current]);
+
   const sendMessage = async () => {
     if (!inputMessage.trim() || !user || !userProfile || !mountedRef.current) {
       return;
@@ -93,16 +112,6 @@ export const useSimplifiedForumMessages = () => {
 
       if (mountedRef.current) {
         setInputMessage('');
-        // Optimistically add message to local state
-        const newMessage: ForumMessage = {
-          id: Date.now().toString(), // Temporary ID
-          user_id: user.id,
-          author_name: authorName,
-          message: inputMessage.trim(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setMessages(prev => [...prev, newMessage]);
       }
     } catch (error) {
       console.error('Error sending message:', error);

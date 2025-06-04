@@ -74,7 +74,7 @@ const ChatMainArea = ({
           
           {conversationsLoading ? (
             <ChatLoadingIndicator type="conversations" />
-          ) : !selectedConversation ? (
+          ) : !selectedConversation && conversations.length === 0 ? (
             <ChatEmptyState type="no-conversation" conversationsCount={conversations.length} />
           ) : (
             <>
