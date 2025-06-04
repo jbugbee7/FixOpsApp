@@ -2,7 +2,8 @@
 import React from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Search, MessageCircle } from 'lucide-react';
+import { Search, MessageCircle, Loader2 } from 'lucide-react';
+import { useConversations } from '@/hooks/useConversations';
 import ChatConversationItem from './ChatConversationItem';
 
 interface ChatSidebarProps {
@@ -12,62 +13,31 @@ interface ChatSidebarProps {
 }
 
 const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }: ChatSidebarProps) => {
-  // Mock conversation data - replace with real data
-  const conversations = [
-    {
-      id: '1',
-      name: 'General Discussion',
-      lastMessage: 'Thanks for the help with the repair!',
-      time: '2:34 PM',
-      unread: 2,
-      avatar: '👥',
-      online: true
-    },
-    {
-      id: '2',
-      name: 'Parts & Troubleshooting',
-      lastMessage: 'Anyone know where to find this part?',
-      time: '1:22 PM',
-      unread: 0,
-      avatar: '🔧',
-      online: false
-    },
-    {
-      id: '3',
-      name: 'Repair Tips',
-      lastMessage: 'Just fixed a similar issue yesterday',
-      time: '12:45 PM',
-      unread: 5,
-      avatar: '💡',
-      online: true
-    },
-    {
-      id: '4',
-      name: 'Customer Service',
-      lastMessage: 'Customer was very satisfied with the work',
-      time: '11:30 AM',
-      unread: 0,
-      avatar: '📞',
-      online: false
-    }
-  ];
+  const { conversations, isLoading, error } = useConversations();
 
   if (isCollapsed) {
     return (
       <div className="w-16 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 flex flex-col items-center py-4 space-y-4">
-        {conversations.map((conversation) => (
-          <div
-            key={conversation.id}
-            className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer text-lg transition-colors ${
-              selectedConversation === conversation.id
-                ? 'bg-blue-500 text-white'
-                : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
-            }`}
-            onClick={() => onSelectConversation(conversation.id)}
-          >
-            {conversation.avatar}
+        {isLoading ? (
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
           </div>
-        ))}
+        ) : (
+          conversations.map((conversation) => (
+            <div
+              key={conversation.id}
+              className={`w-10 h-10 rounded-lg flex items-center justify-center cursor-pointer text-lg transition-colors ${
+                selectedConversation === conversation.id
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
+              onClick={() => onSelectConversation(conversation.id)}
+              title={conversation.name}
+            >
+              {conversation.name.charAt(0)}
+            </div>
+          ))
+        )}
       </div>
     );
   }
@@ -92,14 +62,43 @@ const ChatSidebar = ({ selectedConversation, onSelectConversation, isCollapsed }
       
       <ScrollArea className="flex-1">
         <div className="p-2">
-          {conversations.map((conversation) => (
-            <ChatConversationItem
-              key={conversation.id}
-              conversation={conversation}
-              isSelected={selectedConversation === conversation.id}
-              onClick={() => onSelectConversation(conversation.id)}
-            />
-          ))}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+              <span className="ml-2 text-slate-500">Loading conversations...</span>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 text-sm">Failed to load conversations</p>
+            </div>
+          ) : conversations.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 dark:text-slate-400 text-sm">
+                No conversations available
+              </p>
+            </div>
+          ) : (
+            conversations.map((conversation) => (
+              <ChatConversationItem
+                key={conversation.id}
+                conversation={{
+                  id: conversation.id,
+                  name: conversation.name,
+                  lastMessage: conversation.last_message || 'No messages yet',
+                  time: new Date(conversation.last_message_time || conversation.created_at).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }),
+                  unread: conversation.unread_count || 0,
+                  avatar: conversation.name.charAt(0),
+                  online: true // We'll implement proper online status later
+                }}
+                isSelected={selectedConversation === conversation.id}
+                onClick={() => onSelectConversation(conversation.id)}
+              />
+            ))
+          )}
         </div>
       </ScrollArea>
     </div>
