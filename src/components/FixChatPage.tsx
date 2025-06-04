@@ -1,17 +1,11 @@
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Send, Loader2, RefreshCw } from 'lucide-react';
 import { useConversationMessages } from '@/hooks/useConversationMessages';
 import { useConversations } from '@/hooks/useConversations';
 import { useIsMobile } from '@/hooks/use-mobile';
-import ForumMessage from '@/components/forum/ForumMessage';
-import ConnectionStatus from '@/components/chat/ConnectionStatus';
 import ChatSidebar from '@/components/chat/ChatSidebar';
-import ChatHeader from '@/components/chat/ChatHeader';
+import ChatLayout from '@/components/chat/ChatLayout';
+import ChatMainArea from '@/components/chat/ChatMainArea';
 
 const FixChatPage = () => {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
@@ -73,167 +67,55 @@ const FixChatPage = () => {
     refetchConversations();
   };
 
+  const handleToggleSidebar = () => {
+    if (isMobile) {
+      setMobileSidebarOpen(!mobileSidebarOpen);
+    } else {
+      setSidebarCollapsed(!sidebarCollapsed);
+    }
+  };
+
+  const handleSelectConversation = (id: string) => {
+    setSelectedConversation(id);
+    if (isMobile) {
+      setMobileSidebarOpen(false);
+    }
+  };
+
+  const sidebar = (
+    <ChatSidebar
+      selectedConversation={selectedConversation || undefined}
+      onSelectConversation={handleSelectConversation}
+      isCollapsed={!isMobile && sidebarCollapsed}
+    />
+  );
+
   return (
-    <div className="h-screen flex bg-slate-50 dark:bg-slate-900">
-      {/* Mobile Sidebar Overlay */}
-      {isMobile && mobileSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={() => setMobileSidebarOpen(false)}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <div className={`${
-        isMobile 
-          ? `fixed left-0 top-0 h-full z-50 transform transition-transform duration-300 ${
-              mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`
-          : 'relative'
-      }`}>
-        <ChatSidebar
-          selectedConversation={selectedConversation || undefined}
-          onSelectConversation={(id) => {
-            setSelectedConversation(id);
-            if (isMobile) {
-              setMobileSidebarOpen(false);
-            }
-          }}
-          isCollapsed={!isMobile && sidebarCollapsed}
-        />
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <ChatHeader 
-          conversationName={currentConversation?.name || 'Repair Forum'}
-          memberCount={currentConversation?.member_count}
-          onToggleSidebar={() => {
-            if (isMobile) {
-              setMobileSidebarOpen(!mobileSidebarOpen);
-            } else {
-              setSidebarCollapsed(!sidebarCollapsed);
-            }
-          }}
-          showMenuButton={isMobile}
-        />
-        
-        <Card className="flex-1 flex flex-col border-0 rounded-none bg-white dark:bg-slate-900">
-          <CardContent className="flex-1 flex flex-col p-0">
-            {/* Connection Status */}
-            <div className="px-4 py-2">
-              <ConnectionStatus hasConnectionError={hasConnectionError} />
-            </div>
-
-            {/* Error State for Conversations */}
-            {conversationsError && (
-              <div className="px-4 py-2">
-                <div className="bg-red-50 dark:bg-red-950 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-red-700 dark:text-red-400 text-sm">
-                      Failed to load conversations. Please try refreshing.
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRetryConversations}
-                      className="ml-2"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-1" />
-                      Retry
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {conversationsLoading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <Loader2 className="h-8 w-8 text-slate-400 mx-auto mb-4 animate-spin" />
-                  <p className="text-slate-500 dark:text-slate-400">
-                    Loading conversations...
-                  </p>
-                </div>
-              </div>
-            ) : !selectedConversation ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-500 dark:text-slate-400">
-                    {conversations.length === 0 ? 'No conversations available' : 'Select a conversation to start chatting'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <>
-                <ScrollArea className="flex-1 px-4">
-                  <div className="space-y-4 pb-4">
-                    {isFetching ? (
-                      <div className="text-center py-8">
-                        <Loader2 className="h-8 w-8 text-slate-400 mx-auto mb-4 animate-spin" />
-                        <p className="text-slate-500 dark:text-slate-400">
-                          Loading messages...
-                        </p>
-                      </div>
-                    ) : messages.length === 0 ? (
-                      <div className="text-center py-8">
-                        <MessageCircle className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                        <p className="text-slate-500 dark:text-slate-400">
-                          No messages yet. Be the first to start the conversation!
-                        </p>
-                      </div>
-                    ) : (
-                      messages.map((message) => (
-                        <ForumMessage key={message.id} message={message} />
-                      ))
-                    )}
-                    {isLoading && (
-                      <div className="flex justify-start">
-                        <div className="bg-slate-100 dark:bg-slate-700 rounded-lg px-4 py-2 max-w-xs">
-                          <div className="flex items-center space-x-2">
-                            <div className="animate-pulse flex space-x-1">
-                              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                              <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                            </div>
-                            <span className="text-sm text-slate-500">Sending...</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-                
-                <div className="p-4 border-t border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900">
-                  <div className="flex space-x-3">
-                    <Input
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder={getPlaceholderText()}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800"
-                      disabled={isLoading || isFetching}
-                    />
-                    <Button 
-                      onClick={sendMessage}
-                      disabled={!inputMessage.trim() || isLoading || isFetching}
-                      className="bg-blue-500 hover:bg-blue-600 px-4"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Send className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <ChatLayout
+      mobileSidebarOpen={mobileSidebarOpen}
+      setMobileSidebarOpen={setMobileSidebarOpen}
+      sidebar={sidebar}
+    >
+      <ChatMainArea
+        currentConversation={currentConversation}
+        selectedConversation={selectedConversation}
+        conversationsLoading={conversationsLoading}
+        conversationsError={conversationsError}
+        conversations={conversations}
+        messages={messages}
+        inputMessage={inputMessage}
+        setInputMessage={setInputMessage}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        hasConnectionError={hasConnectionError}
+        sendMessage={sendMessage}
+        onToggleSidebar={handleToggleSidebar}
+        showMenuButton={isMobile}
+        onRetryConversations={handleRetryConversations}
+        handleKeyPress={handleKeyPress}
+        getPlaceholderText={getPlaceholderText}
+      />
+    </ChatLayout>
   );
 };
 
