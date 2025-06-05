@@ -1,7 +1,7 @@
 
 import { User } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
-import { ForumMessage as ForumMessageType } from '@/hooks/useForumMessages';
+import { ForumMessage as ForumMessageType } from '@/types/forumMessage';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ForumMessageProps {
