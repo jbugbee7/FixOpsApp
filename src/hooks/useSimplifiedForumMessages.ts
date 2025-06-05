@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { ForumMessage } from '@/types/forumMessage';
 
-export const useSimplifiedForumMessages = () => {
+export const useSimplifiedForumMessages = (conversationId: string | null) => {
   const [messages, setMessages] = useState<ForumMessage[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +24,7 @@ export const useSimplifiedForumMessages = () => {
   }, []);
 
   const fetchMessages = useCallback(async () => {
-    if (!user || !mountedRef.current || hasInitializedRef.current) {
+    if (!user || !conversationId || !mountedRef.current || hasInitializedRef.current) {
       return;
     }
 
@@ -35,6 +35,7 @@ export const useSimplifiedForumMessages = () => {
       const { data, error } = await supabase
         .from('forum_messages')
         .select('*')
+        .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
         .limit(100);
 
@@ -54,27 +55,34 @@ export const useSimplifiedForumMessages = () => {
         setIsFetching(false);
       }
     }
-  }, [user]);
+  }, [user, conversationId]);
+
+  // Reset when conversation changes
+  useEffect(() => {
+    hasInitializedRef.current = false;
+    setMessages([]);
+  }, [conversationId]);
 
   // Single initial fetch
   useEffect(() => {
-    if (user && !hasInitializedRef.current) {
+    if (user && conversationId && !hasInitializedRef.current) {
       fetchMessages();
     }
-  }, [user, fetchMessages]);
+  }, [user, conversationId, fetchMessages]);
 
   // Set up real-time subscription
   useEffect(() => {
-    if (!user || !hasInitializedRef.current) return;
+    if (!user || !conversationId || !hasInitializedRef.current) return;
 
     const channel = supabase
-      .channel('forum_messages_channel')
+      .channel(`forum_messages_${conversationId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'forum_messages'
+          table: 'forum_messages',
+          filter: `conversation_id=eq.${conversationId}`
         },
         (payload) => {
           if (mountedRef.current && payload.new) {
@@ -88,10 +96,10 @@ export const useSimplifiedForumMessages = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, hasInitializedRef.current]);
+  }, [user, conversationId, hasInitializedRef.current]);
 
   const sendMessage = async () => {
-    if (!inputMessage.trim() || !user || !userProfile || !mountedRef.current) {
+    if (!inputMessage.trim() || !user || !userProfile || !conversationId || !mountedRef.current) {
       return;
     }
 
@@ -105,7 +113,8 @@ export const useSimplifiedForumMessages = () => {
         .insert({
           user_id: user.id,
           author_name: authorName,
-          message: inputMessage.trim()
+          message: inputMessage.trim(),
+          conversation_id: conversationId
         });
 
       if (error) throw error;
