@@ -568,10 +568,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
-      is_conversation_member: {
-        Args: { conversation_id: string; user_id: string }
-        Returns: boolean
-      }
       user_is_conversation_member: {
         Args: { conversation_id: string; user_id: string }
         Returns: boolean
