@@ -57,18 +57,7 @@ export const useSimplifiedChat = () => {
     try {
       setError(null);
       
-      // First, let's test the connection with a simple query
-      const { data: testData, error: testError } = await supabase
-        .from('conversations')
-        .select('count(*)', { count: 'exact' });
-      
-      console.log('Test query result:', { testData, testError });
-      
-      if (testError) {
-        console.error('Test query failed:', testError);
-        throw new Error(`Database connection failed: ${testError.message}`);
-      }
-
+      // Get conversations that the user is a member of
       const { data: conversationsData, error: conversationsError } = await supabase
         .from('conversations')
         .select('*')
