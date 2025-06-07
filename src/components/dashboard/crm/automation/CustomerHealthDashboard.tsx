@@ -38,11 +38,15 @@ const CustomerHealthDashboard = () => {
 
       if (error) throw error;
       
-      // Transform the data to match our interface
+      // Transform the data to match our interface with proper type casting
       const transformedMetrics = (data || []).map(metric => ({
         ...metric,
-        risk_factors: Array.isArray(metric.risk_factors) ? metric.risk_factors : [],
-        opportunities: Array.isArray(metric.opportunities) ? metric.opportunities : []
+        risk_factors: Array.isArray(metric.risk_factors) 
+          ? metric.risk_factors.map(factor => String(factor))
+          : [],
+        opportunities: Array.isArray(metric.opportunities) 
+          ? metric.opportunities.map(opportunity => String(opportunity))
+          : []
       }));
       
       setHealthMetrics(transformedMetrics);
