@@ -1,31 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin, Eye, Edit, Trash2, Users } from 'lucide-react';
-
-interface Customer {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  status: string;
-  segment: string;
-  totalOrders: number;
-  totalSpent: number;
-  lastContact: string;
-  acquisitionDate: string;
-  lifetime_value: number;
-  avgOrderValue: number;
-}
+import { Customer } from '@/types/crm';
+import CustomerDetailView from './CustomerDetailView';
 
 interface CustomerListProps {
   customers: Customer[];
 }
 
 const CustomerList = ({ customers }: CustomerListProps) => {
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300';
@@ -43,6 +31,23 @@ const CustomerList = ({ customers }: CustomerListProps) => {
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
     }
   };
+
+  const handleViewCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+  };
+
+  const handleBackToList = () => {
+    setSelectedCustomer(null);
+  };
+
+  if (selectedCustomer) {
+    return (
+      <CustomerDetailView 
+        customer={selectedCustomer} 
+        onBack={handleBackToList}
+      />
+    );
+  }
 
   if (customers.length === 0) {
     return (
@@ -98,9 +103,14 @@ const CustomerList = ({ customers }: CustomerListProps) => {
               </div>
               
               <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
-                <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full sm:w-auto"
+                  onClick={() => handleViewCustomer(customer)}
+                >
                   <Eye className="h-4 w-4 mr-1" />
-                  View
+                  View Details
                 </Button>
                 <Button variant="outline" size="sm" className="w-full sm:w-auto">
                   <Edit className="h-4 w-4 mr-1" />

@@ -206,6 +206,60 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_interactions: {
+        Row: {
+          attachments: Json | null
+          created_at: string
+          customer_id: number
+          description: string | null
+          follow_up_date: string | null
+          id: string
+          interaction_date: string
+          interaction_type: string
+          metadata: Json | null
+          outcome: string | null
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string
+          customer_id: number
+          description?: string | null
+          follow_up_date?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type: string
+          metadata?: Json | null
+          outcome?: string | null
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string
+          customer_id?: number
+          description?: string | null
+          follow_up_date?: string | null
+          id?: string
+          interaction_date?: string
+          interaction_type?: string
+          metadata?: Json | null
+          outcome?: string | null
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversation_members: {
         Row: {
           conversation_id: string
@@ -259,6 +313,84 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_notes: {
+        Row: {
+          content: string
+          created_at: string
+          customer_id: number
+          id: string
+          is_pinned: boolean
+          note_type: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          customer_id: number
+          id?: string
+          is_pinned?: boolean
+          note_type?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          customer_id?: number
+          id?: string
+          is_pinned?: boolean
+          note_type?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      customer_timeline: {
+        Row: {
+          activity_type: string
+          created_at: string
+          customer_id: number
+          description: string | null
+          id: string
+          metadata: Json | null
+          new_value: string | null
+          old_value: string | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          customer_id: number
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: string | null
+          old_value?: string | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          customer_id?: number
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: string | null
+          old_value?: string | null
+          title?: string
+          user_id?: string | null
         }
         Relationships: []
       }
