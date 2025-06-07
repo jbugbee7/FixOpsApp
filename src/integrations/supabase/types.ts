@@ -265,6 +265,101 @@ export type Database = {
         }
         Relationships: []
       }
+      communication_history: {
+        Row: {
+          content: string | null
+          customer_id: number
+          delivered_at: string | null
+          id: string
+          metadata: Json | null
+          opened_at: string | null
+          sent_at: string
+          status: string
+          subject: string | null
+          template_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          customer_id: number
+          delivered_at?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          sent_at?: string
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          customer_id?: number
+          delivered_at?: string | null
+          id?: string
+          metadata?: Json | null
+          opened_at?: string | null
+          sent_at?: string
+          status?: string
+          subject?: string | null
+          template_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_history_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "communication_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_templates: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          subject: string | null
+          type: string
+          updated_at: string
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          subject?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          subject?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       contact_interactions: {
         Row: {
           attachments: Json | null
@@ -375,6 +470,72 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_analytics: {
+        Row: {
+          calculated_at: string
+          customer_id: number
+          id: string
+          metadata: Json | null
+          metric_type: string
+          metric_value: number
+          period_end: string | null
+          period_start: string | null
+        }
+        Insert: {
+          calculated_at?: string
+          customer_id: number
+          id?: string
+          metadata?: Json | null
+          metric_type: string
+          metric_value: number
+          period_end?: string | null
+          period_start?: string | null
+        }
+        Update: {
+          calculated_at?: string
+          customer_id?: number
+          id?: string
+          metadata?: Json | null
+          metric_type?: string
+          metric_value?: number
+          period_end?: string | null
+          period_start?: string | null
+        }
+        Relationships: []
+      }
+      customer_health_metrics: {
+        Row: {
+          calculated_at: string
+          customer_id: number
+          health_score: number
+          id: string
+          last_interaction_date: string | null
+          next_recommended_action: string | null
+          opportunities: Json | null
+          risk_factors: Json | null
+        }
+        Insert: {
+          calculated_at?: string
+          customer_id: number
+          health_score: number
+          id?: string
+          last_interaction_date?: string | null
+          next_recommended_action?: string | null
+          opportunities?: Json | null
+          risk_factors?: Json | null
+        }
+        Update: {
+          calculated_at?: string
+          customer_id?: number
+          health_score?: number
+          id?: string
+          last_interaction_date?: string | null
+          next_recommended_action?: string | null
+          opportunities?: Json | null
+          risk_factors?: Json | null
+        }
+        Relationships: []
+      }
       customer_notes: {
         Row: {
           content: string
@@ -414,6 +575,30 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_preferences: {
+        Row: {
+          communication_preferences: Json | null
+          customer_id: number
+          id: string
+          service_preferences: Json | null
+          updated_at: string
+        }
+        Insert: {
+          communication_preferences?: Json | null
+          customer_id: number
+          id?: string
+          service_preferences?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          communication_preferences?: Json | null
+          customer_id?: number
+          id?: string
+          service_preferences?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_scores: {
         Row: {
           created_at: string
@@ -443,6 +628,71 @@ export type Database = {
           priority_level?: string
           score_breakdown?: Json | null
           total_score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_segment_membership: {
+        Row: {
+          customer_id: number
+          id: string
+          joined_at: string
+          segment_id: string
+        }
+        Insert: {
+          customer_id: number
+          id?: string
+          joined_at?: string
+          segment_id: string
+        }
+        Update: {
+          customer_id?: number
+          id?: string
+          joined_at?: string
+          segment_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_segment_membership_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "customer_segments_advanced"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_segments_advanced: {
+        Row: {
+          color: string | null
+          conditions: Json
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_dynamic: boolean | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          conditions: Json
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_dynamic?: boolean | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          conditions?: Json
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_dynamic?: boolean | null
+          name?: string
           updated_at?: string
         }
         Relationships: []
@@ -699,6 +949,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      predictive_analytics: {
+        Row: {
+          confidence_score: number | null
+          created_at: string
+          customer_id: number
+          factors: Json | null
+          id: string
+          prediction_type: string
+          prediction_value: number | null
+          valid_until: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string
+          customer_id: number
+          factors?: Json | null
+          id?: string
+          prediction_type: string
+          prediction_value?: number | null
+          valid_until?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string
+          customer_id?: number
+          factors?: Json | null
+          id?: string
+          prediction_type?: string
+          prediction_value?: number | null
+          valid_until?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
