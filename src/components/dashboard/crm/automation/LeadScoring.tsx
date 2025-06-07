@@ -12,7 +12,7 @@ import CustomerHealthDashboard from './CustomerHealthDashboard';
 interface ScoringRule {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   criteria_type: string;
   criteria_value: any;
   score_points: number;
@@ -48,7 +48,14 @@ const LeadScoring = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setRules(data || []);
+      
+      // Transform data to handle missing description field
+      const transformedRules = (data || []).map(rule => ({
+        ...rule,
+        description: rule.description || '' // Provide default empty description
+      }));
+      
+      setRules(transformedRules);
     } catch (error) {
       console.error('Error fetching scoring rules:', error);
       toast({

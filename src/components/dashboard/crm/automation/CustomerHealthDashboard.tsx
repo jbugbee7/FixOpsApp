@@ -38,7 +38,17 @@ const CustomerHealthDashboard = () => {
         .order('health_score', { ascending: false });
 
       if (error) throw error;
-      setMetrics(data || []);
+      
+      // Transform the data to handle JSON fields properly
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        risk_factors: Array.isArray(item.risk_factors) ? item.risk_factors : 
+                     typeof item.risk_factors === 'string' ? JSON.parse(item.risk_factors) : [],
+        opportunities: Array.isArray(item.opportunities) ? item.opportunities : 
+                      typeof item.opportunities === 'string' ? JSON.parse(item.opportunities) : []
+      }));
+      
+      setMetrics(transformedData);
     } catch (error) {
       console.error('Error fetching health metrics:', error);
       toast({

@@ -5,10 +5,9 @@ import { useOfflineData } from './useOfflineData';
 import { useCaseFetching } from './useCaseFetching';
 import { useCaseStatusUpdate } from './useCaseStatusUpdate';
 import { useResyncOperations } from './useResyncOperations';
-import { Case } from '@/types/case';
 
 export const useCaseOperations = (user: any, isOnline: boolean) => {
-  const { cases, setCases, loading, fetchCases } = useCaseFetching(user, isOnline);
+  const { cases, setCases, loading, fetchCases, hasError } = useCaseFetching(user, isOnline);
   const { hasOfflineData, setHasOfflineData } = useOfflineData(isOnline, cases);
   const { updateCaseStatus } = useCaseStatusUpdate(isOnline, cases, setCases);
   const { handleResync } = useResyncOperations(isOnline, setCases, setHasOfflineData, fetchCases);
@@ -41,11 +40,12 @@ export const useCaseOperations = (user: any, isOnline: boolean) => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, isOnline]);
+  }, [user, isOnline, fetchCases]);
 
   return {
     cases,
     loading,
+    hasError,
     hasOfflineData,
     updateCaseStatus,
     handleResync
