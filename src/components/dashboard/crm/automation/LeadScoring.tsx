@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Settings, Calculator, Edit, Trash2, Toggle } from 'lucide-react';
+import { TrendingUp, Settings, Calculator, Edit, Trash2, Power } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import CreateScoringRuleDialog from './CreateScoringRuleDialog';
@@ -12,7 +11,7 @@ import CreateScoringRuleDialog from './CreateScoringRuleDialog';
 interface LeadScoringRule {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   criteria_type: string;
   criteria_value: any;
   score_points: number;
@@ -223,7 +222,7 @@ const LeadScoring = () => {
                         size="sm"
                         onClick={() => toggleRuleStatus(rule.id, rule.is_active)}
                       >
-                        <Toggle className="h-4 w-4" />
+                        <Power className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="outline"
