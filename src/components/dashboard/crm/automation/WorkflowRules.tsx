@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Play, Pause, Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import CreateWorkflowDialog from './CreateWorkflowDialog';
 
 interface WorkflowRule {
   id: string;
@@ -19,6 +20,7 @@ interface WorkflowRule {
 const WorkflowRules = () => {
   const [rules, setRules] = useState<WorkflowRule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,7 +113,10 @@ const WorkflowRules = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Workflow Rules</h3>
-        <Button className="bg-purple-600 hover:bg-purple-700">
+        <Button 
+          className="bg-purple-600 hover:bg-purple-700"
+          onClick={() => setCreateDialogOpen(true)}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Create Rule
         </Button>
@@ -121,7 +126,10 @@ const WorkflowRules = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground mb-4">No workflow rules created yet</p>
-            <Button className="bg-purple-600 hover:bg-purple-700">
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={() => setCreateDialogOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Rule
             </Button>
@@ -181,6 +189,12 @@ const WorkflowRules = () => {
           ))}
         </div>
       )}
+
+      <CreateWorkflowDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onWorkflowCreated={fetchWorkflowRules}
+      />
     </div>
   );
 };

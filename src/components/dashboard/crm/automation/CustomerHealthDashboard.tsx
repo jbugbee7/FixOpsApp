@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Heart, AlertTriangle, TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import CustomerHealthChart from './CustomerHealthChart';
 
 interface CustomerHealthMetric {
   id: string;
@@ -192,91 +194,97 @@ const CustomerHealthDashboard = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {healthMetrics.map((metric) => {
-            const healthBadge = getHealthBadge(metric.health_score);
-            return (
-              <Card key={metric.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <Heart className={`h-5 w-5 ${getHealthColor(metric.health_score)}`} />
+        <>
+          {/* Analytics Charts */}
+          <CustomerHealthChart healthMetrics={healthMetrics} />
+          
+          {/* Customer Health Cards */}
+          <div className="grid gap-4">
+            {healthMetrics.map((metric) => {
+              const healthBadge = getHealthBadge(metric.health_score);
+              return (
+                <Card key={metric.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Heart className={`h-5 w-5 ${getHealthColor(metric.health_score)}`} />
+                        <div>
+                          <CardTitle className="text-base">Customer {metric.customer_id}</CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Last updated: {new Date(metric.calculated_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge variant={healthBadge.variant}>{healthBadge.label}</Badge>
+                        <div className="text-right">
+                          <p className={`text-2xl font-bold ${getHealthColor(metric.health_score)}`}>
+                            {metric.health_score}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Health Score</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="w-full">
+                      <Progress value={metric.health_score} className="h-2" />
+                    </div>
+
+                    {metric.risk_factors.length > 0 && (
                       <div>
-                        <CardTitle className="text-base">Customer {metric.customer_id}</CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          Last updated: {new Date(metric.calculated_at).toLocaleDateString()}
-                        </p>
+                        <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          Risk Factors
+                        </h5>
+                        <div className="flex flex-wrap gap-1">
+                          {metric.risk_factors.map((factor, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {factor}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Badge variant={healthBadge.variant}>{healthBadge.label}</Badge>
-                      <div className="text-right">
-                        <p className={`text-2xl font-bold ${getHealthColor(metric.health_score)}`}>
-                          {metric.health_score}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Health Score</p>
+                    )}
+
+                    {metric.opportunities.length > 0 && (
+                      <div>
+                        <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-green-500" />
+                          Opportunities
+                        </h5>
+                        <div className="flex flex-wrap gap-1">
+                          {metric.opportunities.map((opportunity, index) => (
+                            <Badge key={index} variant="secondary" className="text-xs">
+                              {opportunity}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="w-full">
-                    <Progress value={metric.health_score} className="h-2" />
-                  </div>
+                    )}
 
-                  {metric.risk_factors.length > 0 && (
-                    <div>
-                      <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                        Risk Factors
-                      </h5>
-                      <div className="flex flex-wrap gap-1">
-                        {metric.risk_factors.map((factor, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {factor}
-                          </Badge>
-                        ))}
+                    {metric.next_recommended_action && (
+                      <div className="bg-blue-50 p-3 rounded-lg">
+                        <p className="text-sm font-medium text-blue-800 mb-1">Recommended Action</p>
+                        <p className="text-sm text-blue-700">{metric.next_recommended_action}</p>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {metric.opportunities.length > 0 && (
-                    <div>
-                      <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-green-500" />
-                        Opportunities
-                      </h5>
-                      <div className="flex flex-wrap gap-1">
-                        {metric.opportunities.map((opportunity, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {opportunity}
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>
+                        Last interaction: {
+                          metric.last_interaction_date 
+                            ? new Date(metric.last_interaction_date).toLocaleDateString()
+                            : 'No recent interaction'
+                        }
+                      </span>
                     </div>
-                  )}
-
-                  {metric.next_recommended_action && (
-                    <div className="bg-blue-50 p-3 rounded-lg">
-                      <p className="text-sm font-medium text-blue-800 mb-1">Recommended Action</p>
-                      <p className="text-sm text-blue-700">{metric.next_recommended_action}</p>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>
-                      Last interaction: {
-                        metric.last_interaction_date 
-                          ? new Date(metric.last_interaction_date).toLocaleDateString()
-                          : 'No recent interaction'
-                      }
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

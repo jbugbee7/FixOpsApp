@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, AlertCircle, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import CreateTaskDialog from './CreateTaskDialog';
 
 interface AutomatedTask {
   id: string;
@@ -21,6 +23,7 @@ interface AutomatedTask {
 const AutomatedTasks = () => {
   const [tasks, setTasks] = useState<AutomatedTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,7 +114,10 @@ const AutomatedTasks = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Automated Tasks</h3>
-        <Button className="bg-purple-600 hover:bg-purple-700">
+        <Button 
+          className="bg-purple-600 hover:bg-purple-700"
+          onClick={() => setCreateDialogOpen(true)}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Create Task
         </Button>
@@ -121,7 +127,10 @@ const AutomatedTasks = () => {
         <Card>
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground mb-4">No automated tasks yet</p>
-            <Button className="bg-purple-600 hover:bg-purple-700">
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={() => setCreateDialogOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Task
             </Button>
@@ -179,6 +188,12 @@ const AutomatedTasks = () => {
           ))}
         </div>
       )}
+
+      <CreateTaskDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onTaskCreated={fetchTasks}
+      />
     </div>
   );
 };

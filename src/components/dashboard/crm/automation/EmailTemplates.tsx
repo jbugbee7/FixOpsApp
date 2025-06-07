@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Mail, Edit, Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import CreateEmailTemplateDialog from './CreateEmailTemplateDialog';
 
 interface EmailTemplate {
   id: string;
@@ -19,6 +20,7 @@ interface EmailTemplate {
 const EmailTemplates = () => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -111,7 +113,10 @@ const EmailTemplates = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Email Templates</h3>
-        <Button className="bg-purple-600 hover:bg-purple-700">
+        <Button 
+          className="bg-purple-600 hover:bg-purple-700"
+          onClick={() => setCreateDialogOpen(true)}
+        >
           <Plus className="h-4 w-4 mr-2" />
           Create Template
         </Button>
@@ -122,7 +127,10 @@ const EmailTemplates = () => {
           <CardContent className="p-6 text-center">
             <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">No email templates created yet</p>
-            <Button className="bg-purple-600 hover:bg-purple-700">
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700"
+              onClick={() => setCreateDialogOpen(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Create Your First Template
             </Button>
@@ -180,6 +188,12 @@ const EmailTemplates = () => {
           ))}
         </div>
       )}
+
+      <CreateEmailTemplateDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+        onTemplateCreated={fetchTemplates}
+      />
     </div>
   );
 };
