@@ -146,6 +146,7 @@ export const useAccountingData = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [paymentReminders, setPaymentReminders] = useState<PaymentReminder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Fetch functions
@@ -153,56 +154,108 @@ export const useAccountingData = () => {
   const fetchExpenses = useCallback(() => fetchData<Expense>('expenses', toast), [toast]);
   const fetchPaymentReminders = useCallback(() => fetchData<PaymentReminder>('payment_reminders', toast), [toast]);
 
-  // Debounced refetch to prevent excessive calls during real-time updates
+  // Optimized refetch to prevent excessive calls during real-time updates
   const debouncedRefetch = useCallback(
     debounce(async () => {
-      await Promise.all([fetchInvoices(), fetchExpenses(), fetchPaymentReminders()]).then(
-        ([invoicesData, expensesData, remindersData]) => {
-          setInvoices(invoicesData);
-          setExpenses(expensesData);
-          setPaymentReminders(remindersData);
-        }
-      );
-    }, 500),
+      console.log('Real-time update: Refetching accounting data');
+      try {
+        const [invoicesData, expensesData, remindersData] = await Promise.all([
+          fetchInvoices(), 
+          fetchExpenses(), 
+          fetchPaymentReminders()
+        ]);
+        
+        setInvoices(invoicesData);
+        setExpenses(expensesData);
+        setPaymentReminders(remindersData);
+        setError(null);
+      } catch (err) {
+        console.error('Real-time refetch error:', err);
+        setError('Failed to sync real-time data');
+      }
+    }, 300),
     [fetchInvoices, fetchExpenses, fetchPaymentReminders]
   );
 
   // Initial data fetch
   useEffect(() => {
     const loadData = async () => {
+      console.log('Initial accounting data load');
       setLoading(true);
-      await Promise.all([fetchInvoices(), fetchExpenses(), fetchPaymentReminders()]).then(
-        ([invoicesData, expensesData, remindersData]) => {
-          setInvoices(invoicesData);
-          setExpenses(expensesData);
-          setPaymentReminders(remindersData);
-        }
-      );
-      setLoading(false);
+      setError(null);
+      
+      try {
+        const [invoicesData, expensesData, remindersData] = await Promise.all([
+          fetchInvoices(), 
+          fetchExpenses(), 
+          fetchPaymentReminders()
+        ]);
+        
+        setInvoices(invoicesData);
+        setExpenses(expensesData);
+        setPaymentReminders(remindersData);
+      } catch (err) {
+        console.error('Initial data load error:', err);
+        setError('Failed to load accounting data');
+      } finally {
+        setLoading(false);
+      }
     };
 
     loadData();
   }, [fetchInvoices, fetchExpenses, fetchPaymentReminders]);
 
-  // Real-time subscriptions
+  // Enhanced real-time subscriptions with better error handling
   useEffect(() => {
-    const channels = [
-      supabase
-        .channel('invoices-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices' }, debouncedRefetch)
-        .subscribe(),
-      supabase
-        .channel('expenses-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, debouncedRefetch)
-        .subscribe(),
-      supabase
-        .channel('payment-reminders-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'payment_reminders' }, debouncedRefetch)
-        .subscribe(),
-    ];
+    console.log('Setting up real-time subscriptions for accounting data');
+    
+    const invoicesChannel = supabase
+      .channel('invoices-realtime')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'invoices' 
+      }, (payload) => {
+        console.log('Real-time invoices change:', payload.eventType, payload);
+        debouncedRefetch();
+      })
+      .subscribe((status) => {
+        console.log('Invoices channel status:', status);
+      });
+
+    const expensesChannel = supabase
+      .channel('expenses-realtime')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'expenses' 
+      }, (payload) => {
+        console.log('Real-time expenses change:', payload.eventType, payload);
+        debouncedRefetch();
+      })
+      .subscribe((status) => {
+        console.log('Expenses channel status:', status);
+      });
+
+    const remindersChannel = supabase
+      .channel('payment-reminders-realtime')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'payment_reminders' 
+      }, (payload) => {
+        console.log('Real-time payment reminders change:', payload.eventType, payload);
+        debouncedRefetch();
+      })
+      .subscribe((status) => {
+        console.log('Payment reminders channel status:', status);
+      });
 
     return () => {
-      channels.forEach((channel) => supabase.removeChannel(channel));
+      console.log('Cleaning up real-time subscriptions');
+      supabase.removeChannel(invoicesChannel);
+      supabase.removeChannel(expensesChannel);
+      supabase.removeChannel(remindersChannel);
     };
   }, [debouncedRefetch]);
 
@@ -259,6 +312,7 @@ export const useAccountingData = () => {
     expenses,
     paymentReminders,
     loading,
+    error,
     createInvoice,
     updateInvoice,
     deleteInvoice,
