@@ -2,26 +2,67 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useCRMData } from '@/hooks/useCRMData';
 
 const AnalyticsTab = () => {
   const isMobile = useIsMobile();
+  const { allCustomers, loading } = useCRMData();
 
-  const monthlyRevenue = [
-    { month: 'Jan', revenue: 12400, customers: 85 },
-    { month: 'Feb', revenue: 15600, customers: 92 },
-    { month: 'Mar', revenue: 18900, customers: 108 },
-    { month: 'Apr', revenue: 16200, customers: 95 },
-    { month: 'May', revenue: 21300, customers: 115 },
-    { month: 'Jun', revenue: 24800, customers: 128 }
-  ];
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i}>
+            <CardContent className="p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                <div className="h-48 bg-gray-200 rounded"></div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
-  const customerSegmentation = [
-    { name: 'VIP', value: 25, color: '#8B5CF6' },
-    { name: 'Premium', value: 35, color: '#06B6D4' },
-    { name: 'Standard', value: 40, color: '#10B981' }
-  ];
+  // Process real data for charts
+  const monthlyRevenue = allCustomers.reduce((acc, customer) => {
+    const month = new Date(customer.acquisitionDate).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    if (!acc[month]) {
+      acc[month] = { month, revenue: 0, customers: 0 };
+    }
+    acc[month].revenue += customer.totalSpent;
+    acc[month].customers += 1;
+    return acc;
+  }, {} as Record<string, any>);
+
+  const monthlyData = Object.values(monthlyRevenue).slice(-6); // Last 6 months
+
+  const segmentData = allCustomers.reduce((acc, customer) => {
+    acc[customer.segment] = (acc[customer.segment] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const segmentChartData = Object.entries(segmentData).map(([segment, count]) => ({
+    name: segment,
+    value: count,
+    revenue: allCustomers
+      .filter(c => c.segment === segment)
+      .reduce((sum, c) => sum + c.totalSpent, 0),
+    color: segment === 'Premium' ? '#8B5CF6' : segment === 'Standard' ? '#3B82F6' : '#10B981'
+  }));
+
+  const statusData = allCustomers.reduce((acc, customer) => {
+    acc[customer.status] = (acc[customer.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const statusChartData = Object.entries(statusData).map(([status, count]) => ({
+    status,
+    customers: count
+  }));
 
   const chartConfig = {
     revenue: {
@@ -61,7 +102,7 @@ const AnalyticsTab = () => {
             >
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart 
-                  data={monthlyRevenue}
+                  data={monthlyData}
                   margin={getChartMargins()}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -85,29 +126,119 @@ const AnalyticsTab = () => {
         </CardContent>
       </Card>
 
-      {/* Revenue by Segment */}
+      {/* Revenue Trend */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base sm:text-lg">Revenue by Segment</CardTitle>
-          <CardDescription className="text-sm">Revenue contribution by customer segment</CardDescription>
+          <CardTitle className="text-base sm:text-lg">Revenue Trend</CardTitle>
+          <CardDescription className="text-sm">Monthly revenue from work orders</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {customerSegmentation.map((segment) => (
-              <div key={segment.name} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-4 h-4 rounded"
-                    style={{ backgroundColor: segment.color }}
+        <CardContent className="p-2 sm:p-6">
+          <div className="w-full overflow-hidden">
+            <ChartContainer 
+              config={chartConfig} 
+              className="w-full"
+              style={{ height: getChartHeight() }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart 
+                  data={monthlyData}
+                  margin={getChartMargins()}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="month"
+                    tick={{ fontSize: getTickFontSize() }}
+                    angle={isMobile ? -45 : 0}
+                    textAnchor={isMobile ? 'end' : 'middle'}
+                    height={isMobile ? 40 : 30}
                   />
-                  <span className="font-medium">{segment.name}</span>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">${(24800 * segment.value / 100).toLocaleString()}</div>
-                  <div className="text-sm text-muted-foreground">{segment.value}%</div>
-                </div>
-              </div>
-            ))}
+                  <YAxis 
+                    tick={{ fontSize: getTickFontSize() }}
+                    width={getAxisWidth()}
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <ChartTooltip 
+                    content={<ChartTooltipContent />}
+                    formatter={(value) => [`$${value}`, 'Revenue']}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#10B981" 
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Customer Segments */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base sm:text-lg">Customer Segments</CardTitle>
+          <CardDescription className="text-sm">Distribution by segment</CardDescription>
+        </CardHeader>
+        <CardContent className="p-2 sm:p-6">
+          <div className="w-full overflow-hidden">
+            <ResponsiveContainer width="100%" height={parseInt(getChartHeight())}>
+              <PieChart>
+                <Pie
+                  data={segmentChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
+                >
+                  {segmentChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <ChartTooltip content={<ChartTooltipContent />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Customer Status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base sm:text-lg">Customer Status</CardTitle>
+          <CardDescription className="text-sm">Current customer status distribution</CardDescription>
+        </CardHeader>
+        <CardContent className="p-2 sm:p-6">
+          <div className="w-full overflow-hidden">
+            <ChartContainer 
+              config={chartConfig} 
+              className="w-full"
+              style={{ height: getChartHeight() }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart 
+                  data={statusChartData}
+                  margin={getChartMargins()}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey="status"
+                    tick={{ fontSize: getTickFontSize() }}
+                    angle={isMobile ? -45 : 0}
+                    textAnchor={isMobile ? 'end' : 'middle'}
+                    height={isMobile ? 40 : 30}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: getTickFontSize() }}
+                    width={getAxisWidth()}
+                  />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="customers" fill="#3B82F6" radius={[2, 2, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
           </div>
         </CardContent>
       </Card>

@@ -9,7 +9,7 @@ const CRMCharts = () => {
 
   if (loading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardContent className="p-6">
@@ -24,7 +24,7 @@ const CRMCharts = () => {
     );
   }
 
-  // Process data for charts
+  // Process data for charts using real customer data
   const segmentData = allCustomers.reduce((acc, customer) => {
     acc[customer.segment] = (acc[customer.segment] || 0) + 1;
     return acc;
@@ -46,7 +46,7 @@ const CRMCharts = () => {
     customers: count
   }));
 
-  // Monthly revenue data (simulated based on customer acquisition dates)
+  // Monthly revenue data based on customer acquisition dates and spending
   const monthlyData = allCustomers.reduce((acc, customer) => {
     const month = new Date(customer.acquisitionDate).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     if (!acc[month]) {
