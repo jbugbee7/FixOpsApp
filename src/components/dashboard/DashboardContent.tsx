@@ -1,4 +1,3 @@
-
 import DashboardMain from './DashboardMain';
 import NewDashboardPage from './NewDashboardPage';
 import FixChatPage from '@/components/FixChatPage';
@@ -7,6 +6,7 @@ import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
 import CRMPage from './CRMPage';
 import AccountingPage from './AccountingPage';
+import InventoryPage from './InventoryPage';
 import { Case } from '@/types/case';
 
 interface DashboardContentProps {
@@ -66,6 +66,8 @@ const DashboardContent = ({
         return <TrainingPage />;
       case 'crm':
         return <CRMPage />;
+      case 'inventory':
+        return <InventoryPage />;
       case 'accounting':
         return <AccountingPage />;
       case 'settings':

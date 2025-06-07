@@ -816,6 +816,102 @@ export type Database = {
           },
         ]
       }
+      inventory_items: {
+        Row: {
+          category: string
+          created_at: string
+          current_stock: number
+          id: string
+          item_name: string
+          item_number: string | null
+          location: string | null
+          minimum_stock: number
+          supplier: string | null
+          unit_cost: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          current_stock?: number
+          id?: string
+          item_name: string
+          item_number?: string | null
+          location?: string | null
+          minimum_stock?: number
+          supplier?: string | null
+          unit_cost?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          current_stock?: number
+          id?: string
+          item_name?: string
+          item_number?: string | null
+          location?: string | null
+          minimum_stock?: number
+          supplier?: string | null
+          unit_cost?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inventory_transactions: {
+        Row: {
+          case_id: string | null
+          created_at: string
+          id: string
+          inventory_item_id: string
+          notes: string | null
+          quantity: number
+          transaction_type: string
+          unit_cost: number | null
+          user_id: string
+        }
+        Insert: {
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          inventory_item_id: string
+          notes?: string | null
+          quantity: number
+          transaction_type: string
+          unit_cost?: number | null
+          user_id: string
+        }
+        Update: {
+          case_id?: string | null
+          created_at?: string
+          id?: string
+          inventory_item_id?: string
+          notes?: string | null
+          quantity?: number
+          transaction_type?: string
+          unit_cost?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_transactions_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_transactions_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_scoring_rules: {
         Row: {
           created_at: string
@@ -1081,6 +1177,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reorder_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          alert_level: string
+          created_at: string
+          id: string
+          inventory_item_id: string
+          is_acknowledged: boolean | null
+          message: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          alert_level?: string
+          created_at?: string
+          id?: string
+          inventory_item_id: string
+          is_acknowledged?: boolean | null
+          message: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          alert_level?: string
+          created_at?: string
+          id?: string
+          inventory_item_id?: string
+          is_acknowledged?: boolean | null
+          message?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reorder_alerts_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
