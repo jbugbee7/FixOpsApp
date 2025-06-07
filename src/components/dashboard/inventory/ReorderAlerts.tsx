@@ -3,17 +3,33 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useInventoryData } from '@/hooks/useInventoryData';
-import { useInventoryOperations } from '@/hooks/useInventoryOperations';
 import { AlertTriangle, Check, Package } from 'lucide-react';
 
-const ReorderAlerts = () => {
-  const { alerts, loading, refetch } = useInventoryData();
-  const { acknowledgeAlert } = useInventoryOperations();
+interface ReorderAlert {
+  id: string;
+  inventory_item_id: string;
+  user_id: string;
+  alert_level: string;
+  message: string;
+  is_acknowledged?: boolean;
+  acknowledged_at?: string;
+  created_at: string;
+  inventory_item?: {
+    item_name: string;
+    current_stock: number;
+    minimum_stock: number;
+  };
+}
 
+interface ReorderAlertsProps {
+  alerts: ReorderAlert[];
+  loading: boolean;
+  onAcknowledgeAlert: (alertId: string) => Promise<boolean>;
+}
+
+const ReorderAlerts = ({ alerts, loading, onAcknowledgeAlert }: ReorderAlertsProps) => {
   const handleAcknowledge = async (alertId: string) => {
-    await acknowledgeAlert(alertId);
-    refetch();
+    await onAcknowledgeAlert(alertId);
   };
 
   const unacknowledgedAlerts = alerts.filter(alert => !alert.is_acknowledged);
@@ -59,17 +75,17 @@ const ReorderAlerts = () => {
                     <AlertTriangle className="h-5 w-5 text-red-500" />
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-                        {alert.inventory_item?.item_name}
+                        {alert.inventory_item?.item_name || 'Unknown Item'}
                       </h4>
                       <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                         {alert.message}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge variant="outline" className="text-red-600 border-red-300">
-                          Current: {alert.inventory_item?.current_stock}
+                          Current: {alert.inventory_item?.current_stock || 0}
                         </Badge>
                         <Badge variant="outline" className="text-orange-600 border-orange-300">
-                          Min: {alert.inventory_item?.minimum_stock}
+                          Min: {alert.inventory_item?.minimum_stock || 0}
                         </Badge>
                       </div>
                     </div>
@@ -109,24 +125,24 @@ const ReorderAlerts = () => {
                     <Check className="h-5 w-5 text-green-500" />
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-                        {alert.inventory_item?.item_name}
+                        {alert.inventory_item?.item_name || 'Unknown Item'}
                       </h4>
                       <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                         {alert.message}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge variant="outline" className="text-slate-600 border-slate-300">
-                          Current: {alert.inventory_item?.current_stock}
+                          Current: {alert.inventory_item?.current_stock || 0}
                         </Badge>
                         <Badge variant="outline" className="text-slate-600 border-slate-300">
-                          Min: {alert.inventory_item?.minimum_stock}
+                          Min: {alert.inventory_item?.minimum_stock || 0}
                         </Badge>
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Acknowledged: {new Date(alert.acknowledged_at).toLocaleDateString()}
+                      Acknowledged: {alert.acknowledged_at ? new Date(alert.acknowledged_at).toLocaleDateString() : 'N/A'}
                     </p>
                     <p className="text-xs text-slate-500">
                       Created: {new Date(alert.created_at).toLocaleDateString()}

@@ -3,12 +3,54 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
-import { useInventoryData } from '@/hooks/useInventoryData';
 import { Package, DollarSign, AlertTriangle, TrendingDown } from 'lucide-react';
 
-const InventoryOverview = () => {
-  const { items, transactions, alerts, loading } = useInventoryData();
+interface InventoryItem {
+  id: string;
+  user_id: string;
+  item_name: string;
+  item_number?: string;
+  category: string;
+  current_stock: number;
+  minimum_stock: number;
+  unit_cost: number;
+  location?: string;
+  supplier?: string;
+  created_at: string;
+  updated_at: string;
+}
 
+interface InventoryTransaction {
+  id: string;
+  inventory_item_id: string;
+  user_id: string;
+  transaction_type: string;
+  quantity: number;
+  unit_cost?: number;
+  case_id?: string;
+  notes?: string;
+  created_at: string;
+}
+
+interface ReorderAlert {
+  id: string;
+  inventory_item_id: string;
+  user_id: string;
+  alert_level: string;
+  message: string;
+  is_acknowledged?: boolean;
+  acknowledged_at?: string;
+  created_at: string;
+}
+
+interface InventoryOverviewProps {
+  items: InventoryItem[];
+  transactions: InventoryTransaction[];
+  alerts: ReorderAlert[];
+  loading: boolean;
+}
+
+const InventoryOverview = ({ items, transactions, alerts, loading }: InventoryOverviewProps) => {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

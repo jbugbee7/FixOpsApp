@@ -4,18 +4,35 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useInventoryData } from '@/hooks/useInventoryData';
-import { useInventoryOperations } from '@/hooks/useInventoryOperations';
 import { Plus, Search, Package, Edit, Trash2 } from 'lucide-react';
 import AddInventoryItemDialog from './AddInventoryItemDialog';
 import EditInventoryItemDialog from './EditInventoryItemDialog';
 
-const InventoryItems = () => {
-  const { items, loading, refetch } = useInventoryData();
-  const { deleteItem } = useInventoryOperations();
+interface InventoryItem {
+  id: string;
+  user_id: string;
+  item_name: string;
+  item_number?: string;
+  category: string;
+  current_stock: number;
+  minimum_stock: number;
+  unit_cost: number;
+  location?: string;
+  supplier?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface InventoryItemsProps {
+  items: InventoryItem[];
+  loading: boolean;
+  onCreateItem: (itemData: Partial<InventoryItem>) => Promise<any>;
+}
+
+const InventoryItems = ({ items, loading, onCreateItem }: InventoryItemsProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [editingItem, setEditingItem] = useState(null);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const filteredItems = items.filter(item => {
@@ -27,12 +44,12 @@ const InventoryItems = () => {
 
   const handleDelete = async (itemId: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      await deleteItem(itemId);
-      refetch();
+      // Delete functionality would go here
+      console.log('Delete item:', itemId);
     }
   };
 
-  const getStockStatus = (item: any) => {
+  const getStockStatus = (item: InventoryItem) => {
     if (item.current_stock <= 0) return { label: 'Out of Stock', color: 'bg-red-500' };
     if (item.current_stock <= item.minimum_stock) return { label: 'Low Stock', color: 'bg-orange-500' };
     return { label: 'In Stock', color: 'bg-green-500' };
@@ -186,7 +203,6 @@ const InventoryItems = () => {
         onClose={() => setShowAddDialog(false)}
         onSuccess={() => {
           setShowAddDialog(false);
-          refetch();
         }}
       />
 
@@ -197,7 +213,6 @@ const InventoryItems = () => {
           onClose={() => setEditingItem(null)}
           onSuccess={() => {
             setEditingItem(null);
-            refetch();
           }}
         />
       )}

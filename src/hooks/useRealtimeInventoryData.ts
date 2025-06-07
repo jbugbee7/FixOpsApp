@@ -204,7 +204,16 @@ export const useRealtimeInventoryData = () => {
   }, [debouncedRefetch]);
 
   // Create inventory item
-  const createInventoryItem = async (itemData: Partial<InventoryItem>) => {
+  const createInventoryItem = async (itemData: {
+    item_name: string;
+    item_number?: string;
+    category?: string;
+    current_stock?: number;
+    minimum_stock?: number;
+    unit_cost?: number;
+    location?: string;
+    supplier?: string;
+  }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user?.id) {
@@ -218,7 +227,17 @@ export const useRealtimeInventoryData = () => {
 
       const { data, error } = await supabase
         .from('inventory_items')
-        .insert({ ...itemData, user_id: user.id })
+        .insert({
+          item_name: itemData.item_name,
+          item_number: itemData.item_number,
+          category: itemData.category || 'parts',
+          current_stock: itemData.current_stock || 0,
+          minimum_stock: itemData.minimum_stock || 5,
+          unit_cost: itemData.unit_cost || 0,
+          location: itemData.location || 'van',
+          supplier: itemData.supplier,
+          user_id: user.id
+        })
         .select()
         .single();
 

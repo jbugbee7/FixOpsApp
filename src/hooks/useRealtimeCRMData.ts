@@ -156,7 +156,14 @@ export const useRealtimeCRMData = () => {
   }, [debouncedRefetch]);
 
   // Create interaction
-  const createInteraction = async (interactionData: Partial<ContactInteraction>) => {
+  const createInteraction = async (interactionData: {
+    customer_id: number;
+    interaction_type: string;
+    subject: string;
+    description?: string;
+    status?: string;
+    priority?: string;
+  }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user?.id) {
@@ -170,7 +177,15 @@ export const useRealtimeCRMData = () => {
 
       const { data, error } = await supabase
         .from('contact_interactions')
-        .insert({ ...interactionData, user_id: user.id })
+        .insert({
+          customer_id: interactionData.customer_id,
+          interaction_type: interactionData.interaction_type,
+          subject: interactionData.subject,
+          description: interactionData.description,
+          status: interactionData.status || 'completed',
+          priority: interactionData.priority || 'medium',
+          user_id: user.id
+        })
         .select()
         .single();
 

@@ -3,12 +3,33 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useInventoryData } from '@/hooks/useInventoryData';
 import { Plus, ArrowUpCircle, ArrowDownCircle, Settings, ExternalLink } from 'lucide-react';
 import AddTransactionDialog from './AddTransactionDialog';
 
-const InventoryTransactions = () => {
-  const { transactions, loading, refetch } = useInventoryData();
+interface InventoryTransaction {
+  id: string;
+  inventory_item_id: string;
+  user_id: string;
+  transaction_type: string;
+  quantity: number;
+  unit_cost?: number;
+  case_id?: string;
+  notes?: string;
+  created_at: string;
+  inventory_item?: {
+    item_name: string;
+  };
+  case?: {
+    wo_number: string;
+  };
+}
+
+interface InventoryTransactionsProps {
+  transactions: InventoryTransaction[];
+  loading: boolean;
+}
+
+const InventoryTransactions = ({ transactions, loading }: InventoryTransactionsProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const getTransactionIcon = (type: string) => {
@@ -78,7 +99,7 @@ const InventoryTransactions = () => {
                   {getTransactionIcon(transaction.transaction_type)}
                   <div>
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                      {transaction.inventory_item?.item_name}
+                      {transaction.inventory_item?.item_name || 'Unknown Item'}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge className={getTransactionColor(transaction.transaction_type)}>
@@ -87,7 +108,7 @@ const InventoryTransactions = () => {
                       <span className="text-sm text-slate-600 dark:text-slate-400">
                         Quantity: {transaction.quantity}
                       </span>
-                      {transaction.unit_cost > 0 && (
+                      {transaction.unit_cost && transaction.unit_cost > 0 && (
                         <span className="text-sm text-slate-600 dark:text-slate-400">
                           Unit Cost: ${transaction.unit_cost}
                         </span>
@@ -145,7 +166,6 @@ const InventoryTransactions = () => {
         onClose={() => setShowAddDialog(false)}
         onSuccess={() => {
           setShowAddDialog(false);
-          refetch();
         }}
       />
     </div>
