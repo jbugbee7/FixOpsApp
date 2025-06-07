@@ -2,61 +2,22 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Tables } from '@/integrations/supabase/types';
 
-export interface Invoice {
-  id: string;
-  invoice_number: string;
-  customer_name: string;
-  customer_email?: string;
-  customer_address?: string;
-  issue_date: string;
-  due_date: string;
+// Use Supabase types as base and extend them
+export interface Invoice extends Omit<Tables<'invoices'>, 'status'> {
   status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
-  subtotal: number;
-  tax_rate: number;
-  tax_amount: number;
-  total_amount: number;
-  notes?: string;
-  payment_terms?: string;
-  case_id?: string;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface InvoiceItem {
-  id: string;
-  invoice_id: string;
-  description: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  item_type: 'service' | 'part' | 'labor';
-  created_at: string;
-}
+export interface InvoiceItem extends Tables<'invoice_items'> {}
 
-export interface Expense {
-  id: string;
-  category: string;
-  description: string;
-  amount: number;
-  expense_date: string;
-  vendor?: string;
-  receipt_url?: string;
-  is_billable: boolean;
+export interface Expense extends Omit<Tables<'expenses'>, 'status'> {
   status: 'pending' | 'approved' | 'rejected';
-  case_id?: string;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface PaymentReminder {
-  id: string;
-  invoice_id: string;
+export interface PaymentReminder extends Omit<Tables<'payment_reminders'>, 'reminder_type' | 'status'> {
   reminder_type: 'automatic' | 'manual';
-  sent_at?: string;
-  due_date: string;
   status: 'pending' | 'sent' | 'cancelled';
-  created_at: string;
 }
 
 export const useAccountingData = () => {
@@ -75,7 +36,7 @@ export const useAccountingData = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setInvoices(data || []);
+      setInvoices(data as Invoice[] || []);
     } catch (error) {
       console.error('Error fetching invoices:', error);
       toast({
@@ -95,7 +56,7 @@ export const useAccountingData = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setExpenses(data || []);
+      setExpenses(data as Expense[] || []);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       toast({
@@ -115,7 +76,7 @@ export const useAccountingData = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPaymentReminders(data || []);
+      setPaymentReminders(data as PaymentReminder[] || []);
     } catch (error) {
       console.error('Error fetching payment reminders:', error);
       toast({
@@ -176,10 +137,10 @@ export const useAccountingData = () => {
     try {
       const { data, error } = await supabase
         .from('invoices')
-        .insert([{
+        .insert({
           ...invoiceData,
           user_id: (await supabase.auth.getUser()).data.user?.id
-        }])
+        })
         .select()
         .single();
 
@@ -234,10 +195,10 @@ export const useAccountingData = () => {
     try {
       const { data, error } = await supabase
         .from('expenses')
-        .insert([{
+        .insert({
           ...expenseData,
           user_id: (await supabase.auth.getUser()).data.user?.id
-        }])
+        })
         .select()
         .single();
 
