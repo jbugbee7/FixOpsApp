@@ -5,6 +5,7 @@ import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
 import CRMPage from './CRMPage';
+import AccountingPage from './AccountingPage';
 import { Case } from '@/types/case';
 
 interface DashboardContentProps {
@@ -62,6 +63,8 @@ const DashboardContent = ({
         return <TrainingPage />;
       case 'crm':
         return <CRMPage />;
+      case 'accounting':
+        return <AccountingPage />;
       case 'settings':
         return <SettingsPage />;
       default:

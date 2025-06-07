@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Home, MessageCircle, Bot, GraduationCap, Settings, Users } from 'lucide-react';
+import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator } from 'lucide-react';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -43,6 +43,11 @@ const menuItems = [
     title: "CRM",
     value: "crm",
     icon: Users,
+  },
+  {
+    title: "Accounting",
+    value: "accounting",
+    icon: Calculator,
   },
   {
     title: "Settings",
