@@ -21,8 +21,15 @@ const CRMAnalyticsCharts = ({ casesData, communicationData, interactionsData }: 
         acc[monthKey] = { month: monthKey, revenue: 0, cases: 0 };
       }
       
-      const diagnostic = parseFloat(caseItem.diagnostic_fee_amount || 0);
-      const labor = parseFloat(caseItem.labor_cost_calculated || 0);
+      // Properly parse and validate numbers
+      const diagnosticValue = caseItem.diagnostic_fee_amount;
+      const laborValue = caseItem.labor_cost_calculated;
+      
+      const diagnostic = typeof diagnosticValue === 'number' ? diagnosticValue : 
+                        typeof diagnosticValue === 'string' ? parseFloat(diagnosticValue) || 0 : 0;
+      const labor = typeof laborValue === 'number' ? laborValue : 
+                   typeof laborValue === 'string' ? parseFloat(laborValue) || 0 : 0;
+      
       acc[monthKey].revenue += diagnostic + labor;
       acc[monthKey].cases += 1;
       
