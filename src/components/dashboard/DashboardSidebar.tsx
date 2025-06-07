@@ -11,7 +11,7 @@ import {
   SidebarTrigger,
   SidebarHeader,
 } from "@/components/ui/sidebar";
-import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator } from 'lucide-react';
+import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3 } from 'lucide-react';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -22,7 +22,12 @@ const menuItems = [
   {
     title: "Dashboard",
     value: "dashboard",
-    icon: Home,
+    icon: BarChart3,
+  },
+  {
+    title: "Work Order",
+    value: "work-order",
+    icon: ClipboardList,
   },
   {
     title: "FixChat",

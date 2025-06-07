@@ -1,5 +1,6 @@
 
 import DashboardMain from './DashboardMain';
+import NewDashboardPage from './NewDashboardPage';
 import FixChatPage from '@/components/FixChatPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
@@ -40,6 +41,8 @@ const DashboardContent = ({
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
+        return <NewDashboardPage />;
+      case 'work-order':
         return (
           <DashboardMain
             isOnline={isOnline}
@@ -68,21 +71,7 @@ const DashboardContent = ({
       case 'settings':
         return <SettingsPage />;
       default:
-        return (
-          <DashboardMain
-            isOnline={isOnline}
-            hasOfflineData={hasOfflineData}
-            cases={cases}
-            loading={loading}
-            isResyncing={isResyncing}
-            displayName={displayName}
-            onNavigate={onNavigate}
-            onModelFound={onModelFound}
-            onPartFound={onPartFound}
-            onCaseClick={onCaseClick}
-            onResync={onResync}
-          />
-        );
+        return <NewDashboardPage />;
     }
   };
 
