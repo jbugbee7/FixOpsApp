@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -62,7 +61,14 @@ const CommunicationTemplates = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTemplates(data || []);
+      
+      // Transform the data to match our interface
+      const transformedTemplates = (data || []).map(template => ({
+        ...template,
+        variables: Array.isArray(template.variables) ? template.variables : []
+      }));
+      
+      setTemplates(transformedTemplates);
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast({

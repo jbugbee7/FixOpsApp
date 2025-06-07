@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,7 +37,15 @@ const CustomerHealthDashboard = () => {
         .limit(20);
 
       if (error) throw error;
-      setHealthMetrics(data || []);
+      
+      // Transform the data to match our interface
+      const transformedMetrics = (data || []).map(metric => ({
+        ...metric,
+        risk_factors: Array.isArray(metric.risk_factors) ? metric.risk_factors : [],
+        opportunities: Array.isArray(metric.opportunities) ? metric.opportunities : []
+      }));
+      
+      setHealthMetrics(transformedMetrics);
     } catch (error) {
       console.error('Error fetching health metrics:', error);
       toast({
