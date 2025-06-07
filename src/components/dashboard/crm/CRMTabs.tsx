@@ -8,6 +8,7 @@ import CustomerList from './CustomerList';
 import CRMCharts from './CRMCharts';
 import AnalyticsTab from './AnalyticsTab';
 import SegmentsTab from './SegmentsTab';
+import AutomationTab from './AutomationTab';
 
 interface CRMTabsProps {
   customers: Customer[];
@@ -30,11 +31,12 @@ const CRMTabs = ({
 }: CRMTabsProps) => {
   return (
     <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-      <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+      <TabsList className="grid w-full grid-cols-3 md:grid-cols-5">
         <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
         <TabsTrigger value="customers" className="text-xs sm:text-sm">Customers</TabsTrigger>
         <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
         <TabsTrigger value="segments" className="text-xs sm:text-sm">Segments</TabsTrigger>
+        <TabsTrigger value="automation" className="text-xs sm:text-sm">Automation</TabsTrigger>
       </TabsList>
 
       <TabsContent value="overview" className="space-y-4 sm:space-y-6">
@@ -60,6 +62,10 @@ const CRMTabs = ({
 
       <TabsContent value="segments" className="space-y-4 sm:space-y-6">
         <SegmentsTab />
+      </TabsContent>
+
+      <TabsContent value="automation" className="space-y-4 sm:space-y-6">
+        <AutomationTab />
       </TabsContent>
     </Tabs>
   );

@@ -45,6 +45,65 @@ export type Database = {
         }
         Relationships: []
       }
+      automated_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          customer_id: number
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string
+          status: string
+          task_type: string
+          title: string
+          updated_at: string
+          workflow_rule_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id: number
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          task_type: string
+          title: string
+          updated_at?: string
+          workflow_rule_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_id?: number
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          task_type?: string
+          title?: string
+          updated_at?: string
+          workflow_rule_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automated_tasks_workflow_rule_id_fkey"
+            columns: ["workflow_rule_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       case_parts: {
         Row: {
           case_id: string
@@ -355,6 +414,39 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_scores: {
+        Row: {
+          created_at: string
+          customer_id: number
+          id: string
+          last_calculated: string
+          priority_level: string
+          score_breakdown: Json | null
+          total_score: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: number
+          id?: string
+          last_calculated?: string
+          priority_level?: string
+          score_breakdown?: Json | null
+          total_score?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: number
+          id?: string
+          last_calculated?: string
+          priority_level?: string
+          score_breakdown?: Json | null
+          total_score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       customer_timeline: {
         Row: {
           activity_type: string
@@ -391,6 +483,48 @@ export type Database = {
           old_value?: string | null
           title?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          body_html: string
+          body_text: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          merge_fields: Json | null
+          name: string
+          subject: string
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          body_html: string
+          body_text?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          merge_fields?: Json | null
+          name: string
+          subject: string
+          template_type: string
+          updated_at?: string
+        }
+        Update: {
+          body_html?: string
+          body_text?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          merge_fields?: Json | null
+          name?: string
+          subject?: string
+          template_type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -431,6 +565,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lead_scoring_rules: {
+        Row: {
+          created_at: string
+          criteria_type: string
+          criteria_value: Json
+          id: string
+          is_active: boolean
+          name: string
+          score_points: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          criteria_type: string
+          criteria_value: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          score_points?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          criteria_type?: string
+          criteria_value?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          score_points?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       parts: {
         Row: {
@@ -653,11 +820,54 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_rules: {
+        Row: {
+          actions: Json
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          trigger_conditions: Json
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_conditions?: Json
+          trigger_type: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_conditions?: Json
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      calculate_customer_score: {
+        Args: { customer_id_param: number }
+        Returns: number
+      }
       calculate_labor_cost: {
         Args: { level: number }
         Returns: number
