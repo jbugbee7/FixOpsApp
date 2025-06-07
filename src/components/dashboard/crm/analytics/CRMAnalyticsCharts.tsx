@@ -109,51 +109,67 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6" role="region" aria-label="CRM Analytics Dashboard">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6" role="region" aria-label="CRM Analytics Dashboard">
       {/* Monthly Revenue Trend */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Monthly Revenue Trend</CardTitle>
+      <Card className="col-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm md:text-base">Monthly Revenue Trend</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 md:px-6">
           {chartData.monthlyData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData.monthlyData} aria-label="Monthly revenue trend chart">
+                <LineChart data={chartData.monthlyData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} tickFormatter={(value) => `$${value}`} />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 10 }} 
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 10 }} 
+                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    width={40}
+                  />
                   <ChartTooltip
                     content={<ChartTooltipContent />}
                     formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
                   />
-                  <Line type="monotone" dataKey="revenue" stroke="#8B5CF6" strokeWidth={2} />
+                  <Line type="monotone" dataKey="revenue" stroke="#8B5CF6" strokeWidth={2} dot={{ r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-muted-foreground text-sm py-8">No data available</p>
           )}
         </CardContent>
       </Card>
 
       {/* Case Status Distribution */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Case Status Distribution</CardTitle>
+      <Card className="col-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm md:text-base">Case Status Distribution</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 md:px-6">
           {chartData.statusChartData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart aria-label="Case status distribution chart">
+                <PieChart>
                   <Pie
                     data={chartData.statusChartData}
                     cx="50%"
                     cy="50%"
-                    outerRadius={80}
+                    outerRadius="80%"
                     dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
+                    label={({ name, value, percent }) => 
+                      window.innerWidth > 768 
+                        ? `${name}: ${value}` 
+                        : `${(percent * 100).toFixed(0)}%`
+                    }
+                    labelLine={false}
                   >
                     {chartData.statusChartData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
@@ -164,52 +180,64 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
               </ResponsiveContainer>
             </ChartContainer>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-muted-foreground text-sm py-8">No data available</p>
           )}
         </CardContent>
       </Card>
 
       {/* Monthly Cases */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Monthly Case Volume</CardTitle>
+      <Card className="col-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm md:text-base">Monthly Case Volume</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 md:px-6">
           {chartData.monthlyData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData.monthlyData} aria-label="Monthly case volume chart">
+                <BarChart data={chartData.monthlyData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <XAxis 
+                    dataKey="month" 
+                    tick={{ fontSize: 10 }}
+                    interval="preserveStartEnd"
+                    angle={-45}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis tick={{ fontSize: 10 }} width={30} />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="cases" fill="#06B6D4" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-muted-foreground text-sm py-8">No data available</p>
           )}
         </CardContent>
       </Card>
 
       {/* Top Appliance Types */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Appliance Types</CardTitle>
+      <Card className="col-span-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm md:text-base">Top Appliance Types</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-2 md:px-6">
           {chartData.applianceChartData.length > 0 ? (
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className="h-[250px] md:h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData.applianceChartData} layout="horizontal" aria-label="Top appliance types chart">
+                <BarChart 
+                  data={chartData.applianceChartData} 
+                  layout="horizontal" 
+                  margin={{ left: 0, right: 10, top: 5, bottom: 5 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <XAxis type="number" tick={{ fontSize: 10 }} />
                   <YAxis 
                     type="category" 
                     dataKey="type" 
-                    tick={{ fontSize: 12 }}
-                    width={100}
+                    tick={{ fontSize: 9 }}
+                    width={80}
+                    interval={0}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
                   <Bar dataKey="count" fill="#10B981" radius={[0, 2, 2, 0]} />
@@ -217,7 +245,7 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
               </ResponsiveContainer>
             </ChartContainer>
           ) : (
-            <p className="text-center text-gray-500">No data available</p>
+            <p className="text-center text-muted-foreground text-sm py-8">No data available</p>
           )}
         </CardContent>
       </Card>
