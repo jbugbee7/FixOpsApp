@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, ComposedChart } from 'recharts';
 import { Users, UserPlus, Search, Phone, Mail, MapPin, TrendingUp, DollarSign, Calendar, Activity, Filter, Download, Edit, Trash2, Eye } from 'lucide-react';
 
 const CRMPage = () => {
@@ -97,12 +97,12 @@ const CRMPage = () => {
 
   const chartConfig = {
     revenue: {
-      label: "Revenue",
-      color: "hsl(var(--chart-1))",
+      label: "Revenue ($)",
+      color: "#8B5CF6",
     },
     customers: {
-      label: "Customers",
-      color: "hsl(var(--chart-2))",
+      label: "New Customers",
+      color: "#06B6D4",
     },
   };
 
@@ -140,19 +140,19 @@ const CRMPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Customer Relationship Management
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-muted-foreground mt-2">
             Comprehensive customer analytics and relationship management
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button className="bg-purple-600 hover:bg-purple-700">
+          <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
             <UserPlus className="h-4 w-4 mr-2" />
             Add Customer
           </Button>
@@ -160,23 +160,23 @@ const CRMPage = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="customers">Customers</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="segments">Segments</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="customers" className="text-xs sm:text-sm">Customers</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
+          <TabsTrigger value="segments" className="text-xs sm:text-sm">Segments</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Total Customers</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">1,234</div>
+                <div className="text-xl sm:text-2xl font-bold">1,234</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-green-600">+12.5%</span> from last month
                 </p>
@@ -185,11 +185,11 @@ const CRMPage = () => {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Monthly Revenue</CardTitle>
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$24,800</div>
+                <div className="text-xl sm:text-2xl font-bold">$24,800</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-green-600">+16.5%</span> from last month
                 </p>
@@ -198,11 +198,11 @@ const CRMPage = () => {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Avg. Order Value</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$194</div>
+                <div className="text-xl sm:text-2xl font-bold">$194</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-green-600">+8.2%</span> from last month
                 </p>
@@ -211,11 +211,11 @@ const CRMPage = () => {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Customer Retention</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-medium">Customer Retention</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">85.4%</div>
+                <div className="text-xl sm:text-2xl font-bold">85.4%</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-green-600">+2.1%</span> from last month
                 </p>
@@ -223,59 +223,95 @@ const CRMPage = () => {
             </Card>
           </div>
 
-          {/* Revenue Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue & Customer Growth</CardTitle>
-              <CardDescription>Monthly revenue and customer acquisition trends</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyRevenue}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis yAxisId="left" />
-                    <YAxis yAxisId="right" orientation="right" />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="revenue" fill="#8B5CF6" name="Revenue ($)" />
-                    <Line yAxisId="right" type="monotone" dataKey="customers" stroke="#06B6D4" strokeWidth={3} name="New Customers" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Revenue & Customer Growth Chart - Fixed for responsiveness */}
+            <Card className="col-span-1 xl:col-span-2">
+              <CardHeader>
+                <CardTitle>Revenue & Customer Growth</CardTitle>
+                <CardDescription>Monthly revenue and customer acquisition trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[350px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={monthlyRevenue} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: 12 }}
+                        interval={0}
+                      />
+                      <YAxis 
+                        yAxisId="revenue"
+                        orientation="left"
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                      />
+                      <YAxis 
+                        yAxisId="customers"
+                        orientation="right"
+                        tick={{ fontSize: 12 }}
+                      />
+                      <ChartTooltip 
+                        content={<ChartTooltipContent />}
+                        formatter={(value, name) => [
+                          name === 'revenue' ? `$${value.toLocaleString()}` : value,
+                          name === 'revenue' ? 'Revenue' : 'New Customers'
+                        ]}
+                      />
+                      <Legend />
+                      <Bar 
+                        yAxisId="revenue"
+                        dataKey="revenue" 
+                        fill="#8B5CF6" 
+                        name="Revenue ($)"
+                        radius={[4, 4, 0, 0]}
+                      />
+                      <Line 
+                        yAxisId="customers"
+                        type="monotone" 
+                        dataKey="customers" 
+                        stroke="#06B6D4" 
+                        strokeWidth={3}
+                        name="New Customers"
+                        dot={{ fill: '#06B6D4', strokeWidth: 2, r: 4 }}
+                      />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
 
-          {/* Customer Segmentation */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer Segmentation</CardTitle>
-              <CardDescription>Distribution of customers by value segment</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={customerSegmentation}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, value }) => `${name}: ${value}%`}
-                    >
-                      {customerSegmentation.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+            {/* Customer Segmentation */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Customer Segmentation</CardTitle>
+                <CardDescription>Distribution of customers by value segment</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[250px] sm:h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={customerSegmentation}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius="80%"
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, value }) => `${name}: ${value}%`}
+                      >
+                        {customerSegmentation.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <ChartTooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="customers" className="space-y-6">
@@ -286,9 +322,9 @@ const CRMPage = () => {
               <CardDescription>Search and manage your customer database</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <div className="flex flex-col gap-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search customers by name, email, or phone..."
                     className="pl-10"
@@ -296,28 +332,30 @@ const CRMPage = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="at risk">At Risk</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={segmentFilter} onValueChange={setSegmentFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by segment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Segments</SelectItem>
-                    <SelectItem value="vip">VIP</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="standard">Standard</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="at risk">At Risk</SelectItem>
+                      <SelectItem value="new">New</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={segmentFilter} onValueChange={setSegmentFilter}>
+                    <SelectTrigger className="w-full sm:w-[180px]">
+                      <SelectValue placeholder="Filter by segment" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Segments</SelectItem>
+                      <SelectItem value="vip">VIP</SelectItem>
+                      <SelectItem value="premium">Premium</SelectItem>
+                      <SelectItem value="standard">Standard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -326,13 +364,13 @@ const CRMPage = () => {
           <div className="grid gap-4">
             {filteredCustomers.map((customer) => (
               <Card key={customer.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                          {customer.name}
-                        </h3>
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {customer.name}
+                      </h3>
+                      <div className="flex gap-2">
                         <Badge className={getStatusColor(customer.status)}>
                           {customer.status}
                         </Badge>
@@ -340,40 +378,40 @@ const CRMPage = () => {
                           {customer.segment}
                         </Badge>
                       </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-slate-600 dark:text-slate-400 mb-3">
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          {customer.email}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Phone className="h-4 w-4" />
-                          {customer.phone}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          {customer.address}
-                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{customer.email}</span>
                       </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-500 dark:text-slate-500">
-                        <span>Orders: {customer.totalOrders}</span>
-                        <span>Total Spent: ${customer.totalSpent.toLocaleString()}</span>
-                        <span>LTV: ${customer.lifetime_value.toLocaleString()}</span>
-                        <span>AOV: ${customer.avgOrderValue}</span>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 flex-shrink-0" />
+                        <span>{customer.phone}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 flex-shrink-0" />
+                        <span className="truncate">{customer.address}</span>
                       </div>
                     </div>
                     
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs text-muted-foreground">
+                      <span>Orders: {customer.totalOrders}</span>
+                      <span>Spent: ${customer.totalSpent.toLocaleString()}</span>
+                      <span>LTV: ${customer.lifetime_value.toLocaleString()}</span>
+                      <span>AOV: ${customer.avgOrderValue}</span>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         <Eye className="h-4 w-4 mr-1" />
                         View
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                      <Button variant="outline" size="sm" className="text-destructive hover:text-destructive w-full sm:w-auto">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -381,6 +419,15 @@ const CRMPage = () => {
                 </CardContent>
               </Card>
             ))}
+            
+            {filteredCustomers.length === 0 && (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">No customers found matching your search criteria.</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </TabsContent>
 
@@ -400,7 +447,7 @@ const CRMPage = () => {
                       <XAxis dataKey="month" />
                       <YAxis />
                       <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="customers" fill="#06B6D4" />
+                      <Bar dataKey="customers" fill="#06B6D4" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </ChartContainer>
