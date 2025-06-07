@@ -4,14 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { TrendingUp, Plus, Settings, Calculator } from 'lucide-react';
+import { TrendingUp, Settings, Calculator, Edit, Trash2, Toggle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import CreateScoringRuleDialog from './CreateScoringRuleDialog';
 
 interface LeadScoringRule {
   id: string;
   name: string;
+  description: string;
   criteria_type: string;
+  criteria_value: any;
   score_points: number;
   is_active: boolean;
 }
@@ -65,10 +68,61 @@ const LeadScoring = () => {
     }
   };
 
-  const calculateScore = async (customerId: number) => {
+  const toggleRuleStatus = async (ruleId: string, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('lead_scoring_rules')
+        .update({ is_active: !currentStatus })
+        .eq('id', ruleId);
+
+      if (error) throw error;
+
+      setRules(rules.map(rule => 
+        rule.id === ruleId ? { ...rule, is_active: !currentStatus } : rule
+      ));
+
+      toast({
+        title: "Success",
+        description: `Rule ${!currentStatus ? 'activated' : 'deactivated'}`,
+      });
+    } catch (error) {
+      console.error('Error updating rule:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update rule",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteRule = async (ruleId: string) => {
+    try {
+      const { error } = await supabase
+        .from('lead_scoring_rules')
+        .delete()
+        .eq('id', ruleId);
+
+      if (error) throw error;
+
+      setRules(rules.filter(rule => rule.id !== ruleId));
+      toast({
+        title: "Success",
+        description: "Rule deleted successfully",
+      });
+    } catch (error) {
+      console.error('Error deleting rule:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete rule",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const calculateScore = async (customerId?: number) => {
     try {
       const { data, error } = await supabase
-        .rpc('calculate_customer_score', { customer_id_param: customerId });
+        .rpc('calculate_customer_score', { customer_id_param: customerId || 1 });
 
       if (error) throw error;
 
@@ -98,6 +152,21 @@ const LeadScoring = () => {
     }
   };
 
+  const formatCriteriaValue = (type: string, value: any) => {
+    switch (type) {
+      case 'segment':
+        return `Segment: ${value.value}`;
+      case 'total_spent':
+        return `Min spent: $${value.threshold}`;
+      case 'order_count':
+        return `Min orders: ${value.threshold}`;
+      case 'last_contact':
+        return `Within ${value.days} days`;
+      default:
+        return JSON.stringify(value);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -114,10 +183,7 @@ const LeadScoring = () => {
       <div className="space-y-4">
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Scoring Rules</h3>
-          <Button className="bg-purple-600 hover:bg-purple-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Rule
-          </Button>
+          <CreateScoringRuleDialog onRuleCreated={fetchData} />
         </div>
 
         {rules.length === 0 ? (
@@ -125,31 +191,49 @@ const LeadScoring = () => {
             <CardContent className="p-6 text-center">
               <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">No scoring rules configured</p>
-              <Button className="bg-purple-600 hover:bg-purple-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Your First Rule
-              </Button>
+              <CreateScoringRuleDialog onRuleCreated={fetchData} />
             </CardContent>
           </Card>
         ) : (
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-3">
             {rules.map((rule) => (
               <Card key={rule.id}>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-medium">{rule.name}</h4>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h4 className="font-medium">{rule.name}</h4>
+                        <Badge variant={rule.is_active ? "default" : "secondary"}>
+                          {rule.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                        <span className="text-sm font-semibold text-purple-600">
+                          +{rule.score_points} pts
+                        </span>
+                      </div>
+                      {rule.description && (
+                        <p className="text-sm text-muted-foreground mb-1">{rule.description}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {formatCriteriaValue(rule.criteria_type, rule.criteria_value)}
+                      </p>
+                    </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={rule.is_active ? "default" : "secondary"}>
-                        {rule.is_active ? "Active" : "Inactive"}
-                      </Badge>
-                      <span className="text-sm font-semibold text-purple-600">
-                        +{rule.score_points} pts
-                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleRuleStatus(rule.id, rule.is_active)}
+                      >
+                        <Toggle className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => deleteRule(rule.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {rule.criteria_type.replace('_', ' ')}
-                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -160,10 +244,10 @@ const LeadScoring = () => {
       {/* Customer Scores */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Top Customer Scores</h3>
+          <h3 className="text-lg font-semibold">Customer Scores</h3>
           <Button 
             variant="outline"
-            onClick={() => calculateScore(1)} // Demo with customer ID 1
+            onClick={() => calculateScore()}
           >
             <Calculator className="h-4 w-4 mr-2" />
             Recalculate Scores
@@ -177,7 +261,7 @@ const LeadScoring = () => {
               <p className="text-muted-foreground mb-4">No customer scores available</p>
               <Button 
                 className="bg-purple-600 hover:bg-purple-700"
-                onClick={() => calculateScore(1)}
+                onClick={() => calculateScore()}
               >
                 <Calculator className="h-4 w-4 mr-2" />
                 Calculate Demo Scores
