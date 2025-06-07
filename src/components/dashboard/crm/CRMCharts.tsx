@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -67,6 +68,10 @@ const CRMCharts = () => {
     revenue: {
       label: "Revenue",
       color: "#10B981",
+    },
+    value: {
+      label: "Count",
+      color: "#8B5CF6",
     },
   };
 
