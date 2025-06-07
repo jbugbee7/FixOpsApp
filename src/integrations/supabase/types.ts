@@ -778,6 +778,95 @@ export type Database = {
         }
         Relationships: []
       }
+      expenses: {
+        Row: {
+          amount: number
+          case_id: string | null
+          category: string
+          created_at: string
+          description: string
+          expense_date: string
+          id: string
+          is_billable: boolean
+          receipt_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vendor: string | null
+        }
+        Insert: {
+          amount: number
+          case_id?: string | null
+          category: string
+          created_at?: string
+          description: string
+          expense_date?: string
+          id?: string
+          is_billable?: boolean
+          receipt_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vendor?: string | null
+        }
+        Update: {
+          amount?: number
+          case_id?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          is_billable?: boolean
+          receipt_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vendor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_reports: {
+        Row: {
+          data: Json
+          generated_at: string
+          id: string
+          period_end: string
+          period_start: string
+          report_name: string
+          report_type: string
+          user_id: string
+        }
+        Insert: {
+          data?: Json
+          generated_at?: string
+          id?: string
+          period_end: string
+          period_start: string
+          report_name: string
+          report_type: string
+          user_id: string
+        }
+        Update: {
+          data?: Json
+          generated_at?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          report_name?: string
+          report_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       forum_messages: {
         Row: {
           author_name: string
@@ -912,6 +1001,118 @@ export type Database = {
           },
         ]
       }
+      invoice_items: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          item_type: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          item_type?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          item_type?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          case_id: string | null
+          created_at: string
+          customer_address: string | null
+          customer_email: string | null
+          customer_name: string
+          due_date: string
+          id: string
+          invoice_number: string
+          issue_date: string
+          notes: string | null
+          payment_terms: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          tax_rate: number
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          case_id?: string | null
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name: string
+          due_date: string
+          id?: string
+          invoice_number: string
+          issue_date?: string
+          notes?: string | null
+          payment_terms?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total_amount?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          case_id?: string | null
+          created_at?: string
+          customer_address?: string | null
+          customer_email?: string | null
+          customer_name?: string
+          due_date?: string
+          id?: string
+          invoice_number?: string
+          issue_date?: string
+          notes?: string | null
+          payment_terms?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_scoring_rules: {
         Row: {
           created_at: string
@@ -992,6 +1193,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      payment_reminders: {
+        Row: {
+          created_at: string
+          due_date: string
+          id: string
+          invoice_id: string
+          reminder_type: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          due_date: string
+          id?: string
+          invoice_id: string
+          reminder_type?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string
+          id?: string
+          invoice_id?: string
+          reminder_type?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_reminders_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -1291,6 +1530,10 @@ export type Database = {
       calculate_labor_cost: {
         Args: { level: number }
         Returns: number
+      }
+      generate_invoice_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_wo_number: {
         Args: Record<PropertyKey, never>

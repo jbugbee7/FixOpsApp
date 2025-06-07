@@ -1,29 +1,34 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { UserPlus, Download } from 'lucide-react';
+import { Plus, Users } from 'lucide-react';
+import AddCustomerDialog from './AddCustomerDialog';
 
 const CRMHeader = () => {
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-      <div>
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
-          Customer Relationship Management
-        </h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-          Comprehensive customer analytics and relationship management
-        </p>
-      </div>
-      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
-        <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
-          <UserPlus className="h-4 w-4 mr-2" />
+    <div className="mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
+            Customer Relationship Management
+          </h1>
+          <p className="text-muted-foreground">
+            Manage customer relationships, track interactions, and analyze customer data
+          </p>
+        </div>
+        
+        <Button onClick={() => setShowAddCustomer(true)} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
           Add Customer
         </Button>
       </div>
+
+      <AddCustomerDialog 
+        open={showAddCustomer} 
+        onOpenChange={setShowAddCustomer} 
+      />
     </div>
   );
 };
