@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package } from 'lucide-react';
 
@@ -67,6 +68,16 @@ const menuItems = [
 ];
 
 const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => {
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleTabChange = (tab: string) => {
+    onTabChange(tab);
+    // Close mobile sidebar when an item is clicked
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
   return (
     <Sidebar className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 z-50">
       <SidebarHeader className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
@@ -89,7 +100,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
                 <SidebarMenuItem key={item.value}>
                   <SidebarMenuButton
                     isActive={activeTab === item.value}
-                    onClick={() => onTabChange(item.value)}
+                    onClick={() => handleTabChange(item.value)}
                     className="w-full hover:bg-slate-100 dark:hover:bg-slate-800 data-[active=true]:bg-purple-100 dark:data-[active=true]:bg-purple-900/20 data-[active=true]:text-purple-700 dark:data-[active=true]:text-purple-300"
                   >
                     <item.icon className="h-4 w-4" />
