@@ -2,35 +2,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Tables, PostgrestError } from '@/integrations/supabase/types';
+import type { Tables } from '@/integrations/supabase/types';
 import { debounce } from 'lodash';
 
-// Define explicit table interfaces
-interface BaseTable {
-  id: string;
-  created_at: string;
-  updated_at?: string;
-  user_id: string;
-}
-
-export interface Invoice extends BaseTable, Omit<Tables<'invoices'>, 'status'> {
+// Use the actual database table types directly
+export interface Invoice extends Tables<'invoices'> {
   status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
-  amount?: number;
-  due_date?: string;
-  customer_id?: string;
 }
 
-export interface Expense extends BaseTable, Omit<Tables<'expenses'>, 'status'> {
+export interface Expense extends Tables<'expenses'> {
   status: 'pending' | 'approved' | 'rejected';
-  amount?: number;
-  category?: string;
 }
 
-export interface PaymentReminder extends BaseTable, Omit<Tables<'payment_reminders'>, 'reminder_type' | 'status'> {
+export interface PaymentReminder extends Tables<'payment_reminders'> {
   reminder_type: 'automatic' | 'manual';
   status: 'pending' | 'sent' | 'cancelled';
-  invoice_id?: string;
-  scheduled_date?: string;
 }
 
 export interface InvoiceItem extends Tables<'invoice_items'> {}
@@ -42,7 +28,7 @@ interface ErrorResponse {
 
 // Centralized error handler
 const handleError = (
-  error: PostgrestError | Error | unknown,
+  error: Error | unknown,
   defaultMessage: string,
   toast: ReturnType<typeof useToast>['toast']
 ): ErrorResponse => {
@@ -56,40 +42,40 @@ const handleError = (
   return { message: defaultMessage, details: message };
 };
 
-// Generic fetch function
+// Generic fetch function with proper typing
 const fetchData = async <T>(
-  table: string,
+  tableName: 'invoices' | 'expenses' | 'payment_reminders',
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<T[]> => {
   try {
     const { data, error } = await supabase
-      .from(table)
+      .from(tableName)
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
     return (data as T[]) ?? [];
   } catch (error) {
-    handleError(error, `Failed to load ${table}`, toast);
+    handleError(error, `Failed to load ${tableName}`, toast);
     return [];
   }
 };
 
-// Generic CRUD operations
+// Generic CRUD operations with proper typing
 const createRecord = async <T>(
-  table: string,
-  data: Partial<T>,
+  tableName: 'invoices' | 'expenses' | 'payment_reminders',
+  data: any,
   userId: string | null,
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<T | null> => {
   if (!userId) {
-    handleError(new Error('User not authenticated'), `Failed to create ${table.slice(0, -1)}`, toast);
+    handleError(new Error('User not authenticated'), `Failed to create ${tableName.slice(0, -1)}`, toast);
     return null;
   }
 
   try {
     const { data: result, error } = await supabase
-      .from(table)
+      .from(tableName)
       .insert({ ...data, user_id: userId })
       .select()
       .single();
@@ -97,24 +83,24 @@ const createRecord = async <T>(
     if (error) throw error;
     toast({
       title: 'Success',
-      description: `${table.slice(0, -1)} created successfully`,
+      description: `${tableName.slice(0, -1)} created successfully`,
     });
     return result as T;
   } catch (error) {
-    handleError(error, `Failed to create ${table.slice(0, -1)}`, toast);
+    handleError(error, `Failed to create ${tableName.slice(0, -1)}`, toast);
     return null;
   }
 };
 
 const updateRecord = async <T>(
-  table: string,
+  tableName: 'invoices' | 'expenses' | 'payment_reminders',
   id: string,
-  updates: Partial<T>,
+  updates: any,
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<T | null> => {
   try {
     const { data, error } = await supabase
-      .from(table)
+      .from(tableName)
       .update(updates)
       .eq('id', id)
       .select()
@@ -123,34 +109,34 @@ const updateRecord = async <T>(
     if (error) throw error;
     toast({
       title: 'Success',
-      description: `${table.slice(0, -1)} updated successfully`,
+      description: `${tableName.slice(0, -1)} updated successfully`,
     });
     return data as T;
   } catch (error) {
-    handleError(error, `Failed to update ${table.slice(0, -1)}`, toast);
+    handleError(error, `Failed to update ${tableName.slice(0, -1)}`, toast);
     return null;
   }
 };
 
 const deleteRecord = async (
-  table: string,
+  tableName: 'invoices' | 'expenses' | 'payment_reminders',
   id: string,
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<boolean> => {
   try {
     const { error } = await supabase
-      .from(table)
+      .from(tableName)
       .delete()
       .eq('id', id);
 
     if (error) throw error;
     toast({
       title: 'Success',
-      description: `${table.slice(0, -1)} deleted successfully`,
+      description: `${tableName.slice(0, -1)} deleted successfully`,
     });
     return true;
   } catch (error) {
-    handleError(error, `Failed to delete ${table.slice(0, -1)}`, toast);
+    handleError(error, `Failed to delete ${tableName.slice(0, -1)}`, toast);
     return false;
   }
 };
