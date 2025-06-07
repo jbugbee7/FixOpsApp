@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -107,17 +108,21 @@ const CRMPage = () => {
     },
   };
 
-  // Mobile-optimized chart margins and sizing
+  // Mobile-first chart configuration
+  const getChartHeight = () => isMobile ? '200px' : '300px';
+  const getComposedChartHeight = () => isMobile ? '220px' : '350px';
+  const getPieChartHeight = () => isMobile ? '180px' : '250px';
+
   const getChartMargins = () => ({
-    top: 20,
+    top: isMobile ? 10 : 20,
     right: isMobile ? 5 : 30,
-    left: isMobile ? 5 : 20,
-    bottom: isMobile ? 50 : 20
+    left: isMobile ? 0 : 20,
+    bottom: isMobile ? 30 : 20
   });
 
   const getTickFontSize = () => isMobile ? 8 : 12;
-  const getLegendFontSize = () => isMobile ? 10 : 14;
-  const getAxisWidth = () => isMobile ? 25 : 60;
+  const getLegendFontSize = () => isMobile ? 8 : 12;
+  const getAxisWidth = () => isMobile ? 20 : 60;
 
   // Filter customers based on search and filters
   const filteredCustomers = customers.filter(customer => {
@@ -238,7 +243,7 @@ const CRMPage = () => {
 
           {/* Charts Section */}
           <div className="space-y-4 sm:space-y-6">
-            {/* Revenue & Customer Growth Chart - Full Width on Mobile */}
+            {/* Revenue & Customer Growth Chart */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base sm:text-lg">Revenue & Customer Growth</CardTitle>
@@ -248,7 +253,8 @@ const CRMPage = () => {
                 <div className="w-full overflow-hidden">
                   <ChartContainer 
                     config={chartConfig} 
-                    className={`w-full ${isMobile ? 'h-[250px]' : 'h-[300px] lg:h-[400px]'}`}
+                    className="w-full"
+                    style={{ height: getComposedChartHeight() }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <ComposedChart 
@@ -262,7 +268,7 @@ const CRMPage = () => {
                           interval={0}
                           angle={isMobile ? -45 : 0}
                           textAnchor={isMobile ? 'end' : 'middle'}
-                          height={isMobile ? 50 : 30}
+                          height={isMobile ? 40 : 30}
                         />
                         <YAxis 
                           yAxisId="revenue"
@@ -275,7 +281,7 @@ const CRMPage = () => {
                           yAxisId="customers"
                           orientation="right"
                           tick={{ fontSize: getTickFontSize() }}
-                          width={isMobile ? 20 : 40}
+                          width={isMobile ? 15 : 40}
                         />
                         <ChartTooltip 
                           content={<ChartTooltipContent />}
@@ -287,7 +293,7 @@ const CRMPage = () => {
                         {!isMobile && (
                           <Legend 
                             wrapperStyle={{ fontSize: getLegendFontSize() }}
-                            iconSize={isMobile ? 12 : 18}
+                            iconSize={12}
                           />
                         )}
                         <Bar 
@@ -313,7 +319,7 @@ const CRMPage = () => {
               </CardContent>
             </Card>
 
-            {/* Customer Segmentation - Mobile Optimized */}
+            {/* Customer Segmentation */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
@@ -324,7 +330,8 @@ const CRMPage = () => {
                   <div className="w-full overflow-hidden">
                     <ChartContainer 
                       config={chartConfig} 
-                      className={`w-full ${isMobile ? 'h-[200px]' : 'h-[250px] lg:h-[300px]'}`}
+                      className="w-full"
+                      style={{ height: getPieChartHeight() }}
                     >
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -332,7 +339,7 @@ const CRMPage = () => {
                             data={customerSegmentation}
                             cx="50%"
                             cy="50%"
-                            outerRadius={isMobile ? "60%" : "70%"}
+                            outerRadius={isMobile ? "45%" : "60%"}
                             fill="#8884d8"
                             dataKey="value"
                             labelLine={false}
@@ -346,9 +353,9 @@ const CRMPage = () => {
                           />
                           <Legend 
                             verticalAlign="bottom"
-                            height={36}
+                            height={isMobile ? 20 : 36}
                             wrapperStyle={{ fontSize: getLegendFontSize() }}
-                            iconSize={isMobile ? 10 : 18}
+                            iconSize={isMobile ? 8 : 18}
                           />
                         </PieChart>
                       </ResponsiveContainer>
@@ -489,7 +496,8 @@ const CRMPage = () => {
                 <div className="w-full overflow-hidden">
                   <ChartContainer 
                     config={chartConfig} 
-                    className={`w-full ${isMobile ? 'h-[200px]' : 'h-[250px] lg:h-[300px]'}`}
+                    className="w-full"
+                    style={{ height: getChartHeight() }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart 
@@ -502,7 +510,7 @@ const CRMPage = () => {
                           tick={{ fontSize: getTickFontSize() }}
                           angle={isMobile ? -45 : 0}
                           textAnchor={isMobile ? 'end' : 'middle'}
-                          height={isMobile ? 50 : 30}
+                          height={isMobile ? 40 : 30}
                         />
                         <YAxis 
                           tick={{ fontSize: getTickFontSize() }}
