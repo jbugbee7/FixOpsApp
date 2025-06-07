@@ -20,6 +20,18 @@ interface CRMAnalyticsChartsProps {
 }
 
 const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
+  // Move getStatusColor function before useMemo to fix initialization error
+  const getStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      Completed: '#10B981',
+      'In Progress': '#3B82F6',
+      Scheduled: '#F59E0B',
+      Cancelled: '#EF4444',
+      'On Hold': '#6B7280',
+    };
+    return colors[status] || '#94A3B8';
+  };
+
   const chartData = useMemo(() => {
     if (!casesData || !Array.isArray(casesData) || casesData.length === 0) {
       return {
@@ -89,17 +101,6 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
       applianceChartData,
     };
   }, [casesData]);
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      Completed: '#10B981',
-      'In Progress': '#3B82F6',
-      Scheduled: '#F59E0B',
-      Cancelled: '#EF4444',
-      'On Hold': '#6B7280',
-    };
-    return colors[status] || '#94A3B8';
-  };
 
   const chartConfig = {
     revenue: { label: 'Revenue', color: '#8B5CF6' },
