@@ -106,6 +106,31 @@ const CRMPage = () => {
     },
   };
 
+  // Custom responsive label for pie chart
+  const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, value, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    // Only show labels on larger screens
+    if (window.innerWidth < 640) return null;
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        fontSize={12}
+        fontWeight="bold"
+      >
+        {`${name}: ${value}%`}
+      </text>
+    );
+  };
+
   // Filter customers based on search and filters
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -225,32 +250,45 @@ const CRMPage = () => {
 
           {/* Charts Section */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {/* Revenue & Customer Growth Chart - Fixed for responsiveness */}
+            {/* Revenue & Customer Growth Chart */}
             <Card className="col-span-1 xl:col-span-2">
               <CardHeader>
                 <CardTitle>Revenue & Customer Growth</CardTitle>
                 <CardDescription>Monthly revenue and customer acquisition trends</CardDescription>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[350px] w-full">
+                <ChartContainer config={chartConfig} className="h-[300px] sm:h-[400px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <ComposedChart data={monthlyRevenue} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <ComposedChart 
+                      data={monthlyRevenue} 
+                      margin={{ 
+                        top: 20, 
+                        right: window.innerWidth < 640 ? 10 : 30, 
+                        left: window.innerWidth < 640 ? 10 : 20, 
+                        bottom: 20 
+                      }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                       <XAxis 
                         dataKey="month" 
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
                         interval={0}
+                        angle={window.innerWidth < 640 ? -45 : 0}
+                        textAnchor={window.innerWidth < 640 ? 'end' : 'middle'}
+                        height={window.innerWidth < 640 ? 60 : 30}
                       />
                       <YAxis 
                         yAxisId="revenue"
                         orientation="left"
-                        tick={{ fontSize: 12 }}
-                        tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                        tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
+                        tickFormatter={(value) => window.innerWidth < 640 ? `$${(value / 1000).toFixed(0)}k` : `$${(value / 1000).toFixed(0)}k`}
+                        width={window.innerWidth < 640 ? 40 : 60}
                       />
                       <YAxis 
                         yAxisId="customers"
                         orientation="right"
-                        tick={{ fontSize: 12 }}
+                        tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
+                        width={window.innerWidth < 640 ? 30 : 40}
                       />
                       <ChartTooltip 
                         content={<ChartTooltipContent />}
@@ -259,7 +297,10 @@ const CRMPage = () => {
                           name === 'revenue' ? 'Revenue' : 'New Customers'
                         ]}
                       />
-                      <Legend />
+                      <Legend 
+                        wrapperStyle={{ fontSize: window.innerWidth < 640 ? '12px' : '14px' }}
+                        iconSize={window.innerWidth < 640 ? 12 : 18}
+                      />
                       <Bar 
                         yAxisId="revenue"
                         dataKey="revenue" 
@@ -272,9 +313,9 @@ const CRMPage = () => {
                         type="monotone" 
                         dataKey="customers" 
                         stroke="#06B6D4" 
-                        strokeWidth={3}
+                        strokeWidth={window.innerWidth < 640 ? 2 : 3}
                         name="New Customers"
-                        dot={{ fill: '#06B6D4', strokeWidth: 2, r: 4 }}
+                        dot={{ fill: '#06B6D4', strokeWidth: 2, r: window.innerWidth < 640 ? 3 : 4 }}
                       />
                     </ComposedChart>
                   </ResponsiveContainer>
@@ -296,16 +337,25 @@ const CRMPage = () => {
                         data={customerSegmentation}
                         cx="50%"
                         cy="50%"
-                        outerRadius="80%"
+                        outerRadius={window.innerWidth < 640 ? "70%" : "80%"}
                         fill="#8884d8"
                         dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}%`}
+                        labelLine={false}
+                        label={window.innerWidth >= 640 ? renderPieLabel : false}
                       >
                         {customerSegmentation.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <ChartTooltip />
+                      <ChartTooltip 
+                        formatter={(value, name) => [`${value}%`, name]}
+                      />
+                      <Legend 
+                        verticalAlign="bottom"
+                        height={36}
+                        wrapperStyle={{ fontSize: window.innerWidth < 640 ? '12px' : '14px' }}
+                        iconSize={window.innerWidth < 640 ? 12 : 18}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -440,12 +490,29 @@ const CRMPage = () => {
                 <CardDescription>New customers over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <ChartContainer config={chartConfig} className="h-[250px]">
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyRevenue}>
+                    <BarChart 
+                      data={monthlyRevenue}
+                      margin={{ 
+                        top: 20, 
+                        right: window.innerWidth < 640 ? 10 : 30, 
+                        left: window.innerWidth < 640 ? 10 : 20, 
+                        bottom: 20 
+                      }}
+                    >
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
+                      <XAxis 
+                        dataKey="month"
+                        tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
+                        angle={window.innerWidth < 640 ? -45 : 0}
+                        textAnchor={window.innerWidth < 640 ? 'end' : 'middle'}
+                        height={window.innerWidth < 640 ? 60 : 30}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: window.innerWidth < 640 ? 10 : 12 }}
+                        width={window.innerWidth < 640 ? 30 : 40}
+                      />
                       <ChartTooltip content={<ChartTooltipContent />} />
                       <Bar dataKey="customers" fill="#06B6D4" radius={[4, 4, 0, 0]} />
                     </BarChart>
