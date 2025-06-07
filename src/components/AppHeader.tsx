@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { LogOut, User, Wrench, Home, Wifi, WifiOff } from 'lucide-react';
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AppHeaderProps {
@@ -20,8 +21,9 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
     <header className="bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 shadow-lg border-b border-slate-200 dark:border-slate-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left side - Home Button */}
-          <div className="flex items-center">
+          {/* Left side - Sidebar trigger and Home Button */}
+          <div className="flex items-center gap-2">
+            <SidebarTrigger className="h-8 w-8 md:hidden" />
             <Button 
               onClick={onHomeClick} 
               variant="ghost" 

@@ -1,11 +1,11 @@
 
-import { Tabs } from "@/components/ui/tabs";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import CaseDetails from '@/components/CaseDetails';
 import ModelDetails from '@/components/ModelDetails';
 import PartDetails from '@/components/PartDetails';
 import AppHeader from '@/components/AppHeader';
-import BottomNavigation from '@/components/BottomNavigation';
-import TabContent from '@/components/dashboard/TabContent';
+import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
+import DashboardContent from '@/components/dashboard/DashboardContent';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IndexPageProps } from '@/types/indexPage';
 
@@ -121,33 +121,36 @@ const IndexPage = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
-      <AppHeader 
-        isOnline={isOnline} 
-        onHomeClick={handleHomeClick} 
-        onSignOut={handleSignOut} 
-      />
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex-1 px-1 sm:px-0">
-          <TabContent
-            isOnline={isOnline}
-            hasOfflineData={hasOfflineData}
-            cases={cases}
-            loading={casesLoading}
-            isResyncing={isResyncing}
-            displayName={displayName}
-            onNavigate={handleEnhancedNavigate}
-            onModelFound={handleModelFound}
-            onPartFound={handlePartFound}
-            onCaseClick={handleCaseClick}
-            onResync={handleResyncWrapper}
+    <SidebarProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex w-full">
+        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        <div className="flex-1 flex flex-col min-w-0">
+          <AppHeader 
+            isOnline={isOnline} 
+            onHomeClick={handleHomeClick} 
+            onSignOut={handleSignOut} 
           />
-        </div>
 
-        <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      </Tabs>
-    </div>
+          <div className="flex-1">
+            <DashboardContent
+              activeTab={activeTab}
+              isOnline={isOnline}
+              hasOfflineData={hasOfflineData}
+              cases={cases}
+              loading={casesLoading}
+              isResyncing={isResyncing}
+              displayName={displayName}
+              onNavigate={handleEnhancedNavigate}
+              onModelFound={handleModelFound}
+              onPartFound={handlePartFound}
+              onCaseClick={handleCaseClick}
+              onResync={handleResyncWrapper}
+            />
+          </div>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
