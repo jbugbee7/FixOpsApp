@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import CustomerHealthDashboard from './CustomerHealthDashboard';
 interface ScoringRule {
   id: string;
   name: string;
-  description?: string;
+  description?: string; // Made optional since it doesn't exist in the database
   criteria_type: string;
   criteria_value: any;
   score_points: number;
@@ -240,9 +239,11 @@ const LeadScoring = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base">{rule.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {rule.description}
-                      </p>
+                      {rule.description && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {rule.description}
+                        </p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={rule.is_active ? "default" : "secondary"}>

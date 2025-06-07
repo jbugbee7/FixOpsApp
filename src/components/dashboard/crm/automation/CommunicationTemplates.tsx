@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Mail, MessageSquare, Edit, Trash2, Eye, Send } from 'lucide-react';
+import { Plus, Mail, MessageSquare, Edit, Trash2, Eye, Send, Pause } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import CreateEmailTemplateDialog from './CreateEmailTemplateDialog';
