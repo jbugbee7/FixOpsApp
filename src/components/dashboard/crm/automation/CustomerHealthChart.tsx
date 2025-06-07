@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface CustomerHealthChartProps {
   healthMetrics: Array<{
@@ -42,6 +43,17 @@ const CustomerHealthChart = ({ healthMetrics }: CustomerHealthChartProps) => {
 
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#d084d0'];
 
+  const chartConfig = {
+    count: {
+      label: "Count",
+      color: "#8884d8",
+    },
+    factor: {
+      label: "Risk Factor",
+      color: "#82ca9d",
+    },
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
       <Card>
@@ -49,15 +61,17 @@ const CustomerHealthChart = ({ healthMetrics }: CustomerHealthChartProps) => {
           <CardTitle className="text-base">Health Score Distribution</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={healthDistribution}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
+          <ChartContainer config={chartConfig} className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={healthDistribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="range" />
+                <YAxis />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="count" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </CardContent>
       </Card>
 
@@ -66,25 +80,27 @@ const CustomerHealthChart = ({ healthMetrics }: CustomerHealthChartProps) => {
           <CardTitle className="text-base">Top Risk Factors</CardTitle>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={riskFactorsChart}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ factor, percent }) => `${factor} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="count"
-              >
-                {riskFactorsChart.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <ChartContainer config={chartConfig} className="h-[250px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={riskFactorsChart}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ factor, percent }) => `${factor} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="count"
+                >
+                  {riskFactorsChart.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <ChartTooltip content={<ChartTooltipContent />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </CardContent>
       </Card>
     </div>
