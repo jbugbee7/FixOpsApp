@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,11 +8,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from 'recharts';
 import { Calculator, Receipt, TrendingUp, DollarSign, Calendar, FileText, Plus, Search, Filter, Download, Eye, Edit, Trash2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AccountingPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const isMobile = useIsMobile();
 
   // Mock financial data
   const invoices = [
@@ -119,6 +120,21 @@ const AccountingPage = () => {
     },
   };
 
+  // Mobile-first chart configuration
+  const getChartHeight = () => isMobile ? '200px' : '300px';
+  const getPieChartHeight = () => isMobile ? '180px' : '250px';
+
+  const getChartMargins = () => ({
+    top: isMobile ? 10 : 20,
+    right: isMobile ? 5 : 30,
+    left: isMobile ? 0 : 20,
+    bottom: isMobile ? 30 : 20
+  });
+
+  const getTickFontSize = () => isMobile ? 8 : 12;
+  const getLegendFontSize = () => isMobile ? 8 : 12;
+  const getAxisWidth = () => isMobile ? 20 : 60;
+
   // Filter invoices
   const filteredInvoices = invoices.filter(invoice => {
     const matchesSearch = invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -144,48 +160,48 @@ const AccountingPage = () => {
   const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
+    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
             Accounting & Finance
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2">
+          <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
             Comprehensive financial management and reporting
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Export Report
           </Button>
-          <Button className="bg-purple-600 hover:bg-purple-700">
+          <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
             <Plus className="h-4 w-4 mr-2" />
             New Invoice
           </Button>
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="invoices">Invoices</TabsTrigger>
-          <TabsTrigger value="expenses">Expenses</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+      <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+          <TabsTrigger value="invoices" className="text-xs sm:text-sm">Invoices</TabsTrigger>
+          <TabsTrigger value="expenses" className="text-xs sm:text-sm">Expenses</TabsTrigger>
+          <TabsTrigger value="reports" className="text-xs sm:text-sm">Reports</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-4 sm:space-y-6">
           {/* Key Financial Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Total Revenue</CardTitle>
+                <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-green-600">+18.2%</span> from last month
                 </p>
@@ -194,11 +210,11 @@ const AccountingPage = () => {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Outstanding</CardTitle>
-                <Receipt className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Outstanding</CardTitle>
+                <Receipt className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold">
                   ${pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0).toLocaleString()}
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -209,11 +225,11 @@ const AccountingPage = () => {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Total Expenses</CardTitle>
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${totalExpenses.toLocaleString()}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold">${totalExpenses.toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-red-600">+5.1%</span> from last month
                 </p>
@@ -222,11 +238,11 @@ const AccountingPage = () => {
             
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-                <Calculator className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-xs sm:text-sm font-medium">Net Profit</CardTitle>
+                <Calculator className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(totalRevenue - totalExpenses).toLocaleString()}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold">${(totalRevenue - totalExpenses).toLocaleString()}</div>
                 <p className="text-xs text-muted-foreground">
                   <span className="text-green-600">+22.4%</span> from last month
                 </p>
@@ -237,54 +253,109 @@ const AccountingPage = () => {
           {/* Revenue vs Expenses Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Revenue & Expenses Trend</CardTitle>
-              <CardDescription>Monthly financial performance overview</CardDescription>
+              <CardTitle className="text-base sm:text-lg">Revenue & Expenses Trend</CardTitle>
+              <CardDescription className="text-sm">Monthly financial performance overview</CardDescription>
             </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyRevenue}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Legend />
-                    <Line type="monotone" dataKey="revenue" stroke="#8B5CF6" strokeWidth={3} name="Revenue" />
-                    <Line type="monotone" dataKey="expenses" stroke="#EF4444" strokeWidth={3} name="Expenses" />
-                    <Line type="monotone" dataKey="profit" stroke="#10B981" strokeWidth={3} name="Profit" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </ChartContainer>
+            <CardContent className="p-2 sm:p-6">
+              <div className="w-full overflow-hidden">
+                <ChartContainer 
+                  config={chartConfig} 
+                  className="w-full"
+                  style={{ height: getChartHeight() }}
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart 
+                      data={monthlyRevenue}
+                      margin={getChartMargins()}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                      <XAxis 
+                        dataKey="month" 
+                        tick={{ fontSize: getTickFontSize() }}
+                        interval={0}
+                        angle={isMobile ? -45 : 0}
+                        textAnchor={isMobile ? 'end' : 'middle'}
+                        height={isMobile ? 40 : 30}
+                      />
+                      <YAxis 
+                        tick={{ fontSize: getTickFontSize() }}
+                        width={getAxisWidth()}
+                      />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      {!isMobile && (
+                        <Legend 
+                          wrapperStyle={{ fontSize: getLegendFontSize() }}
+                          iconSize={12}
+                        />
+                      )}
+                      <Line 
+                        type="monotone" 
+                        dataKey="revenue" 
+                        stroke="#8B5CF6" 
+                        strokeWidth={isMobile ? 2 : 3} 
+                        name="Revenue"
+                        dot={{ fill: '#8B5CF6', strokeWidth: 1, r: isMobile ? 2 : 4 }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="expenses" 
+                        stroke="#EF4444" 
+                        strokeWidth={isMobile ? 2 : 3} 
+                        name="Expenses"
+                        dot={{ fill: '#EF4444', strokeWidth: 1, r: isMobile ? 2 : 4 }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="profit" 
+                        stroke="#10B981" 
+                        strokeWidth={isMobile ? 2 : 3} 
+                        name="Profit"
+                        dot={{ fill: '#10B981', strokeWidth: 1, r: isMobile ? 2 : 4 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </div>
             </CardContent>
           </Card>
 
           {/* Expense Categories */}
           <Card>
             <CardHeader>
-              <CardTitle>Expense Categories</CardTitle>
-              <CardDescription>Breakdown of monthly expenses by category</CardDescription>
+              <CardTitle className="text-base sm:text-lg">Expense Categories</CardTitle>
+              <CardDescription className="text-sm">Breakdown of monthly expenses by category</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={expenseCategories}
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, value }) => `${name}: ${value}%`}
-                      >
-                        {expenseCategories.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <ChartTooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+            <CardContent className="p-2 sm:p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div className="w-full overflow-hidden">
+                  <div style={{ height: getPieChartHeight() }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={expenseCategories}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={isMobile ? "45%" : "60%"}
+                          fill="#8884d8"
+                          dataKey="value"
+                          labelLine={false}
+                        >
+                          {expenseCategories.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip 
+                          formatter={(value, name) => [`${value}%`, name]}
+                        />
+                        <Legend 
+                          verticalAlign="bottom"
+                          height={isMobile ? 20 : 36}
+                          wrapperStyle={{ fontSize: getLegendFontSize() }}
+                          iconSize={isMobile ? 8 : 18}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
                 <div className="space-y-4">
                   {expenseCategories.map((category) => (
@@ -486,51 +557,88 @@ const AccountingPage = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>Monthly Revenue Trend</CardTitle>
-                <CardDescription>Revenue growth over time</CardDescription>
+                <CardTitle className="text-base sm:text-lg">Monthly Revenue Trend</CardTitle>
+                <CardDescription className="text-sm">Revenue growth over time</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={monthlyRevenue}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Bar dataKey="revenue" fill="#8B5CF6" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
+              <CardContent className="p-2 sm:p-6">
+                <div className="w-full overflow-hidden">
+                  <ChartContainer 
+                    config={chartConfig} 
+                    className="w-full"
+                    style={{ height: getChartHeight() }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart 
+                        data={monthlyRevenue}
+                        margin={getChartMargins()}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="month" 
+                          tick={{ fontSize: getTickFontSize() }}
+                          angle={isMobile ? -45 : 0}
+                          textAnchor={isMobile ? 'end' : 'middle'}
+                          height={isMobile ? 40 : 30}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: getTickFontSize() }}
+                          width={getAxisWidth()}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="revenue" fill="#8B5CF6" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Profit Margin Analysis</CardTitle>
-                <CardDescription>Monthly profit margins</CardDescription>
+                <CardTitle className="text-base sm:text-lg">Profit Margin Analysis</CardTitle>
+                <CardDescription className="text-sm">Monthly profit margins</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ChartContainer config={chartConfig} className="h-[250px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={monthlyRevenue}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <ChartTooltip content={<ChartTooltipContent />} />
-                      <Line 
-                        type="monotone" 
-                        dataKey="profit" 
-                        stroke="#10B981" 
-                        strokeWidth={3}
-                        name="Profit"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </ChartContainer>
+              <CardContent className="p-2 sm:p-6">
+                <div className="w-full overflow-hidden">
+                  <ChartContainer 
+                    config={chartConfig} 
+                    className="w-full"
+                    style={{ height: getChartHeight() }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart 
+                        data={monthlyRevenue}
+                        margin={getChartMargins()}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="month" 
+                          tick={{ fontSize: getTickFontSize() }}
+                          angle={isMobile ? -45 : 0}
+                          textAnchor={isMobile ? 'end' : 'middle'}
+                          height={isMobile ? 40 : 30}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: getTickFontSize() }}
+                          width={getAxisWidth()}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line 
+                          type="monotone" 
+                          dataKey="profit" 
+                          stroke="#10B981" 
+                          strokeWidth={isMobile ? 2 : 3}
+                          name="Profit"
+                          dot={{ fill: '#10B981', strokeWidth: 1, r: isMobile ? 2 : 4 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </div>
               </CardContent>
             </Card>
           </div>
