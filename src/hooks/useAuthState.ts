@@ -22,7 +22,7 @@ export const useAuthState = () => {
       setUserProfile(profile);
     } catch (error: any) {
       console.error('Error fetching user profile:', error);
-      setError(error.message || 'Failed to fetch user profile.');
+      // Don't set this as a blocking error since profile loading is secondary
     }
   };
 
@@ -31,20 +31,21 @@ export const useAuthState = () => {
     
     setSession(session);
     setUser(session?.user || null);
+    setError(null); // Clear any previous errors
 
     if (session?.user) {
+      console.log('User authenticated, loading profile...');
       // Load profile in background, don't block auth state
       setTimeout(() => {
         loadProfile(session.user.id);
       }, 0);
     } else {
+      console.log('No user session, clearing profile');
       setUserProfile(null);
     }
 
     // Mark as fully loaded after auth state is processed
-    if (!loading) {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -59,17 +60,9 @@ export const useAuthState = () => {
         // Set up auth listener first
         const { data: { subscription } } = supabase.auth.onAuthStateChange(handleAuthChange);
 
-        // Then get current session with timeout
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Session timeout')), 5000)
-        );
-
+        // Then get current session
         try {
-          const { data: { session }, error: sessionError } = await Promise.race([
-            sessionPromise,
-            timeoutPromise
-          ]) as any;
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
           if (sessionError) {
             console.error('Session error:', sessionError);
@@ -80,14 +73,16 @@ export const useAuthState = () => {
             setUser(session?.user || null);
 
             if (session?.user) {
+              console.log('Initial session found, loading profile...');
               // Load profile without blocking
               setTimeout(() => {
                 loadProfile(session.user.id);
               }, 0);
             }
           }
-        } catch (timeoutError) {
-          console.warn('Session fetch timed out, continuing without session');
+        } catch (sessionError: any) {
+          console.error('Failed to get session:', sessionError);
+          setError('Failed to initialize authentication');
           setSession(null);
           setUser(null);
         }
@@ -96,6 +91,7 @@ export const useAuthState = () => {
         setLoading(false);
 
         return () => {
+          console.log('Cleaning up auth subscription');
           subscription.unsubscribe();
         };
       } catch (err: any) {

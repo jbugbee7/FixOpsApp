@@ -49,12 +49,17 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
         return;
       }
 
-      if (data.user) {
+      if (data.user && data.session) {
         console.log('Sign in successful for user:', data.user.email);
+        console.log('Session established:', data.session.access_token ? 'Yes' : 'No');
+        
         // Small delay to ensure auth state is updated
         setTimeout(() => {
           navigate('/', { replace: true });
         }, 100);
+      } else {
+        console.error('Sign in succeeded but no user or session returned');
+        setError('Authentication failed. Please try again.');
       }
     } catch (err) {
       console.error('Unexpected error during sign in:', err);
