@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from "@/components/ui/button";
@@ -19,8 +19,9 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  const handleSignIn = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!email || !password) {
       setError('Please fill in all fields');
       return;
@@ -51,12 +52,7 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
 
       if (data.user && data.session) {
         console.log('Sign in successful for user:', data.user.email);
-        console.log('Session established:', data.session.access_token ? 'Yes' : 'No');
-        
-        // Small delay to ensure auth state is updated
-        setTimeout(() => {
-          navigate('/', { replace: true });
-        }, 100);
+        navigate('/', { replace: true });
       } else {
         console.error('Sign in succeeded but no user or session returned');
         setError('Authentication failed. Please try again.');
@@ -67,7 +63,7 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [email, password, setError, navigate]);
 
   return (
     <>

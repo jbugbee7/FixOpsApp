@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,26 +19,38 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password || !fullName || !companyName) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
+      console.log('Creating user account and company:', { email, fullName, companyName });
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-          }
+            company_name: companyName,
+          },
+          emailRedirectTo: `${window.location.origin}/auth?verified=true`
         }
       });
 
       if (error) {
+        console.error('Sign up error:', error);
         setError(error.message);
         toast({
           title: "Sign Up Failed",
@@ -46,10 +58,13 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
           variant: "destructive",
         });
       } else if (data.user) {
+        console.log('Sign up successful, verification email sent');
+        
         // Clear form
         setEmail('');
         setPassword('');
         setFullName('');
+        setCompanyName('');
         
         // Show verification message and switch to sign in tab
         setShowVerificationMessage(true);
@@ -61,6 +76,7 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
         });
       }
     } catch (err) {
+      console.error('Unexpected error during sign up:', err);
       setError('An unexpected error occurred');
       toast({
         title: "Error",
@@ -70,13 +86,13 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, password, fullName, companyName, setError, setShowVerificationMessage, setActiveTab, toast]);
 
   return (
     <div className="space-y-4">
       <form onSubmit={handleSignUp} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="signup-name">Full Name</Label>
+          <Label htmlFor="signup-name">Full Name *</Label>
           <Input
             id="signup-name"
             type="text"
@@ -87,8 +103,22 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
             disabled={loading}
           />
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="signup-email">Email</Label>
+          <Label htmlFor="company-name">Company Name *</Label>
+          <Input
+            id="company-name"
+            type="text"
+            placeholder="Enter your company name"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="signup-email">Email *</Label>
           <Input
             id="signup-email"
             type="email"
@@ -99,12 +129,13 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
             disabled={loading}
           />
         </div>
+        
         <div className="space-y-2">
-          <Label htmlFor="signup-password">Password</Label>
+          <Label htmlFor="signup-password">Password *</Label>
           <Input
             id="signup-password"
             type="password"
-            placeholder="Choose a password"
+            placeholder="Choose a password (minimum 6 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -119,8 +150,9 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
             <span className="text-sm">{error}</span>
           </div>
         )}
+        
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account..." : "Sign Up"}
+          {loading ? "Creating account..." : "Create Account"}
         </Button>
       </form>
 

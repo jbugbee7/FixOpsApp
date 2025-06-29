@@ -11,7 +11,7 @@ const Agreement = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleSubmit = async () => {
     if (!user) {
@@ -53,12 +53,13 @@ const Agreement = () => {
 
       console.log('Agreements saved successfully');
       toast({
-        title: "Welcome to FixOps!",
-        description: "Your agreements have been saved. Redirecting to dashboard...",
+        title: "Agreements Accepted!",
+        description: "Thank you for accepting our terms. You will now be redirected to sign in.",
       });
 
-      // Navigate immediately to prevent multiple submissions
-      navigate('/', { replace: true });
+      // Sign out the user and redirect to auth page for a fresh login
+      await signOut();
+      navigate('/auth', { replace: true });
     } catch (err) {
       console.error('Unexpected error saving agreements:', err);
       toast({

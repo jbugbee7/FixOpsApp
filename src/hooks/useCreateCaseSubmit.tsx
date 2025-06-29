@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useCompany } from "@/hooks/useCompany";
 
 interface FormData {
   customerName: string;
@@ -28,6 +29,8 @@ interface FormData {
 }
 
 export const useCreateCaseSubmit = () => {
+  const { company } = useCompany();
+
   const saveApplianceModel = async (user: any, formData: FormData) => {
     if (!user || !formData.applianceBrand || !formData.applianceModel || !formData.applianceType) {
       return;
@@ -41,7 +44,8 @@ export const useCreateCaseSubmit = () => {
           model: formData.applianceModel,
           appliance_type: formData.applianceType,
           serial_number: formData.serialNumber || null,
-          user_id: user.id
+          user_id: user.id,
+          company_id: company?.id || null
         }, {
           onConflict: 'brand,model,serial_number'
         });
@@ -72,7 +76,8 @@ export const useCreateCaseSubmit = () => {
             appliance_brand: formData.applianceBrand || null,
             appliance_model: formData.applianceModel || null,
             appliance_type: formData.applianceType || null,
-            user_id: user.id
+            user_id: user.id,
+            company_id: company?.id || null
           }, {
             onConflict: 'part_number,appliance_brand,appliance_model'
           });
@@ -103,6 +108,15 @@ export const useCreateCaseSubmit = () => {
       return;
     }
 
+    if (!company?.id) {
+      toast({
+        title: "Company Setup Required",
+        description: "Please complete company setup before creating work orders.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
       toast({
         title: "Required Fields Missing",
@@ -115,6 +129,8 @@ export const useCreateCaseSubmit = () => {
     setIsSubmitting(true);
 
     try {
+      console.log('Creating work order with company_id:', company.id);
+      
       await Promise.all([
         saveApplianceModel(user, formData),
         savePartsData(user, parts, formData)
@@ -124,6 +140,7 @@ export const useCreateCaseSubmit = () => {
         .from('cases')
         .insert({
           user_id: user.id,
+          company_id: company.id,
           customer_name: customerName,
           customer_phone: formData.customerPhone,
           customer_email: formData.customerEmail,
@@ -156,7 +173,7 @@ export const useCreateCaseSubmit = () => {
         console.error('Error creating work order:', error);
         toast({
           title: "Error Creating Work Order",
-          description: "There was an error creating the work order. Please try again.",
+          description: error.message || "There was an error creating the work order. Please try again.",
           variant: "destructive"
         });
         return;
