@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -76,7 +75,7 @@ export const useRealTimeDashboardData = () => {
         .from('invoices')
         .select('total_amount')
         .gte('created_at', firstDayOfPreviousMonth.toISOString())
-        .lt('created_at', firstDayOfMount.toISOString());
+        .lt('created_at', firstDayOfMonth.toISOString());
 
       const previousRevenue = previousInvoices?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
       const monthlyGrowth = previousRevenue > 0 ? ((monthlyRevenue - previousRevenue) / previousRevenue) * 100 : 0;

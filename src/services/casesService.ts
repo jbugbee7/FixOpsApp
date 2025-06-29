@@ -12,14 +12,14 @@ export interface CasesServiceResult {
 }
 
 export const fetchAllCases = async (): Promise<CasesServiceResult> => {
-  console.log('Fetching ALL cases for cross-user visibility');
+  console.log('Fetching cases for current user company');
   
   const { data: cases, error } = await supabase
     .from('cases')
     .select('*')
     .order('created_at', { ascending: false });
 
-  console.log('=== ALL CASES FETCH RESULT ===');
+  console.log('=== COMPANY CASES FETCH RESULT ===');
   console.log('Cases data:', cases);
   console.log('Cases error:', error);
   console.log('Cases count:', cases?.length || 0);
@@ -40,7 +40,7 @@ export const fetchAllCases = async (): Promise<CasesServiceResult> => {
     };
   }
 
-  console.log('All cases fetch successful - cross-user visibility enabled');
+  console.log('Company cases fetch successful - data isolated by RLS');
   return {
     cases: cases || [],
     error: null
@@ -48,7 +48,7 @@ export const fetchAllCases = async (): Promise<CasesServiceResult> => {
 };
 
 export const fetchUserCases = async (userId: string): Promise<CasesServiceResult> => {
-  console.log('Fetching cases for specific user:', userId);
+  console.log('Fetching cases for specific user within company:', userId);
   
   const { data: cases, error } = await supabase
     .from('cases')
