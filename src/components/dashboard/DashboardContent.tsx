@@ -7,6 +7,7 @@ import SettingsPage from '@/components/SettingsPage';
 import CRMPage from './CRMPage';
 import AccountingPage from './AccountingPage';
 import InventoryPage from './InventoryPage';
+import ModernCaseForm from '@/components/forms/ModernCaseForm';
 import { Case } from '@/types/case';
 
 interface DashboardContentProps {
@@ -58,6 +59,8 @@ const DashboardContent = ({
             onResync={onResync}
           />
         );
+      case 'add-case':
+        return <ModernCaseForm />;
       case 'fixchat':
         return <FixChatPage />;
       case 'ai-assistant':
