@@ -98,10 +98,10 @@ serve(async (req) => {
 
 async function gatherDatabaseContext(supabase: any): Promise<DatabaseContext> {
   try {
-    // Get recent cases for context
+    // Get recent cases for context (excluding customer information)
     const { data: recentCases } = await supabase
       .from('cases')
-      .select('*')
+      .select('id, appliance_brand, appliance_type, appliance_model, serial_number, warranty_status, service_type, problem_description, initial_diagnosis, parts_needed, estimated_time, labor_cost, parts_cost, status, technician_notes, wo_number, created_at')
       .order('created_at', { ascending: false })
       .limit(10);
 

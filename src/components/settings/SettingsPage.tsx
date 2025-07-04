@@ -2,15 +2,17 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileTab from './ProfileTab';
 import AccountTab from './AccountTab';
+import CompanyTab from './CompanyTab';
 import AppearanceTab from './AppearanceTab';
 
 const SettingsPage = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsTrigger value="company">Company</TabsTrigger>
           <TabsTrigger value="appearance">Appearance</TabsTrigger>
         </TabsList>
         
@@ -20,6 +22,10 @@ const SettingsPage = () => {
         
         <TabsContent value="account" className="space-y-6">
           <AccountTab />
+        </TabsContent>
+        
+        <TabsContent value="company" className="space-y-6">
+          <CompanyTab />
         </TabsContent>
         
         <TabsContent value="appearance" className="space-y-6">

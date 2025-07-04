@@ -6,12 +6,14 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { TrendingUp, DollarSign, Users, Wrench, Clock, CheckCircle, AlertTriangle, Calendar, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRealTimeDashboardData } from '@/hooks/useRealTimeDashboardData';
+import { useCompany } from '@/hooks/useCompany';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const NewDashboardPage = () => {
   const isMobile = useIsMobile();
   const { metrics, monthlyData, serviceCategories, loading, error } = useRealTimeDashboardData();
+  const { company } = useCompany();
 
   const chartConfig = {
     workOrders: {
@@ -101,7 +103,7 @@ const NewDashboardPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
-            Business Dashboard
+            {company?.name ? `${company.name} Dashboard` : 'Business Dashboard'}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
             Real-time business analytics and performance metrics
