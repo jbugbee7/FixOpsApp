@@ -43,6 +43,16 @@ const SimplifiedChatPage = () => {
     refetchConversations
   } = useSimplifiedChat();
 
+  // Auto-select General Discussion when conversations load
+  React.useEffect(() => {
+    if (conversations.length > 0 && !selectedConversation) {
+      const generalDiscussion = conversations.find(c => c.name === 'General Discussion');
+      if (generalDiscussion) {
+        setSelectedConversation(generalDiscussion.id);
+      }
+    }
+  }, [conversations, selectedConversation, setSelectedConversation]);
+
   const { cases } = useBasicCaseOperations(user, isOnline);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
