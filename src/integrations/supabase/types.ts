@@ -265,6 +265,70 @@ export type Database = {
         }
         Relationships: []
       }
+      checklist_completions: {
+        Row: {
+          case_id: string
+          checklist_id: string
+          completed_at: string | null
+          completed_items: Json | null
+          completion_percentage: number | null
+          created_at: string
+          id: string
+          notes: string | null
+          started_at: string | null
+          technician_id: string
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          checklist_id: string
+          completed_at?: string | null
+          completed_items?: Json | null
+          completion_percentage?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          technician_id: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          checklist_id?: string
+          completed_at?: string | null
+          completed_items?: Json | null
+          completion_percentage?: number | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          started_at?: string | null
+          technician_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_checklist_completions_case_id"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_checklist_completions_checklist_id"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "job_checklists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_checklist_completions_technician_id"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       communication_history: {
         Row: {
           content: string | null
@@ -1183,6 +1247,114 @@ export type Database = {
           },
         ]
       }
+      job_checklists: {
+        Row: {
+          appliance_type: string | null
+          checklist_items: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          service_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appliance_type?: string | null
+          checklist_items?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          service_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appliance_type?: string | null
+          checklist_items?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          service_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      job_schedules: {
+        Row: {
+          case_id: string
+          created_at: string
+          created_by: string
+          customer_confirmed: boolean | null
+          estimated_duration: number | null
+          id: string
+          notes: string | null
+          priority: string | null
+          scheduled_date: string
+          scheduled_end_time: string
+          scheduled_start_time: string
+          status: string | null
+          technician_id: string | null
+          travel_time_minutes: number | null
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          created_by: string
+          customer_confirmed?: boolean | null
+          estimated_duration?: number | null
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          scheduled_date: string
+          scheduled_end_time: string
+          scheduled_start_time: string
+          status?: string | null
+          technician_id?: string | null
+          travel_time_minutes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          created_by?: string
+          customer_confirmed?: boolean | null
+          estimated_duration?: number | null
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          scheduled_date?: string
+          scheduled_end_time?: string
+          scheduled_start_time?: string
+          status?: string | null
+          technician_id?: string | null
+          travel_time_minutes?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_job_schedules_case_id"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_job_schedules_technician_id"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_scoring_rules: {
         Row: {
           created_at: string
@@ -1538,6 +1710,98 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      route_optimizations: {
+        Row: {
+          created_at: string
+          id: string
+          optimization_date: string
+          optimized_route: Json
+          scheduled_jobs: Json
+          technician_id: string
+          total_distance_miles: number | null
+          total_travel_time_minutes: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          optimization_date: string
+          optimized_route?: Json
+          scheduled_jobs?: Json
+          technician_id: string
+          total_distance_miles?: number | null
+          total_travel_time_minutes?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          optimization_date?: string
+          optimized_route?: Json
+          scheduled_jobs?: Json
+          technician_id?: string
+          total_distance_miles?: number | null
+          total_travel_time_minutes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_route_optimizations_technician_id"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      technicians: {
+        Row: {
+          created_at: string
+          current_location_lat: number | null
+          current_location_lng: number | null
+          email: string | null
+          employee_id: string
+          full_name: string
+          id: string
+          is_active: boolean | null
+          location_updated_at: string | null
+          phone: string | null
+          specializations: string[] | null
+          updated_at: string
+          user_id: string
+          working_hours: Json | null
+        }
+        Insert: {
+          created_at?: string
+          current_location_lat?: number | null
+          current_location_lng?: number | null
+          email?: string | null
+          employee_id: string
+          full_name: string
+          id?: string
+          is_active?: boolean | null
+          location_updated_at?: string | null
+          phone?: string | null
+          specializations?: string[] | null
+          updated_at?: string
+          user_id: string
+          working_hours?: Json | null
+        }
+        Update: {
+          created_at?: string
+          current_location_lat?: number | null
+          current_location_lng?: number | null
+          email?: string | null
+          employee_id?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean | null
+          location_updated_at?: string | null
+          phone?: string | null
+          specializations?: string[] | null
+          updated_at?: string
+          user_id?: string
+          working_hours?: Json | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

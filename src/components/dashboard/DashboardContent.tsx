@@ -7,6 +7,7 @@ import SettingsPage from '@/components/SettingsPage';
 import CRMPage from './CRMPage';
 import AccountingPage from './AccountingPage';
 import InventoryPage from './InventoryPage';
+import SchedulingPage from './SchedulingPage';
 import ModernCaseForm from '@/components/forms/ModernCaseForm';
 import { Case } from '@/types/case';
 
@@ -73,6 +74,8 @@ const DashboardContent = ({
         return <InventoryPage />;
       case 'accounting':
         return <AccountingPage />;
+      case 'scheduling':
+        return <SchedulingPage />;
       case 'settings':
         return <SettingsPage />;
       default:
