@@ -195,7 +195,7 @@ export const useSchedulingData = () => {
     }
   };
 
-  const createChecklist = async (checklistData: Partial<JobChecklist>) => {
+  const createChecklist = async (checklistData: Omit<JobChecklist, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
       const { data, error } = await supabase
