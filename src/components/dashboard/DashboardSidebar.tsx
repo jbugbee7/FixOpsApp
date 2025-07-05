@@ -12,7 +12,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package } from 'lucide-react';
+import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package, Calendar } from 'lucide-react';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -59,6 +59,11 @@ const menuItems = [
     title: "Accounting",
     value: "accounting",
     icon: Calculator,
+  },
+  {
+    title: "Scheduling",
+    value: "scheduling",
+    icon: Calendar,
   },
   {
     title: "Settings",
