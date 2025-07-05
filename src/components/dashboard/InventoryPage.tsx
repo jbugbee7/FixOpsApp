@@ -6,7 +6,6 @@ import InventoryItems from './inventory/InventoryItems';
 import InventoryTransactions from './inventory/InventoryTransactions';
 import ReorderAlerts from './inventory/ReorderAlerts';
 import { useRealtimeInventoryData } from '@/hooks/useRealtimeInventoryData';
-import RealtimeConnectionStatus from './RealtimeConnectionStatus';
 
 const InventoryPage = () => {
   const { 
@@ -23,10 +22,7 @@ const InventoryPage = () => {
     <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       <div className="flex-shrink-0 border-b bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Inventory Management</h1>
-            <RealtimeConnectionStatus />
-          </div>
+          <h1 className="text-2xl font-bold">Inventory Management</h1>
         </div>
       </div>
       

@@ -5,7 +5,6 @@ import InvoicesTab from './accounting/InvoicesTab';
 import ExpensesTab from './accounting/ExpensesTab';
 import PaymentsTab from './accounting/PaymentsTab';
 import ReportsTab from './accounting/ReportsTab';
-import RealtimeConnectionStatus from './RealtimeConnectionStatus';
 import { useAccountingData } from '@/hooks/useAccountingData';
 
 const AccountingPage = () => {
@@ -15,10 +14,7 @@ const AccountingPage = () => {
     <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
       <div className="flex-shrink-0 border-b bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">Accounting & Finance</h1>
-            <RealtimeConnectionStatus />
-          </div>
+          <h1 className="text-2xl font-bold">Accounting & Finance</h1>
         </div>
       </div>
       
