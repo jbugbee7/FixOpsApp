@@ -7,7 +7,14 @@ const SupportTab = () => {
   const handleTextSupport = () => {
     const phoneNumber = '8283182617';
     const message = encodeURIComponent('Hi, I need support with my account.');
-    window.open(`sms:${phoneNumber}?body=${message}`, '_self');
+    
+    // Try SMS link first, fallback to tel: link if SMS doesn't work
+    try {
+      window.location.href = `sms:${phoneNumber}?body=${message}`;
+    } catch (error) {
+      // Fallback to tel: link if SMS protocol is not supported
+      window.location.href = `tel:${phoneNumber}`;
+    }
   };
 
   return (
