@@ -1,9 +1,9 @@
-
 import { useOfflineData } from './useOfflineData';
 import { useBasicCaseFetching } from './useBasicCaseFetching';
 import { useBasicCaseStatusUpdate } from './useBasicCaseStatusUpdate';
 import { useBasicResyncOperations } from './useBasicResyncOperations';
 import { useBasicRealtimeSubscription } from './useBasicRealtimeSubscription';
+import { Case } from '@/types/case';
 
 export const useBasicCaseOperations = (user: any, isOnline: boolean) => {
   console.log('useBasicCaseOperations initialized for user:', user?.id, 'online:', isOnline);
