@@ -1,6 +1,6 @@
 
 import { useEffect, useRef } from 'react';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 export const useBasicRealtimeSubscription = (user: any, isOnline: boolean, fetchCases: () => Promise<void>) => {
   const hasFetchedRef = useRef(false);

@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Message } from '@/types/chat';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 
 export const useAiChat = () => {

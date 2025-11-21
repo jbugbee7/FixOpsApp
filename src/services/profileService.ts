@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { UserProfile } from '@/types/auth';
 
 export const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
