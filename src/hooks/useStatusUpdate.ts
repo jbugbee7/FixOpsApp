@@ -1,5 +1,5 @@
 export const useStatusUpdate = () => {
-  const handleStatusUpdate = async (caseId: string, newStatus: string) => {};
+  const handleStatusUpdate = async (caseObj: any, newStatus: string) => {};
   const handleSPTComplete = async (caseId: string, newStatus: string, resolution: string) => {};
   
   return {
