@@ -104,8 +104,7 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
       const { error } = await supabase
         .from('cases')
         .update({ status: newStatus })
-        .eq('id', caseId)
-        .eq('user_id', user.id);
+        .eq('id', caseId);
 
       if (error) throw error;
 
