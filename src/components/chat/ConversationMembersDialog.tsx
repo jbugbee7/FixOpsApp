@@ -37,12 +37,39 @@ const ConversationMembersDialog = ({
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase
-        .rpc('get_conversation_members', { conversation_id: conversationId });
+      // Get conversation members with their profile info
+      const { data: memberData, error: membersError } = await supabase
+        .from('conversation_members')
+        .select('user_id, joined_at')
+        .eq('conversation_id', conversationId);
 
-      if (error) throw error;
+      if (membersError) throw membersError;
 
-      setMembers(data || []);
+      // Get profile info for each member
+      if (memberData && memberData.length > 0) {
+        const userIds = memberData.map(m => m.user_id);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds);
+
+        if (profilesError) throw profilesError;
+
+        // Combine the data
+        const membersWithProfiles = memberData.map(member => {
+          const profile = profiles?.find(p => p.id === member.user_id);
+          return {
+            user_id: member.user_id,
+            full_name: profile?.full_name || '',
+            email: profile?.email || '',
+            joined_at: member.joined_at
+          };
+        });
+
+        setMembers(membersWithProfiles);
+      } else {
+        setMembers([]);
+      }
     } catch (error: any) {
       console.error('Error fetching members:', error);
       toast({

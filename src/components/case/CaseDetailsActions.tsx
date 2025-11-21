@@ -40,8 +40,7 @@ export const useCaseDetailsActions = ({
       const { error } = await supabase
         .from('cases')
         .update(updateData)
-        .eq('id', currentCase.id)
-        .eq('user_id', user.id);
+        .eq('id', currentCase.id);
 
       if (error) throw error;
 
@@ -83,8 +82,7 @@ export const useCaseDetailsActions = ({
       const { error } = await supabase
         .from('cases')
         .update(updateData)
-        .eq('id', currentCase.id)
-        .eq('user_id', user.id);
+        .eq('id', currentCase.id);
 
       if (error) throw error;
 
