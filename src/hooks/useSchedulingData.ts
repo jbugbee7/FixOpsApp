@@ -1,37 +1,31 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Match actual database schema from types.ts
 export interface Technician {
   id: string;
-  user_id: string;
-  employee_id: string;
-  full_name: string;
-  phone?: string;
+  company_id: string;
+  name: string;
   email?: string;
-  specializations: string[];
-  current_location_lat?: number;
-  current_location_lng?: number;
-  location_updated_at?: string;
+  phone?: string;
+  specialties?: string[];
   is_active: boolean;
-  working_hours: any;
+  user_id?: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface JobSchedule {
   id: string;
-  case_id: string;
+  company_id: string;
+  case_id?: string;
   technician_id?: string;
-  scheduled_date: string;
-  scheduled_start_time: string;
-  scheduled_end_time: string;
-  estimated_duration: number;
+  scheduled_start: string;
+  scheduled_end: string;
+  actual_start?: string;
+  actual_end?: string;
   status: string;
-  priority: string;
-  travel_time_minutes: number;
   notes?: string;
-  customer_confirmed: boolean;
-  created_by: string;
   created_at: string;
   updated_at: string;
   // Joined data
@@ -41,12 +35,10 @@ export interface JobSchedule {
 
 export interface JobChecklist {
   id: string;
-  user_id: string;
+  company_id: string;
   name: string;
   description?: string;
-  appliance_type?: string;
-  service_type?: string;
-  checklist_items: any;
+  items: any;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -65,7 +57,7 @@ export const useSchedulingData = () => {
         .from('technicians')
         .select('*')
         .eq('is_active', true)
-        .order('full_name');
+        .order('name');
 
       if (error) throw error;
       setTechnicians(data || []);
@@ -84,14 +76,13 @@ export const useSchedulingData = () => {
           case:cases(*),
           technician:technicians(*)
         `)
-        .order('scheduled_date', { ascending: true })
-        .order('scheduled_start_time', { ascending: true });
+        .order('scheduled_start', { ascending: true });
 
       if (startDate) {
-        query = query.gte('scheduled_date', startDate);
+        query = query.gte('scheduled_start', startDate);
       }
       if (endDate) {
-        query = query.lte('scheduled_date', endDate);
+        query = query.lte('scheduled_end', endDate);
       }
 
       const { data, error } = await query;
@@ -226,36 +217,18 @@ export const useSchedulingData = () => {
       // Get all scheduled jobs for the technician on the given date
       const { data: jobs, error } = await supabase
         .from('job_schedules')
-        .select(`
-          *,
-          case:cases(customer_address, customer_city, customer_state)
-        `)
+        .select('*')
         .eq('technician_id', technicianId)
-        .eq('scheduled_date', date)
+        .gte('scheduled_start', date)
+        .lt('scheduled_start', `${date}T23:59:59`)
         .eq('status', 'scheduled');
 
       if (error) throw error;
 
-      // Simple optimization: sort by time (in real app, you'd use a routing API)
+      // Simple optimization: sort by time
       const optimizedJobs = jobs?.sort((a, b) => 
-        a.scheduled_start_time.localeCompare(b.scheduled_start_time)
+        a.scheduled_start.localeCompare(b.scheduled_start)
       ) || [];
-
-      // Store the optimized route
-      const { error: routeError } = await supabase
-        .from('route_optimizations')
-        .insert({
-          technician_id: technicianId,
-          optimization_date: date,
-          scheduled_jobs: jobs?.map(j => j.id) || [],
-          optimized_route: optimizedJobs.map(j => ({
-            schedule_id: j.id,
-            order: optimizedJobs.indexOf(j) + 1,
-            estimated_arrival: j.scheduled_start_time
-          }))
-        });
-
-      if (routeError) throw routeError;
 
       return optimizedJobs;
     } catch (err: any) {
@@ -275,8 +248,8 @@ export const useSchedulingData = () => {
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     
     fetchSchedules(
-      startOfMonth.toISOString().split('T')[0],
-      endOfMonth.toISOString().split('T')[0]
+      startOfMonth.toISOString(),
+      endOfMonth.toISOString()
     );
   }, []);
 
