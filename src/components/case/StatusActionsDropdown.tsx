@@ -18,17 +18,17 @@ const StatusActionsDropdown = ({ currentCase }: StatusActionsDropdownProps) => {
     if (status === 'cancel') {
       setShowCancellationDialog(true);
     } else {
-      handleStatusUpdate(currentCase, status);
+      handleStatusUpdate(currentCase.id, status);
     }
   };
 
   const handleCancellation = (reason: string) => {
-    handleStatusUpdate(currentCase, 'cancel', reason);
+    handleStatusUpdate(currentCase.id, 'cancel', reason);
     setShowCancellationDialog(false);
   };
 
   const handleJobAction = (sptStatus: string) => {
-    handleSPTComplete(currentCase, sptStatus);
+    handleSPTComplete(currentCase.id, sptStatus);
   };
 
   return (

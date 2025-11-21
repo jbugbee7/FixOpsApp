@@ -1,10 +1,16 @@
-import { Card } from "@/components/ui/card";
+import React from 'react';
 
-export const ChecklistManager = () => {
+interface ChecklistManagerProps {
+  checklists: any[];
+  onCreateChecklist: (checklistData: any) => void;
+  onUpdateChecklist: (id: any, updates: any) => void;
+  onDeleteChecklist: (id: any) => void;
+}
+
+export const ChecklistManager: React.FC<ChecklistManagerProps> = () => {
   return (
-    <Card className="p-6">
-      <h2 className="text-lg font-semibold mb-4">Checklist Manager</h2>
-      <p className="text-muted-foreground">Checklist management coming soon...</p>
-    </Card>
+    <div className="flex items-center justify-center h-full">
+      <p className="text-muted-foreground">Checklist manager not yet implemented</p>
+    </div>
   );
 };

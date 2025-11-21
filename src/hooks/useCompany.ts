@@ -19,7 +19,7 @@ export const useCompany = () => {
 
       try {
         console.log('Loading company for user:', user.id);
-        const { company: userCompany, error: companyError } = await fetchUserCompany();
+        const { company: userCompany, error: companyError } = await fetchUserCompany(user.id);
         
         if (companyError) {
           setError(companyError);
@@ -42,7 +42,7 @@ export const useCompany = () => {
     
     setLoading(true);
     try {
-      const { company: userCompany, error: companyError } = await fetchUserCompany();
+      const { company: userCompany, error: companyError } = await fetchUserCompany(user.id);
       
       if (companyError) {
         setError(companyError);

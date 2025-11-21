@@ -1,10 +1,16 @@
-import { Card } from "@/components/ui/card";
+import React from 'react';
 
-export const SchedulingCalendar = () => {
+interface SchedulingCalendarProps {
+  schedules: any[];
+  technicians: any[];
+  onScheduleUpdate: (id: string, updates: any) => void;
+  onCreateSchedule: () => void;
+}
+
+export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = () => {
   return (
-    <Card className="p-6">
-      <h2 className="text-lg font-semibold mb-4">Scheduling Calendar</h2>
-      <p className="text-muted-foreground">Calendar view coming soon...</p>
-    </Card>
+    <div className="flex items-center justify-center h-full">
+      <p className="text-muted-foreground">Scheduling calendar not yet implemented</p>
+    </div>
   );
 };

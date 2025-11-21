@@ -1,10 +1,17 @@
-import { Card } from "@/components/ui/card";
+import React from 'react';
 
-export const DispatchingBoard = () => {
+interface DispatchingBoardProps {
+  schedules: any[];
+  technicians: any[];
+  onAssignTechnician: (scheduleId: string, technicianId: string) => void;
+  onOptimizeRoute: (technicianId: string, date: string) => void;
+  onUpdateStatus: (scheduleId: string, status: any) => void;
+}
+
+export const DispatchingBoard: React.FC<DispatchingBoardProps> = () => {
   return (
-    <Card className="p-6">
-      <h2 className="text-lg font-semibold mb-4">Dispatching Board</h2>
-      <p className="text-muted-foreground">Dispatching functionality coming soon...</p>
-    </Card>
+    <div className="flex items-center justify-center h-full">
+      <p className="text-muted-foreground">Dispatching board not yet implemented</p>
+    </div>
   );
 };

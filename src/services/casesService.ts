@@ -1,80 +1,82 @@
+import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
-import { supabase } from "@/integrations/supabase/client";
-import { Case } from "@/types/case";
+type Case = Tables<'cases'>;
 
-export interface CasesServiceResult {
-  cases: Case[] | null;
-  error: {
-    code?: string;
-    message: string;
-    details?: any;
-  } | null;
-}
+export const fetchAllCases = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('cases')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-export const fetchAllCases = async (): Promise<CasesServiceResult> => {
-  console.log('Fetching cases for current user company');
-  
-  const { data: cases, error } = await supabase
-    .from('cases')
-    .select('*')
-    .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Error fetching cases:', error);
+      return { cases: [], error };
+    }
 
-  console.log('=== COMPANY CASES FETCH RESULT ===');
-  console.log('Cases data:', cases);
-  console.log('Cases error:', error);
-  console.log('Cases count:', cases?.length || 0);
-
-  if (error) {
-    console.error('=== CASES FETCH ERROR ===');
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    console.error('Error details:', error.details);
-    
-    return {
-      cases: null,
-      error: {
-        code: error.code,
-        message: error.message,
-        details: error.details
-      }
-    };
+    return { cases: data || [], error: null };
+  } catch (err) {
+    console.error('Unexpected error fetching cases:', err);
+    return { cases: [], error: err };
   }
-
-  console.log('Company cases fetch successful - data isolated by RLS');
-  return {
-    cases: cases || [],
-    error: null
-  };
 };
 
-export const fetchUserCases = async (userId: string): Promise<CasesServiceResult> => {
-  console.log('Fetching cases for specific user within company:', userId);
-  
-  const { data: cases, error } = await supabase
-    .from('cases')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+export const fetchUserCases = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('cases')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    console.error('=== USER CASES FETCH ERROR ===');
-    console.error('Error code:', error.code);
-    console.error('Error message:', error.message);
-    console.error('Error details:', error.details);
-    
-    return {
-      cases: null,
-      error: {
-        code: error.code,
-        message: error.message,
-        details: error.details
-      }
-    };
+    if (error) {
+      console.error('Error fetching cases:', error);
+      return { cases: [], error };
+    }
+
+    return { cases: data || [], error: null };
+  } catch (err) {
+    console.error('Unexpected error fetching cases:', err);
+    return { cases: [], error: err };
   }
+};
 
-  console.log('User cases fetch successful:', cases?.length || 0, 'cases');
-  return {
-    cases: cases || [],
-    error: null
-  };
+export const updateCaseStatus = async (caseId: string, status: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('cases')
+      .update({ status })
+      .eq('id', caseId)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error updating case status:', error);
+      return { case: null, error };
+    }
+
+    return { case: data, error: null };
+  } catch (err) {
+    console.error('Unexpected error updating case:', err);
+    return { case: null, error: err };
+  }
+};
+
+export const deleteCase = async (caseId: string) => {
+  try {
+    const { error } = await supabase
+      .from('cases')
+      .delete()
+      .eq('id', caseId);
+
+    if (error) {
+      console.error('Error deleting case:', error);
+      return { success: false, error };
+    }
+
+    return { success: true, error: null };
+  } catch (err) {
+    console.error('Unexpected error deleting case:', err);
+    return { success: false, error: err };
+  }
 };
