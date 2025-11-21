@@ -165,7 +165,7 @@ export const useCreateCaseSubmit = () => {
           labor_cost_calculated: getLaborCost(),
           diagnostic_fee_type: formData.diagnosticFeeType || null,
           diagnostic_fee_amount: formData.diagnosticFeeAmount,
-          parts_cost: getTotalPartsValue().toString(),
+          parts_cost: getTotalPartsValue(),
         }]);
 
       if (error) {
