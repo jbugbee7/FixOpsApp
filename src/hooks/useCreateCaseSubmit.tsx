@@ -138,7 +138,7 @@ export const useCreateCaseSubmit = () => {
 
       const { error } = await supabase
         .from('cases')
-        .insert({
+        .insert([{
           company_id: company.id,
           customer_name: customerName,
           customer_phone: formData.customerPhone,
@@ -166,7 +166,7 @@ export const useCreateCaseSubmit = () => {
           diagnostic_fee_type: formData.diagnosticFeeType || null,
           diagnostic_fee_amount: formData.diagnosticFeeAmount,
           parts_cost: getTotalPartsValue().toString(),
-        });
+        }]);
 
       if (error) {
         console.error('Error creating work order:', error);

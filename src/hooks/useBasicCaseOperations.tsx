@@ -1,4 +1,4 @@
-
+import { Case } from '@/types/case';
 import { useOfflineData } from './useOfflineData';
 import { useBasicCaseFetching } from './useBasicCaseFetching';
 import { useBasicCaseStatusUpdate } from './useBasicCaseStatusUpdate';
