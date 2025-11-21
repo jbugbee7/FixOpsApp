@@ -28,56 +28,29 @@ export interface CombinedCasesResult {
 }
 
 export const fetchAllCasesAndPublicCases = async (): Promise<CombinedCasesResult> => {
-  console.log('Fetching cases from both tables');
-  
   try {
-    // Fetch from both tables in parallel
-    const [casesResult, publicCasesResult] = await Promise.all([
-      supabase
-        .from('cases')
-        .select('*')
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('public_cases')
-        .select('*')
-        .order('created_at', { ascending: false })
-    ]);
+    // Only fetch from cases table (public_cases doesn't exist)
+    const { data: casesData, error: casesError } = await supabase
+      .from('cases')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-    if (casesResult.error) {
-      console.error('Error fetching cases:', casesResult.error);
+    if (casesError) {
+      console.error('Error fetching cases:', casesError);
       return {
         cases: [],
         publicCases: [],
         error: {
-          code: casesResult.error.code,
-          message: casesResult.error.message,
-          details: casesResult.error.details
+          code: casesError.code,
+          message: casesError.message,
+          details: casesError.details
         }
       };
     }
-
-    if (publicCasesResult.error) {
-      console.error('Error fetching public cases:', publicCasesResult.error);
-      return {
-        cases: casesResult.data || [],
-        publicCases: [],
-        error: {
-          code: publicCasesResult.error.code,
-          message: publicCasesResult.error.message,
-          details: publicCasesResult.error.details
-        }
-      };
-    }
-
-    console.log('Successfully fetched:', {
-      cases: casesResult.data?.length || 0,
-      publicCases: publicCasesResult.data?.length || 0
-    });
-    console.log('Public cases details:', publicCasesResult.data);
 
     return {
-      cases: casesResult.data || [],
-      publicCases: publicCasesResult.data || [],
+      cases: casesData || [],
+      publicCases: [],
       error: null
     };
   } catch (error) {
@@ -94,32 +67,17 @@ export const fetchAllCasesAndPublicCases = async (): Promise<CombinedCasesResult
 };
 
 export const removeTestCases = async (): Promise<{ success: boolean; error?: any }> => {
-  console.log('Removing test cases from both tables');
-  
   try {
-    // Remove test cases from cases table - using case-insensitive search
-    const { error: casesError } = await supabase
+    const { error } = await supabase
       .from('cases')
       .delete()
       .or('customer_name.ilike.%test%,customer_name.ilike.%TEST%,customer_name.ilike.%Test%');
 
-    if (casesError) {
-      console.error('Error removing test cases from cases table:', casesError);
-      return { success: false, error: casesError };
+    if (error) {
+      console.error('Error removing test cases:', error);
+      return { success: false, error };
     }
 
-    // Remove test cases from public_cases table - using case-insensitive search
-    const { error: publicCasesError } = await supabase
-      .from('public_cases')
-      .delete()
-      .or('customer_name.ilike.%test%,customer_name.ilike.%TEST%,customer_name.ilike.%Test%');
-
-    if (publicCasesError) {
-      console.error('Error removing test cases from public_cases table:', publicCasesError);
-      return { success: false, error: publicCasesError };
-    }
-
-    console.log('Test cases removed successfully from both tables');
     return { success: true };
   } catch (error) {
     console.error('Unexpected error removing test cases:', error);
@@ -128,23 +86,7 @@ export const removeTestCases = async (): Promise<{ success: boolean; error?: any
 };
 
 export const updatePublicCase = async (caseId: string, updates: Partial<PublicCase>): Promise<{ success: boolean; error?: any }> => {
-  console.log('Updating public case:', caseId, updates);
-  
-  try {
-    const { error } = await supabase
-      .from('public_cases')
-      .update(updates)
-      .eq('id', caseId);
-
-    if (error) {
-      console.error('Error updating public case:', error);
-      return { success: false, error };
-    }
-
-    console.log('Public case updated successfully - should trigger move to cases table');
-    return { success: true };
-  } catch (error) {
-    console.error('Unexpected error updating public case:', error);
-    return { success: false, error };
-  }
+  // public_cases table doesn't exist
+  console.log('Public cases update not implemented');
+  return { success: false };
 };
