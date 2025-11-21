@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import WorkflowRules from './automation/WorkflowRules';
 import AutomatedTasks from './automation/AutomatedTasks';
-import EmailTemplates from './automation/EmailTemplates';
 import LeadScoring from './automation/LeadScoring';
+import CommunicationTemplates from './automation/CommunicationTemplates';
 
 const AutomationTab = () => {
   return (
@@ -36,7 +36,7 @@ const AutomationTab = () => {
         </TabsContent>
 
         <TabsContent value="templates">
-          <EmailTemplates />
+          <CommunicationTemplates />
         </TabsContent>
 
         <TabsContent value="scoring">

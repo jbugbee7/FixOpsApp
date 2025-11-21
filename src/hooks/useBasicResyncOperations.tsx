@@ -26,17 +26,8 @@ export const useBasicResyncOperations = (
         console.log('Test cases removed from cases table');
       }
 
-      // Remove any cases with test-like names from public_cases table
-      const { error: publicCasesError } = await supabase
-        .from('public_cases')
-        .delete()
-        .or('customer_name.ilike.%test%,customer_name.ilike.%sample%,customer_name.ilike.%demo%,customer_name.ilike.%john%,customer_name.ilike.%sarah%,customer_name.ilike.%mike%');
-
-      if (publicCasesError) {
-        console.error('Error removing test cases from public_cases table:', publicCasesError);
-      } else {
-        console.log('Test cases removed from public_cases table');
-      }
+      // public_cases table doesn't exist, skip this step
+      console.log('Skipping public_cases cleanup (table does not exist)');
 
       return { success: true };
     } catch (error) {
