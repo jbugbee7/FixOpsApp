@@ -37,8 +37,6 @@ const Agreement = () => {
           agreements_date: new Date().toISOString(),
         })
         .eq('id', user.id);
-          onConflict: 'id'
-        });
 
       if (error) {
         console.error('Error saving agreements:', error);

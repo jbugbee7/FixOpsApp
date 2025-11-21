@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
-export type UserRole = 'admin' | 'user' | null;
+export type UserRole = 'admin' | 'user' | 'technician' | null;
 
 export const useUserRole = () => {
   const [userRole, setUserRole] = useState<UserRole>(null);
@@ -20,18 +20,20 @@ export const useUserRole = () => {
 
       try {
         const { data, error } = await supabase
-          .rpc('get_current_user_role');
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching user role:', error);
-          // If no role found, default to 'user'
           setUserRole('user');
         } else {
-          setUserRole(data || 'user');
+          setUserRole(data?.role as UserRole || 'user');
         }
       } catch (error) {
         console.error('Error fetching user role:', error);
-        setUserRole('user'); // Default to user role
+        setUserRole('user');
       } finally {
         setIsLoading(false);
       }
@@ -42,11 +44,13 @@ export const useUserRole = () => {
 
   const isAdmin = userRole === 'admin';
   const isUser = userRole === 'user';
+  const isTechnician = userRole === 'technician';
 
   return {
     userRole,
     isAdmin,
     isUser,
+    isTechnician,
     isLoading
   };
 };
