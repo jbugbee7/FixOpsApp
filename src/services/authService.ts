@@ -20,19 +20,19 @@ export const signUpUser = async (email: string, password: string, fullName?: str
     if (data.user && companyName) {
       console.log('Creating company for new user:', companyName);
       
-      // Wait a moment for the user profile to be created by the trigger
-      setTimeout(async () => {
-        try {
-          const { error: companyError } = await createCompanyAndAssignOwner(companyName, data.user.id);
-          if (companyError) {
-            console.error('Error creating company:', companyError);
-          } else {
-            console.log('Company created successfully for user');
-          }
-        } catch (err) {
-          console.error('Error in company creation:', err);
+      // Wait for profile to be created by the trigger (2 seconds should be enough)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      try {
+        const { company_id, error: companyError } = await createCompanyAndAssignOwner(companyName, data.user.id);
+        if (companyError) {
+          console.error('Error creating company:', companyError);
+        } else {
+          console.log('Company created successfully:', company_id);
         }
-      }, 1000);
+      } catch (err) {
+        console.error('Error in company creation:', err);
+      }
     }
     
     return { data, error: null };

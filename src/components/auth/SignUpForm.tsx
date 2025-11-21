@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { signUpUser } from '@/services/authService';
 import GoogleSignInButton from './GoogleSignInButton';
 
 interface SignUpFormProps {
@@ -37,27 +37,17 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
     try {
       console.log('Creating user account and company:', { email, fullName, companyName });
       
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: fullName,
-            company_name: companyName,
-          },
-          emailRedirectTo: `${window.location.origin}/auth?verified=true`
-        }
-      });
+      const { data, error } = await signUpUser(email, password, fullName, companyName);
 
       if (error) {
         console.error('Sign up error:', error);
-        setError(error.message);
+        setError(typeof error === 'string' ? error : error.message || 'Sign up failed');
         toast({
           title: "Sign Up Failed",
-          description: error.message,
+          description: typeof error === 'string' ? error : error.message || 'Sign up failed',
           variant: "destructive",
         });
-      } else if (data.user) {
+      } else if (data?.user) {
         console.log('Sign up successful, verification email sent');
         
         // Clear form
@@ -75,12 +65,12 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
           description: "Please check your email to verify your account, then you can sign in.",
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Unexpected error during sign up:', err);
-      setError('An unexpected error occurred');
+      setError(err.message || 'An unexpected error occurred');
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: err.message || 'An unexpected error occurred',
         variant: "destructive",
       });
     } finally {
