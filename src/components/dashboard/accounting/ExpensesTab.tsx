@@ -51,8 +51,7 @@ const ExpensesTab = () => {
     );
   }
 
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  const approvedExpenses = expenses.filter(expense => expense.status === 'approved');
+  const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
   const billableExpenses = expenses.filter(expense => expense.is_billable);
 
   return (
@@ -84,8 +83,8 @@ const ExpensesTab = () => {
             <div className="flex items-center">
               <TrendingUp className="h-8 w-8 text-green-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Approved</p>
-                <p className="text-2xl font-bold">{approvedExpenses.length}</p>
+                <p className="text-sm font-medium text-gray-600">Billable</p>
+                <p className="text-2xl font-bold">{billableExpenses.length}</p>
               </div>
             </div>
           </CardContent>
@@ -141,10 +140,7 @@ const ExpensesTab = () => {
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold">{expense.description}</h3>
-                      <Badge className={getStatusColor(expense.status)}>
-                        {expense.status.charAt(0).toUpperCase() + expense.status.slice(1)}
-                      </Badge>
+                      <h3 className="text-lg font-semibold">{expense.description || 'Expense'}</h3>
                       {expense.is_billable && (
                         <Badge variant="outline">Billable</Badge>
                       )}

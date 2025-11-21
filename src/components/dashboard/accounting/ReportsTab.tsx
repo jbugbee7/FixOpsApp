@@ -14,7 +14,7 @@ const ReportsTab = () => {
     // Monthly revenue and expenses
     const monthlyRevenue = invoices.reduce((acc, invoice) => {
       const month = new Date(invoice.issue_date).toISOString().slice(0, 7); // YYYY-MM
-      acc[month] = (acc[month] || 0) + invoice.total_amount;
+      acc[month] = (acc[month] || 0) + (invoice.total || 0);
       return acc;
     }, {} as Record<string, number>);
 
@@ -91,8 +91,8 @@ const ReportsTab = () => {
     );
   }
 
-  const totalRevenue = invoices.reduce((sum, inv) => sum + inv.total_amount, 0);
-  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const totalRevenue = invoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
+  const totalExpenses = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
   const netProfit = totalRevenue - totalExpenses;
 
   return (

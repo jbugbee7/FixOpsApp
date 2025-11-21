@@ -55,7 +55,7 @@ const AddCustomerDialog = ({ open, onOpenChange }: AddCustomerDialogProps) => {
         .from('cases')
         .insert([{
           ...formData,
-          user_id: user.data.user.id
+          company_id: user.data.user.id // Use company_id instead of user_id
         }]);
 
       if (error) throw error;

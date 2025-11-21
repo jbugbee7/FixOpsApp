@@ -88,7 +88,7 @@ const InvoicesTab = () => {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Revenue</p>
                   <p className="text-2xl font-bold">
-                    {formatCurrency(invoices.reduce((sum, inv) => sum + inv.total_amount, 0))}
+                    {formatCurrency(invoices.reduce((sum, inv) => sum + (inv.total || 0), 0))}
                   </p>
                 </div>
               </div>
@@ -150,13 +150,13 @@ const InvoicesTab = () => {
                           {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 mb-1">{invoice.customer_name}</p>
+                      <p className="text-gray-600 mb-1">Invoice #{invoice.invoice_number}</p>
                       <p className="text-sm text-gray-500">
                         Due: {new Date(invoice.due_date).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold">{formatCurrency(invoice.total_amount)}</p>
+                      <p className="text-2xl font-bold">{formatCurrency(invoice.total || 0)}</p>
                       <p className="text-sm text-gray-500">
                         Issued: {new Date(invoice.issue_date).toLocaleDateString()}
                       </p>
