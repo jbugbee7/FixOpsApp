@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { AsyncStorage } from '@/utils/asyncStorage';
-import { Case } from '@/types/case';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Case = Tables<'cases'>;
 
 export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -11,8 +12,6 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
   const [hasOfflineData, setHasOfflineData] = useState(false);
   
   const mountedRef = useRef(true);
-  const subscriptionRef = useRef<any>(null);
-  const hasInitializedRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -35,28 +34,10 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
     try {
       setHasError(false);
 
-      // Try cache first for immediate loading
-      if (!hasInitializedRef.current) {
-        const cachedData = await AsyncStorage.getCases();
-        if (cachedData?.cases?.length && mountedRef.current) {
-          console.log('Loading cached cases:', cachedData.cases.length);
-          setCases(cachedData.cases);
-          setHasOfflineData(true);
-          setLoading(false);
-          hasInitializedRef.current = true;
-          
-          // If offline, stop here
-          if (!isOnline) return;
-        }
-      }
-
-      // Fetch from server if online
       if (isOnline) {
-        console.log('Fetching fresh data from server');
         const { data, error } = await supabase
           .from('cases')
           .select('*')
-          .eq('user_id', user.id)
           .order('created_at', { ascending: false });
 
         if (!mountedRef.current) return;
@@ -64,31 +45,19 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
         if (error) {
           console.error('Cases fetch error:', error);
           setHasError(true);
-          
-          // Keep cached data if available
-          if (!hasInitializedRef.current) {
-            setCases([]);
-          }
+          setCases([]);
         } else {
           console.log('Successfully fetched cases:', data?.length || 0);
           setCases(data || []);
           setHasError(false);
           setHasOfflineData(false);
-          hasInitializedRef.current = true;
-          
-          // Update cache
-          if (data?.length) {
-            AsyncStorage.storeCases(data);
-          }
         }
       }
     } catch (error) {
       console.error('Fetch error:', error);
       if (mountedRef.current) {
         setHasError(true);
-        if (!hasInitializedRef.current) {
-          setCases([]);
-        }
+        setCases([]);
       }
     } finally {
       if (mountedRef.current) {
@@ -120,41 +89,19 @@ export const useOptimizedCaseOperations = (user: any, isOnline: boolean) => {
 
   const handleResync = useCallback(async () => {
     if (isOnline) {
-      hasInitializedRef.current = false; // Force fresh fetch
       await fetchCases();
       toast({
         title: "Sync Complete",
         description: "Data synchronized successfully.",
       });
-    } else {
-      const offlineData = await AsyncStorage.getCases();
-      if (offlineData?.cases) {
-        setCases(offlineData.cases);
-        setHasOfflineData(true);
-        toast({
-          title: "Offline Data Loaded",
-          description: "Showing cached data.",
-        });
-      }
     }
   }, [isOnline, fetchCases]);
 
-  // Initial fetch
   useEffect(() => {
     if (user?.id) {
       fetchCases();
     }
   }, [user?.id, fetchCases]);
-
-  // Clean up subscription on unmount
-  useEffect(() => {
-    return () => {
-      if (subscriptionRef.current) {
-        supabase.removeChannel(subscriptionRef.current);
-        subscriptionRef.current = null;
-      }
-    };
-  }, []);
 
   return {
     cases,
