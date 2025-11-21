@@ -5,3 +5,6 @@ export const fetchCasesFromDB = async (): Promise<Case[]> => {
   const { data } = await supabase.from('cases').select('*');
   return data || [];
 };
+
+export const fetchAllCases = fetchCasesFromDB;
+export const fetchUserCases = fetchCasesFromDB;
