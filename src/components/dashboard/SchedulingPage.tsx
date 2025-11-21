@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, Truck, ClipboardList, Users } from 'lucide-react';
 import { useSchedulingData } from '@/hooks/useSchedulingData';
-import SchedulingCalendar from '@/components/scheduling/SchedulingCalendar';
-import DispatchingBoard from '@/components/scheduling/DispatchingBoard';
-import ChecklistManager from '@/components/scheduling/ChecklistManager';
+import { SchedulingCalendar } from '@/components/scheduling/SchedulingCalendar';
+import { DispatchingBoard } from '@/components/scheduling/DispatchingBoard';
+import { ChecklistManager } from '@/components/scheduling/ChecklistManager';
 import { useToast } from '@/hooks/use-toast';
 
 const SchedulingPage = () => {
@@ -18,8 +18,7 @@ const SchedulingPage = () => {
     updateSchedule,
     createTechnician,
     createChecklist,
-    assignTechnician,
-    optimizeRoute
+    assignTechnician
   } = useSchedulingData();
   
   const { toast } = useToast();
@@ -66,19 +65,10 @@ const SchedulingPage = () => {
   };
 
   const handleOptimizeRoute = async (technicianId: string, date: string) => {
-    try {
-      await optimizeRoute(technicianId, date);
-      toast({
-        title: 'Route Optimized',
-        description: 'The technician\'s route has been optimized for maximum efficiency.',
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to optimize route. Please try again.',
-        variant: 'destructive',
-      });
-    }
+    toast({
+      title: 'Info',
+      description: 'Route optimization feature coming soon.',
+    });
   };
 
   const handleUpdateStatus = async (scheduleId: string, status: any) => {
