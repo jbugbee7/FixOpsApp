@@ -118,10 +118,11 @@ export const useMobileCaseOperations = (user: any, isOnline: boolean) => {
     }
   }, [user?.id, isOnline]);
 
-  const updateCaseStatus = useCallback(async (caseId: string, newStatus: string) => {
+  const updateCaseStatus = useCallback(async (caseId: string, newStatus: string): Promise<boolean> => {
     if (!isOnline || !user?.id) return false;
 
     try {
+      // @ts-ignore - Avoiding deep type instantiation
       const { error } = await supabase
         .from('cases')
         .update({ status: newStatus })
