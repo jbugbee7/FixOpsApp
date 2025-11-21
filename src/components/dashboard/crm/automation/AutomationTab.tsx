@@ -4,7 +4,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeadScoring from './LeadScoring';
 import AutomatedTasks from './AutomatedTasks';
 import WorkflowRules from './WorkflowRules';
-import EmailTemplates from './EmailTemplates';
 import CommunicationTemplates from './CommunicationTemplates';
 import CustomerHealthDashboard from './CustomerHealthDashboard';
 
@@ -19,11 +18,10 @@ const AutomationTab = () => {
       </div>
 
       <Tabs defaultValue="lead-scoring" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
           <TabsTrigger value="lead-scoring" className="text-xs">Lead Scoring</TabsTrigger>
           <TabsTrigger value="tasks" className="text-xs">Tasks</TabsTrigger>
           <TabsTrigger value="workflows" className="text-xs">Workflows</TabsTrigger>
-          <TabsTrigger value="templates" className="text-xs">Templates</TabsTrigger>
           <TabsTrigger value="communication" className="text-xs">Communication</TabsTrigger>
           <TabsTrigger value="health" className="text-xs">Health</TabsTrigger>
         </TabsList>
@@ -38,10 +36,6 @@ const AutomationTab = () => {
 
         <TabsContent value="workflows" className="space-y-6">
           <WorkflowRules />
-        </TabsContent>
-
-        <TabsContent value="templates" className="space-y-6">
-          <EmailTemplates />
         </TabsContent>
 
         <TabsContent value="communication" className="space-y-6">

@@ -12,67 +12,56 @@ export const useCRMData = () => {
   const [segmentFilter, setSegmentFilter] = useState('all');
   const { toast } = useToast();
 
-  // Fetch real customer data from cases table
-  const fetchCustomersFromCases = async () => {
+  // Fetch real customer data by joining cases with customers table
+  const fetchCustomersFromDatabase = async () => {
     try {
       setLoading(true);
       
-      // Get all cases to extract customer information
-      const { data: cases, error } = await supabase
-        .from('cases')
+      // Get customers with their cases
+      const { data: customersData, error: customersError } = await supabase
+        .from('customers')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (customersError) throw customersError;
 
-      // Transform cases data into customer data
-      const customerMap = new Map<string, Customer>();
-      
-      cases?.forEach((caseItem, index) => {
-        const customerId = caseItem.customer_name.toLowerCase().replace(/\s+/g, '-');
+      // Get all cases to calculate metrics
+      const { data: casesData, error: casesError } = await supabase
+        .from('cases')
+        .select('*');
+
+      if (casesError) throw casesError;
+
+      // Transform customers data with calculated metrics
+      const customersWithMetrics: Customer[] = (customersData || []).map((customer, index) => {
+        const customerCases = casesData?.filter(c => c.customer_id === customer.id) || [];
+        const totalSpent = customerCases.reduce((sum, c) => sum + (c.total_cost || 0), 0);
+        const lastCase = customerCases[0];
         
-        if (customerMap.has(customerId)) {
-          // Update existing customer
-          const existingCustomer = customerMap.get(customerId)!;
-          existingCustomer.totalOrders += 1;
-          existingCustomer.lastContact = caseItem.created_at > existingCustomer.lastContact 
-            ? caseItem.created_at 
-            : existingCustomer.lastContact;
-        } else {
-          // Create new customer from case data
-          const customer: Customer = {
-            id: index + 1,
-            name: caseItem.customer_name,
-            email: caseItem.customer_email || `${customerId}@email.com`,
-            phone: caseItem.customer_phone || '(555) 000-0000',
-            address: [
-              caseItem.customer_address,
-              caseItem.customer_city,
-              caseItem.customer_state,
-              caseItem.customer_zip_code
-            ].filter(Boolean).join(', ') || 'No address provided',
-            status: determineCustomerStatus(caseItem.status),
-            segment: determineCustomerSegment(caseItem),
-            totalOrders: 1,
-            totalSpent: calculateCaseValue(caseItem),
-            lastContact: caseItem.created_at,
-            acquisitionDate: caseItem.created_at,
-            lifetime_value: calculateCaseValue(caseItem) * 1.2, // Estimated LTV
-            avgOrderValue: calculateCaseValue(caseItem)
-          };
-          
-          customerMap.set(customerId, customer);
-        }
+        return {
+          id: index + 1,
+          name: customer.name,
+          email: customer.email || `customer${index + 1}@email.com`,
+          phone: customer.phone || '(555) 000-0000',
+          address: customer.address || 'No address provided',
+          status: determineCustomerStatus(lastCase?.status),
+          segment: determineCustomerSegment(customerCases.length, totalSpent),
+          totalOrders: customerCases.length,
+          totalSpent,
+          lastContact: lastCase?.created_at || customer.created_at,
+          acquisitionDate: customer.created_at,
+          lifetime_value: totalSpent * 1.2,
+          avgOrderValue: customerCases.length > 0 ? totalSpent / customerCases.length : 0
+        };
       });
 
-      const customersArray = Array.from(customerMap.values());
-      setCustomers(customersArray);
+      setCustomers(customersWithMetrics);
       
     } catch (error) {
       console.error('Error fetching customer data:', error);
       toast({
         title: "Error",
-        description: "Failed to load customer data from work orders",
+        description: "Failed to load customer data",
         variant: "destructive",
       });
     } finally {
@@ -80,60 +69,31 @@ export const useCRMData = () => {
     }
   };
 
-  // Helper function to determine customer status based on case status and recency
-  const determineCustomerStatus = (caseStatus: string): string => {
+  // Helper function to determine customer status
+  const determineCustomerStatus = (caseStatus?: string): string => {
+    if (!caseStatus) return 'New';
     const statusMapping: Record<string, string> = {
-      'Completed': 'Active',
-      'In Progress': 'Active',
-      'Scheduled': 'Active',
-      'Cancelled': 'At Risk'
+      'completed': 'Active',
+      'in_progress': 'Active',
+      'scheduled': 'Active',
+      'cancelled': 'At Risk',
+      'pending': 'New'
     };
-    return statusMapping[caseStatus] || 'New';
+    return statusMapping[caseStatus.toLowerCase()] || 'Active';
   };
 
   // Helper function to determine customer segment
-  const determineCustomerSegment = (caseItem: any): string => {
-    const hasMultipleAppliances = caseItem.appliance_type && caseItem.appliance_brand;
-    const hasCompleteInfo = caseItem.customer_email && caseItem.customer_phone;
-    
-    if (hasMultipleAppliances && hasCompleteInfo) return 'Premium';
-    if (hasCompleteInfo) return 'Standard';
+  const determineCustomerSegment = (orderCount: number, totalSpent: number): string => {
+    if (orderCount >= 5 || totalSpent >= 1000) return 'Premium';
+    if (orderCount >= 2 || totalSpent >= 300) return 'Standard';
     return 'Basic';
   };
 
-  // Helper function to calculate case value
-  const calculateCaseValue = (caseItem: any): number => {
-    let total = 0;
-    
-    if (caseItem.diagnostic_fee_amount) {
-      total += parseFloat(caseItem.diagnostic_fee_amount.toString());
-    }
-    
-    if (caseItem.labor_cost_calculated) {
-      total += parseFloat(caseItem.labor_cost_calculated.toString());
-    }
-    
-    // If no pricing info, estimate based on appliance type
-    if (total === 0) {
-      const applianceValues: Record<string, number> = {
-        'Refrigerator': 150,
-        'Washer': 120,
-        'Dryer': 110,
-        'Dishwasher': 100,
-        'Oven': 140,
-        'Microwave': 80
-      };
-      total = applianceValues[caseItem.appliance_type] || 100;
-    }
-    
-    return total;
-  };
-
   useEffect(() => {
-    fetchCustomersFromCases();
+    fetchCustomersFromDatabase();
     
-    // Set up real-time subscription to cases table
-    const channel = supabase
+    // Set up real-time subscriptions
+    const casesChannel = supabase
       .channel('cases-changes')
       .on(
         'postgres_changes',
@@ -144,13 +104,30 @@ export const useCRMData = () => {
         },
         () => {
           console.log('Cases data changed, refreshing customer data');
-          fetchCustomersFromCases();
+          fetchCustomersFromDatabase();
+        }
+      )
+      .subscribe();
+
+    const customersChannel = supabase
+      .channel('customers-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'customers'
+        },
+        () => {
+          console.log('Customers data changed, refreshing');
+          fetchCustomersFromDatabase();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(casesChannel);
+      supabase.removeChannel(customersChannel);
     };
   }, []);
 
@@ -177,6 +154,6 @@ export const useCRMData = () => {
     setStatusFilter,
     segmentFilter,
     setSegmentFilter,
-    refreshCustomers: fetchCustomersFromCases
+    refreshCustomers: fetchCustomersFromDatabase
   };
 };

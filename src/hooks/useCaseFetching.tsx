@@ -60,10 +60,10 @@ export const useCaseFetching = (user: any, isOnline: boolean) => {
           return;
         }
 
-        setCases(data || []);
+        setCases((data as Case[]) || []);
         // Store fresh data in AsyncStorage for offline use
         if (data && data.length > 0) {
-          await AsyncStorage.storeCases(data);
+          await AsyncStorage.storeCases(data as Case[]);
         }
       }
     } catch (error) {

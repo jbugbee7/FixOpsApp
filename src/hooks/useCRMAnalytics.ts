@@ -30,56 +30,21 @@ export const useCRMAnalytics = () => {
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
 
-  // Real-time communication history
-  const { data: communicationData, isLoading: communicationLoading, refetch: refetchCommunication } = useQuery({
-    queryKey: ['crm-analytics-communication'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('communication_history')
-        .select('*')
-        .order('sent_at', { ascending: false });
+  // Communication and interactions tables don't exist yet
+  // Return empty arrays for now
+  const communicationData: any[] = [];
+  const interactionsData: any[] = [];
 
-      if (error) {
-        console.error('Error fetching communication data:', error);
-        return [];
-      }
-
-      return data || [];
-    },
-    refetchInterval: 30000,
-  });
-
-  // Real-time interactions data
-  const { data: interactionsData, isLoading: interactionsLoading, refetch: refetchInteractions } = useQuery({
-    queryKey: ['crm-analytics-interactions'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('contact_interactions')
-        .select('*')
-        .order('interaction_date', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching interactions data:', error);
-        return [];
-      }
-
-      return data || [];
-    },
-    refetchInterval: 30000,
-  });
-
-  const isLoading = casesLoading || communicationLoading || interactionsLoading;
+  const isLoading = casesLoading;
 
   const refetchAll = () => {
     refetchCases();
-    refetchCommunication();
-    refetchInteractions();
   };
 
   return {
     casesData: casesData || [],
-    communicationData: communicationData || [],
-    interactionsData: interactionsData || [],
+    communicationData,
+    interactionsData,
     isLoading,
     refetchAll
   };

@@ -1,6 +1,4 @@
-
 import { useState, useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
 
 interface CasePart {
@@ -18,25 +16,10 @@ export const useCaseParts = (caseId: string, isPublicCase: boolean) => {
   const [caseParts, setCaseParts] = useState<CasePart[]>([]);
 
   const loadCaseParts = async () => {
-    if (!user || !caseId || isPublicCase) return;
-
-    try {
-      console.log('Loading case parts for case:', caseId);
-      const { data, error } = await supabase
-        .from('case_parts')
-        .select('*')
-        .eq('case_id', caseId);
-
-      if (error) {
-        console.error('Error loading case parts:', error);
-        return;
-      }
-
-      console.log('Loaded case parts:', data);
-      setCaseParts(data || []);
-    } catch (error) {
-      console.error('Error loading case parts:', error);
-    }
+    // case_parts table doesn't exist yet, return empty array
+    // This will be implemented when the parts management feature is added
+    console.log('Case parts feature not yet implemented');
+    setCaseParts([]);
   };
 
   useEffect(() => {
