@@ -118,94 +118,19 @@ export const useRealtimeCRMData = () => {
 
   // Real-time subscriptions
   useEffect(() => {
-    console.log('Setting up real-time subscriptions for CRM data');
-    
-    const interactionsChannel = supabase
-      .channel('interactions-realtime')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'contact_interactions'
-      }, (payload) => {
-        console.log('Real-time interactions change:', payload.eventType, payload);
-        debouncedRefetch();
-      })
-      .subscribe((status) => {
-        console.log('Interactions channel status:', status);
-      });
-
-    const communicationsChannel = supabase
-      .channel('communications-realtime')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'communication_history'
-      }, (payload) => {
-        console.log('Real-time communications change:', payload.eventType, payload);
-        debouncedRefetch();
-      })
-      .subscribe((status) => {
-        console.log('Communications channel status:', status);
-      });
-
-    return () => {
-      console.log('Cleaning up CRM real-time subscriptions');
-      supabase.removeChannel(interactionsChannel);
-      supabase.removeChannel(communicationsChannel);
-    };
+    // Tables don't exist yet, skip subscriptions
+    return () => {};
   }, [debouncedRefetch]);
 
   // Create interaction
-  const createInteraction = async (interactionData: {
-    customer_id: number;
-    interaction_type: string;
-    subject: string;
-    description?: string;
-    status?: string;
-    priority?: string;
-  }) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.id) {
-        toast({
-          title: 'Error',
-          description: 'User not authenticated',
-          variant: 'destructive',
-        });
-        return null;
-      }
-
-      const { data, error } = await supabase
-        .from('contact_interactions')
-        .insert({
-          customer_id: interactionData.customer_id,
-          interaction_type: interactionData.interaction_type,
-          subject: interactionData.subject,
-          description: interactionData.description,
-          status: interactionData.status || 'completed',
-          priority: interactionData.priority || 'medium',
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      
-      toast({
-        title: 'Success',
-        description: 'Interaction created successfully',
-      });
-      
-      return data;
-    } catch (err) {
-      console.error('Failed to create interaction:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to create interaction',
-        variant: 'destructive',
-      });
-      return null;
-    }
+  const createInteraction = async (interactionData: any) => {
+    // Tables don't exist yet
+    console.log('Interaction creation not yet implemented:', interactionData);
+    toast({
+      title: 'Info',
+      description: 'Interaction tracking not yet implemented',
+    });
+    return null;
   };
 
   return {

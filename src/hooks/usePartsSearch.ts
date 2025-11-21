@@ -58,7 +58,16 @@ export const usePartsSearch = () => {
       }
 
       console.log('Found parts:', data);
-      setSystemParts(data || []);
+      
+      // Map parts table fields to SystemPart format
+      const mappedParts = (data || []).map(part => ({
+        ...part,
+        part_cost: part.price || 0,
+        markup_percentage: 0,
+        final_price: part.price || 0
+      }));
+      
+      setSystemParts(mappedParts);
       
       if (data && data.length === 0) {
         toast({

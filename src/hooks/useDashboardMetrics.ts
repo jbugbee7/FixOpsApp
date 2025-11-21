@@ -36,25 +36,25 @@ export const useDashboardMetrics = () => {
       const currentMonth = new Date();
       const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
       
-      const { data: invoices, error: invoicesError } = await supabase
+      const { data: invoices, error: invoicesError} = await supabase
         .from('invoices')
-        .select('total_amount, created_at')
+        .select('total, created_at')
         .gte('created_at', firstDayOfMonth.toISOString());
 
       if (invoicesError) throw invoicesError;
 
-      const monthlyRevenue = invoices?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
+      const monthlyRevenue = invoices?.reduce((sum, invoice) => sum + (invoice.total || 0), 0) || 0;
 
       const previousMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
       const firstDayOfPreviousMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 2, 1);
       
       const { data: previousInvoices } = await supabase
         .from('invoices')
-        .select('total_amount')
+        .select('total')
         .gte('created_at', firstDayOfPreviousMonth.toISOString())
         .lt('created_at', firstDayOfMonth.toISOString());
 
-      const previousRevenue = previousInvoices?.reduce((sum, invoice) => sum + (invoice.total_amount || 0), 0) || 0;
+      const previousRevenue = previousInvoices?.reduce((sum, invoice) => sum + (invoice.total || 0), 0) || 0;
       const monthlyGrowth = previousRevenue > 0 ? ((monthlyRevenue - previousRevenue) / previousRevenue) * 100 : 0;
 
       setMetrics({

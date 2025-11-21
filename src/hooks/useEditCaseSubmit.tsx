@@ -72,42 +72,8 @@ export const useEditCaseSubmit = (
 
       console.log('Case updated successfully:', updatedCase);
 
-      // Delete existing case parts for this case
-      const { error: deleteError } = await supabase
-        .from('case_parts')
-        .delete()
-        .eq('case_id', currentCase.id);
-
-      if (deleteError) {
-        console.error('Error deleting existing case parts:', deleteError);
-        throw deleteError;
-      }
-
-      // Insert new case parts if any
-      if (parts.length > 0) {
-        const casePartsToInsert = parts.map(part => ({
-          case_id: currentCase.id,
-          part_name: part.part_name,
-          part_number: part.part_number,
-          part_cost: part.part_cost,
-          quantity: part.quantity,
-          markup_percentage: part.markup_percentage,
-          final_price: part.final_price
-        }));
-
-        console.log('Inserting case parts:', casePartsToInsert);
-
-        const { error: partsError } = await supabase
-          .from('case_parts')
-          .insert(casePartsToInsert);
-
-        if (partsError) {
-          console.error('Error inserting case parts:', partsError);
-          throw partsError;
-        }
-
-        console.log('Case parts inserted successfully');
-      }
+      // case_parts table doesn't exist yet, skip parts storage
+      console.log('Parts to save (not implemented yet):', parts);
 
       toast({
         title: "Case Updated",

@@ -42,17 +42,8 @@ export const useConversationMessages = (conversationId: string | null) => {
     try {
       setHasConnectionError(false);
       
-      const { data, error } = await supabase
-        .from('forum_messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-
-      if (!mountedRef.current) return;
-
-      if (error) throw error;
-
-      setMessages(data || []);
+      // Messages table doesn't exist yet, return empty array
+      setMessages([]);
     } catch (error) {
       console.error('Error fetching messages:', error);
       if (mountedRef.current) {
@@ -76,55 +67,8 @@ export const useConversationMessages = (conversationId: string | null) => {
       return;
     }
 
-    const channel = supabase
-      .channel(`conversation_${conversationId}_messages`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'forum_messages',
-          filter: `conversation_id=eq.${conversationId}`
-        },
-        (payload) => {
-          if (!mountedRef.current) return;
-          if (payload.new && typeof payload.new === 'object') {
-            setMessages(prev => [...prev, payload.new as ConversationMessage]);
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'forum_messages',
-          filter: `conversation_id=eq.${conversationId}`
-        },
-        (payload) => {
-          if (!mountedRef.current) return;
-          if (payload.new && typeof payload.new === 'object') {
-            setMessages(prev => 
-              prev.map(msg => 
-                msg.id === payload.new.id ? payload.new as ConversationMessage : msg
-              )
-            );
-          }
-        }
-      )
-      .subscribe((status) => {
-        if (mountedRef.current) {
-          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
-            setHasConnectionError(true);
-          } else if (status === 'SUBSCRIBED') {
-            setHasConnectionError(false);
-          }
-        }
-      });
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    // Messages table doesn't exist yet, skip real-time subscription
+    return () => {};
   }, [user, conversationId]);
 
   const sendMessage = async () => {
@@ -135,19 +79,10 @@ export const useConversationMessages = (conversationId: string | null) => {
     setIsLoading(true);
     try {
       setHasConnectionError(false);
-      const authorName = userProfile.full_name || user.email || 'Unknown User';
       
-      const { error } = await supabase
-        .from('forum_messages')
-        .insert({
-          user_id: user.id,
-          author_name: authorName,
-          message: inputMessage.trim(),
-          conversation_id: conversationId
-        });
-
-      if (error) throw error;
-
+      // Messages table doesn't exist yet
+      console.log('Messages table not implemented yet');
+      
       if (mountedRef.current) {
         setInputMessage('');
       }

@@ -139,7 +139,6 @@ export const useCreateCaseSubmit = () => {
       const { error } = await supabase
         .from('cases')
         .insert({
-          user_id: user.id,
           company_id: company.id,
           customer_name: customerName,
           customer_phone: formData.customerPhone,

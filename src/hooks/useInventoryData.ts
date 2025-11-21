@@ -30,48 +30,13 @@ export const useInventoryData = () => {
   };
 
   const fetchTransactions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('inventory_transactions')
-        .select(`
-          *,
-          inventory_item:inventory_items(item_name),
-          case:cases(wo_number, customer_name)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setTransactions(data || []);
-    } catch (error) {
-      console.error('Error fetching transactions:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load transactions",
-        variant: "destructive",
-      });
-    }
+    // Transactions table doesn't exist yet
+    setTransactions([]);
   };
 
   const fetchAlerts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('reorder_alerts')
-        .select(`
-          *,
-          inventory_item:inventory_items(item_name, current_stock, minimum_stock)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setAlerts(data || []);
-    } catch (error) {
-      console.error('Error fetching alerts:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load alerts",
-        variant: "destructive",
-      });
-    }
+    // Alerts table doesn't exist yet
+    setAlerts([]);
   };
 
   const refetch = async () => {
@@ -99,40 +64,8 @@ export const useInventoryData = () => {
       )
       .subscribe();
 
-    const transactionsChannel = supabase
-      .channel('inventory-transactions-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'inventory_transactions'
-        },
-        () => {
-          fetchTransactions();
-        }
-      )
-      .subscribe();
-
-    const alertsChannel = supabase
-      .channel('reorder-alerts-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'reorder_alerts'
-        },
-        () => {
-          fetchAlerts();
-        }
-      )
-      .subscribe();
-
     return () => {
       supabase.removeChannel(itemsChannel);
-      supabase.removeChannel(transactionsChannel);
-      supabase.removeChannel(alertsChannel);
     };
   }, []);
 

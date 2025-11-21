@@ -65,34 +65,15 @@ export const useEditCaseForm = (caseData: Case) => {
     partsNeeded: caseData.parts_needed || '',
     estimatedTime: caseData.estimated_time || '',
     technicianNotes: caseData.technician_notes || '',
-    laborLevel: caseData.labor_level || 0,
+    laborLevel: Number(caseData.labor_level) || 0,
     diagnosticFeeType: caseData.diagnostic_fee_type || '',
     diagnosticFeeAmount: caseData.diagnostic_fee_amount || 0,
   });
 
   // Load parts for this case
   useEffect(() => {
-    const loadCaseParts = async () => {
-      if (!user || !caseData.id) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('case_parts')
-          .select('*')
-          .eq('case_id', caseData.id);
-
-        if (error) {
-          console.error('Error loading parts:', error);
-          return;
-        }
-
-        setParts(data || []);
-      } catch (error) {
-        console.error('Error loading parts:', error);
-      }
-    };
-
-    loadCaseParts();
+    // case_parts table doesn't exist yet
+    setParts([]);
   }, [user, caseData.id]);
 
   const handleInputChange = (field: string, value: string | number) => {

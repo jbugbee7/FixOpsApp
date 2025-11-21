@@ -90,60 +90,21 @@ export const useInventoryOperations = () => {
   };
 
   const addTransaction = async (transactionData: any) => {
-    try {
-      const { data, error } = await supabase
-        .from('inventory_transactions')
-        .insert({
-          ...transactionData,
-          user_id: user?.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Transaction recorded successfully",
-      });
-
-      return data;
-    } catch (error) {
-      console.error('Error adding transaction:', error);
-      toast({
-        title: "Error",
-        description: "Failed to record transaction",
-        variant: "destructive",
-      });
-      throw error;
-    }
+    // Transactions table doesn't exist yet
+    console.log('Transaction would be recorded:', transactionData);
+    toast({
+      title: "Info",
+      description: "Transaction recording not yet implemented",
+    });
   };
 
   const acknowledgeAlert = async (alertId: string) => {
-    try {
-      const { error } = await supabase
-        .from('reorder_alerts')
-        .update({
-          is_acknowledged: true,
-          acknowledged_at: new Date().toISOString()
-        })
-        .eq('id', alertId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Alert acknowledged",
-      });
-    } catch (error) {
-      console.error('Error acknowledging alert:', error);
-      toast({
-        title: "Error",
-        description: "Failed to acknowledge alert",
-        variant: "destructive",
-      });
-      throw error;
-    }
+    // Alerts table doesn't exist yet
+    console.log('Alert would be acknowledged:', alertId);
+    toast({
+      title: "Info",
+      description: "Alert acknowledgement not yet implemented",
+    });
   };
 
   return {
