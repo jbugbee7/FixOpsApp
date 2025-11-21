@@ -41,7 +41,7 @@ const SimplifiedChatPage = () => {
     error,
     sendMessage,
     refetchConversations
-  } = useSimplifiedChat();
+  } = useSimplifiedChat(user?.id);
 
   // Auto-select General Discussion when conversations load
   React.useEffect(() => {
@@ -56,9 +56,15 @@ const SimplifiedChatPage = () => {
   const { cases } = useBasicCaseOperations(user, isOnline);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && selectedConversation) {
       e.preventDefault();
-      sendMessage();
+      sendMessage(selectedConversation, inputMessage);
+    }
+  };
+
+  const handleSendMessage = () => {
+    if (selectedConversation && inputMessage.trim()) {
+      sendMessage(selectedConversation, inputMessage);
     }
   };
 
@@ -351,12 +357,12 @@ const SimplifiedChatPage = () => {
               </div>
             ) : (
               messages.map((message) => (
-                <EnhancedForumMessage 
-                  key={message.id} 
-                  message={message}
-                  workOrders={cases}
-                  onViewWorkOrder={handleViewWorkOrder}
-                />
+                <div key={message.id} className="mb-4 p-3 rounded-lg bg-purple-50 dark:bg-slate-800">
+                  <p className="text-sm text-foreground">{message.content}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(message.created_at).toLocaleString()}
+                  </p>
+                </div>
               ))
             )}
           </div>
@@ -374,7 +380,7 @@ const SimplifiedChatPage = () => {
               disabled={isLoading || !selectedConversation}
             />
             <Button 
-              onClick={sendMessage}
+              onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading || !selectedConversation}
               className="bg-purple-500 hover:bg-purple-600 px-4"
             >
