@@ -6,5 +6,12 @@ export const fetchCasesFromDB = async (): Promise<Case[]> => {
   return data || [];
 };
 
-export const fetchAllCases = fetchCasesFromDB;
-export const fetchUserCases = fetchCasesFromDB;
+export const fetchAllCases = async (userId?: string) => {
+  const cases = await fetchCasesFromDB();
+  return { cases, error: null };
+};
+
+export const fetchUserCases = async (userId: string) => {
+  const cases = await fetchCasesFromDB();
+  return { cases, error: null };
+};
