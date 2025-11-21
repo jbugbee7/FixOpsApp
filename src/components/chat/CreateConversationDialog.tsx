@@ -39,8 +39,7 @@ const CreateConversationDialog = ({ open, onOpenChange, onConversationCreated }:
         .from('conversations')
         .insert({
           name: name.trim(),
-          description: description.trim() || null,
-          created_by: user.id
+          is_group: true
         })
         .select()
         .single();

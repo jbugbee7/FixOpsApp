@@ -96,7 +96,7 @@ const SearchBar = ({ onNavigate, onModelFound, onPartFound, onCaseClick, cases =
       const { data: models, error: modelsError } = await supabase
         .from('appliance_models')
         .select('*')
-        .or(`model.ilike.%${query}%,brand.ilike.%${query}%,serial_number.ilike.%${query}%`)
+        .or(`model.ilike.%${query}%,brand.ilike.%${query}%`)
         .limit(5);
 
       if (modelsError) {
