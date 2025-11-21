@@ -10,8 +10,8 @@ export const useBasicCaseOperations = (user: any, isOnline: boolean) => {
   
   const { cases, publicCases, setCases, setPublicCases, loading, hasError, fetchCases } = useBasicCaseFetching(user, isOnline);
   
-  // Combine cases and public cases for display
-  const allCases = [...cases, ...publicCases];
+  // Combine cases and public cases for display (cast to Case[] for compatibility)
+  const allCases = [...cases, ...publicCases.map(pc => ({ ...pc, company_id: '' } as Case))];
   
   const { hasOfflineData, setHasOfflineData } = useOfflineData(isOnline, allCases);
   const { updateCaseStatus } = useBasicCaseStatusUpdate(user, isOnline, cases, setCases, publicCases, setPublicCases);

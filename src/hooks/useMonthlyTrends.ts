@@ -38,12 +38,12 @@ export const useMonthlyTrends = () => {
 
           const { data: invoices } = await supabase
             .from('invoices')
-            .select('total_amount')
+            .select('total')
             .gte('created_at', month.startOfMonth.toISOString())
             .lte('created_at', month.endOfMonth.toISOString());
 
           const workOrders = cases?.length || 0;
-          const revenue = invoices?.reduce((sum, inv) => sum + (inv.total_amount || 0), 0) || 0;
+          const revenue = invoices?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
           const completed = cases?.filter(c => c.status === 'Completed' || c.status === 'completed').length || 0;
           const completion = workOrders > 0 ? (completed / workOrders) * 100 : 0;
 

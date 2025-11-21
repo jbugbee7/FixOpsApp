@@ -76,50 +76,16 @@ export const useConversations = () => {
         return;
       }
 
-      // Get member counts and last messages for each conversation
-      const conversationsWithMetadata = await Promise.all(
-        conversationsData.map(async (conv) => {
-          try {
-            // Get member count using the safe function
-            const { data: memberCountData, error: memberCountError } = await supabase
-              .rpc('get_active_member_count', { conversation_id: conv.id });
-
-            if (memberCountError) {
-              console.error('Error getting member count for', conv.id, ':', memberCountError);
-            }
-
-            // Get last message
-            const { data: lastMessage, error: lastMessageError } = await supabase
-              .from('forum_messages')
-              .select('message, created_at')
-              .eq('conversation_id', conv.id)
-              .order('created_at', { ascending: false })
-              .limit(1)
-              .maybeSingle();
-
-            if (lastMessageError) {
-              console.error('Error getting last message for', conv.id, ':', lastMessageError);
-            }
-
-            return {
-              ...conv,
-              member_count: memberCountData || 0,
-              last_message: lastMessage?.message || 'No messages yet',
-              last_message_time: lastMessage?.created_at || conv.created_at,
-              unread_count: 0 // We'll implement this later
-            };
-          } catch (error) {
-            console.error('Error processing conversation metadata for', conv.id, ':', error);
-            return {
-              ...conv,
-              member_count: 0,
-              last_message: 'No messages yet',
-              last_message_time: conv.created_at,
-              unread_count: 0
-            };
-          }
-        })
-      );
+      // Add basic metadata to conversations
+      const conversationsWithMetadata = conversationsData.map((conv) => ({
+        ...conv,
+        description: null,
+        created_by: '',
+        member_count: 0,
+        last_message: 'No messages yet',
+        last_message_time: conv.created_at,
+        unread_count: 0
+      }));
 
       console.log('Conversations with metadata:', conversationsWithMetadata.length);
       setConversations(conversationsWithMetadata);
