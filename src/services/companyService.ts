@@ -4,12 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Company {
   id: string;
   name: string;
-  subscription_status: string;
-  subscription_plan: string;
-  contact_email?: string;
-  contact_phone?: string;
-  address?: string;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -32,8 +26,8 @@ export const createCompanyAndAssignOwner = async (
       return { company_id: null, error: error.message };
     }
 
-    console.log('Company created successfully:', data);
-    return { company_id: data, error: null };
+    // RPC returns company_id as string
+    return { company_id: typeof data === 'string' ? data : null, error: null };
   } catch (err) {
     console.error('Unexpected error creating company:', err);
     return { company_id: null, error: 'Failed to create company' };

@@ -28,16 +28,15 @@ const Agreement = () => {
     try {
       console.log('Saving agreements for user:', user.id);
       
-      // Use upsert to handle both insert and update cases
+      // Use update instead of upsert, remove id from update data
       const { error } = await supabase
         .from('profiles')
-        .upsert({
-          id: user.id,
+        .update({
           policy_agreed: true,
           terms_agreed: true,
           agreements_date: new Date().toISOString(),
-          email: user.email,
-        }, {
+        })
+        .eq('id', user.id);
           onConflict: 'id'
         });
 
