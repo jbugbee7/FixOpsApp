@@ -103,14 +103,14 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
 
     setFormData(prev => ({
       ...prev,
-      checklist_items: [...(prev.checklist_items || []), newItem],
+      items: [...(prev.items || []), newItem],
     }));
   };
 
   const updateChecklistItem = (index: number, updates: Partial<ChecklistItem>) => {
     setFormData(prev => ({
       ...prev,
-      checklist_items: prev.checklist_items?.map((item, i) => 
+      items: prev.items?.map((item: any, i: number) => 
         i === index ? { ...item, ...updates } : item
       ) || [],
     }));
@@ -119,7 +119,7 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
   const removeChecklistItem = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      checklist_items: prev.checklist_items?.filter((_, i) => i !== index) || [],
+      items: prev.items?.filter((_: any, i: number) => i !== index) || [],
     }));
   };
 
@@ -222,7 +222,7 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
                   </div>
 
                   <div className="space-y-4">
-                    {formData.checklist_items?.map((item, index) => (
+                    {formData.items?.map((item: any, index: number) => (
                       <div key={item.id} className="border rounded-lg p-4 space-y-3">
                         <div className="flex items-start gap-3">
                           <GripVertical className="h-5 w-5 text-muted-foreground mt-2" />
@@ -293,7 +293,8 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {checklists.map(checklist => {
-              const grouped = groupedItems(checklist.checklist_items);
+              const items = Array.isArray(checklist.items) ? checklist.items : [];
+              const grouped = groupedItems(items);
               
               return (
                 <Card key={checklist.id} className="relative">
@@ -301,18 +302,6 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-base">{checklist.name}</CardTitle>
-                        <div className="flex gap-2 mt-2">
-                          {checklist.appliance_type && (
-                            <Badge variant="secondary" className="text-xs">
-                              {checklist.appliance_type}
-                            </Badge>
-                          )}
-                          {checklist.service_type && (
-                            <Badge variant="outline" className="text-xs">
-                              {checklist.service_type}
-                            </Badge>
-                          )}
-                        </div>
                       </div>
                       <div className="flex gap-1">
                         <Button
@@ -341,7 +330,7 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
                     
                     <div className="space-y-3">
                       <div className="text-sm font-medium">
-                        {checklist.checklist_items.length} items
+                        {items.length} items
                       </div>
                       
                       {Object.entries(grouped).slice(0, 3).map(([category, items]) => (
