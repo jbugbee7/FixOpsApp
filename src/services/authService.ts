@@ -2,7 +2,7 @@
 import { fetchUserProfile, updateUserProfileData } from './profileService';
 import { signUpWithEmail, signInWithEmail, signOutUser as signOut } from './authenticationService';
 import { createCompanyAndAssignOwner } from './companyService';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 
 // Re-export for backward compatibility
 export const fetchProfile = fetchUserProfile;

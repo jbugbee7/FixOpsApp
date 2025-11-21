@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 
 export const signUpWithEmail = async (email: string, password: string, fullName?: string) => {
   // CRITICAL: Always include emailRedirectTo for proper authentication flow

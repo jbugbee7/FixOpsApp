@@ -1,6 +1,6 @@
 
 import { useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import { useOfflineData } from './useOfflineData';
 import { useCaseFetching } from './useCaseFetching';
 import { useCaseStatusUpdate } from './useCaseStatusUpdate';

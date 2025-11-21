@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 import SearchResults from './SearchResults';
 import SearchSuggestions from './SearchSuggestions';
 import type { Case } from '@/types/case';

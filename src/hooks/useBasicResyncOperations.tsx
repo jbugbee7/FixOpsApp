@@ -2,7 +2,7 @@
 import { toast } from "@/hooks/use-toast";
 import { AsyncStorage } from '@/utils/asyncStorage';
 import { Case } from '@/types/case';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/supabaseClient";
 
 export const useBasicResyncOperations = (
   isOnline: boolean,
