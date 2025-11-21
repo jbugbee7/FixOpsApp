@@ -168,38 +168,6 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="appliance_type">Appliance Type</Label>
-                    <Select
-                      value={formData.appliance_type || ''}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, appliance_type: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select appliance type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {applianceTypes.map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="service_type">Service Type</Label>
-                    <Select
-                      value={formData.service_type || ''}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, service_type: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select service type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {serviceTypes.map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="description">Description</Label>
                     <Textarea
                       id="description"
