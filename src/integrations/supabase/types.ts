@@ -14,16 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          agreements_date: string | null
+          company_id: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string
+          id: string
+          phone_number: string | null
+          phone_verified: boolean | null
+          policy_agreed: boolean | null
+          terms_agreed: boolean | null
+          updated_at: string | null
+          verification_code: string | null
+          verification_code_expires_at: string | null
+        }
+        Insert: {
+          agreements_date?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name: string
+          id: string
+          phone_number?: string | null
+          phone_verified?: boolean | null
+          policy_agreed?: boolean | null
+          terms_agreed?: boolean | null
+          updated_at?: string | null
+          verification_code?: string | null
+          verification_code_expires_at?: string | null
+        }
+        Update: {
+          agreements_date?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone_number?: string | null
+          phone_verified?: boolean | null
+          policy_agreed?: boolean | null
+          terms_agreed?: boolean | null
+          updated_at?: string | null
+          verification_code?: string | null
+          verification_code_expires_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "technician" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +250,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "technician", "user"],
+    },
   },
 } as const
