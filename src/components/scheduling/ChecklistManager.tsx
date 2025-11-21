@@ -45,9 +45,7 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
   const [formData, setFormData] = useState<Partial<JobChecklist>>({
     name: '',
     description: '',
-    appliance_type: '',
-    service_type: '',
-    checklist_items: [],
+    items: [],
     is_active: true,
   });
 
@@ -69,9 +67,7 @@ const ChecklistManager: React.FC<ChecklistManagerProps> = ({
     setFormData({
       name: '',
       description: '',
-      appliance_type: '',
-      service_type: '',
-      checklist_items: [],
+      items: [],
       is_active: true,
     });
     setEditingChecklist(null);

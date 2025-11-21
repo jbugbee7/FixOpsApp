@@ -38,7 +38,7 @@ export interface JobChecklist {
   company_id: string;
   name: string;
   description?: string;
-  items: any;
+  items: any; // Maps to database 'items' field
   is_active: boolean;
   created_at: string;
   updated_at: string;
