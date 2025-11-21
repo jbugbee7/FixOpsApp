@@ -1,18 +1,7 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import type { Tables } from '@/integrations/supabase/types';
 
-export interface Company {
-  id: string;
-  name: string;
-  subscription_status: string;
-  subscription_plan: string;
-  contact_email?: string;
-  contact_phone?: string;
-  address?: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
+export type Company = Tables<'companies'>;
 
 export const createCompanyAndAssignOwner = async (
   companyName: string,
@@ -21,38 +10,63 @@ export const createCompanyAndAssignOwner = async (
   try {
     console.log('Creating company and assigning owner:', companyName, ownerUserId);
     
-    const { data, error } = await supabase
-      .rpc('create_company_and_assign_owner', {
-        company_name: companyName,
-        owner_user_id: ownerUserId
-      });
+    const { data: company, error: companyError } = await supabase
+      .from('companies')
+      .insert({ name: companyName })
+      .select()
+      .maybeSingle();
 
-    if (error) {
-      console.error('Error creating company:', error);
-      return { company_id: null, error: error.message };
+    if (companyError) {
+      console.error('Error creating company:', companyError);
+      return { company_id: null, error: companyError.message };
     }
 
-    console.log('Company created successfully:', data);
-    return { company_id: data, error: null };
+    if (!company) {
+      return { company_id: null, error: 'Failed to create company' };
+    }
+
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ company_id: company.id })
+      .eq('id', ownerUserId);
+
+    if (profileError) {
+      console.error('Error assigning owner:', profileError);
+      return { company_id: null, error: profileError.message };
+    }
+
+    console.log('Company created successfully:', company.id);
+    return { company_id: company.id, error: null };
   } catch (err) {
     console.error('Unexpected error creating company:', err);
     return { company_id: null, error: 'Failed to create company' };
   }
 };
 
-export const fetchUserCompany = async (): Promise<{ company: Company | null; error: string | null }> => {
+export const fetchUserCompany = async (userId: string): Promise<{ company: Company | null; error: string | null }> => {
   try {
-    const { data: companies, error } = await supabase
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (!profile?.company_id) {
+      return { company: null, error: null };
+    }
+
+    const { data: company, error } = await supabase
       .from('companies')
       .select('*')
-      .limit(1);
+      .eq('id', profile.company_id)
+      .maybeSingle();
 
     if (error) {
-      console.error('Error fetching user company:', error);
+      console.error('Error fetching company:', error);
       return { company: null, error: error.message };
     }
 
-    return { company: companies?.[0] || null, error: null };
+    return { company, error: null };
   } catch (err) {
     console.error('Unexpected error fetching company:', err);
     return { company: null, error: 'Failed to fetch company' };
@@ -69,7 +83,7 @@ export const updateCompany = async (
       .update(updates)
       .eq('id', companyId)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error updating company:', error);
