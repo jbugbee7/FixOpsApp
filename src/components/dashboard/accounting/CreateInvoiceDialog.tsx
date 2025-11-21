@@ -37,8 +37,8 @@ const CreateInvoiceDialog = ({ open, onOpenChange }: CreateInvoiceDialogProps) =
         ...formData,
         issue_date: new Date().toISOString().split('T')[0],
         subtotal: 0,
-        tax_amount: 0,
-        total_amount: 0,
+        tax: 0,
+        total: 0,
       });
       
       onOpenChange(false);

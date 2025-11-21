@@ -6,20 +6,9 @@ import type { Tables } from '@/integrations/supabase/types';
 import { debounce } from 'lodash';
 
 // Use the actual database table types directly
-export interface Invoice extends Tables<'invoices'> {
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
-}
-
-export interface Expense extends Tables<'expenses'> {
-  status: 'pending' | 'approved' | 'rejected';
-}
-
-export interface PaymentReminder extends Tables<'payment_reminders'> {
-  reminder_type: 'automatic' | 'manual';
-  status: 'pending' | 'sent' | 'cancelled';
-}
-
-export interface InvoiceItem extends Tables<'invoice_items'> {}
+export type Invoice = Tables<'invoices'>;
+export type Expense = Tables<'expenses'>;
+export type Payment = Tables<'payments'>;
 
 interface ErrorResponse {
   message: string;
@@ -44,11 +33,11 @@ const handleError = (
 
 // Generic fetch function with proper typing
 const fetchData = async <T>(
-  tableName: 'invoices' | 'expenses' | 'payment_reminders',
+  tableName: 'invoices' | 'expenses' | 'payments',
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<T[]> => {
   try {
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from(tableName)
       .select('*')
       .order('created_at', { ascending: false });
@@ -63,20 +52,14 @@ const fetchData = async <T>(
 
 // Generic CRUD operations with proper typing
 const createRecord = async <T>(
-  tableName: 'invoices' | 'expenses' | 'payment_reminders',
+  tableName: 'invoices' | 'expenses' | 'payments',
   data: any,
-  userId: string | null,
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<T | null> => {
-  if (!userId) {
-    handleError(new Error('User not authenticated'), `Failed to create ${tableName.slice(0, -1)}`, toast);
-    return null;
-  }
-
   try {
     const { data: result, error } = await supabase
       .from(tableName)
-      .insert({ ...data, user_id: userId })
+      .insert(data)
       .select()
       .single();
 
@@ -93,7 +76,7 @@ const createRecord = async <T>(
 };
 
 const updateRecord = async <T>(
-  tableName: 'invoices' | 'expenses' | 'payment_reminders',
+  tableName: 'invoices' | 'expenses' | 'payments',
   id: string,
   updates: any,
   toast: ReturnType<typeof useToast>['toast']
@@ -119,7 +102,7 @@ const updateRecord = async <T>(
 };
 
 const deleteRecord = async (
-  tableName: 'invoices' | 'expenses' | 'payment_reminders',
+  tableName: 'invoices' | 'expenses' | 'payments',
   id: string,
   toast: ReturnType<typeof useToast>['toast']
 ): Promise<boolean> => {
@@ -144,7 +127,7 @@ const deleteRecord = async (
 export const useAccountingData = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [paymentReminders, setPaymentReminders] = useState<PaymentReminder[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
@@ -152,29 +135,29 @@ export const useAccountingData = () => {
   // Fetch functions
   const fetchInvoices = useCallback(() => fetchData<Invoice>('invoices', toast), [toast]);
   const fetchExpenses = useCallback(() => fetchData<Expense>('expenses', toast), [toast]);
-  const fetchPaymentReminders = useCallback(() => fetchData<PaymentReminder>('payment_reminders', toast), [toast]);
+  const fetchPayments = useCallback(() => fetchData<Payment>('payments', toast), [toast]);
 
   // Optimized refetch to prevent excessive calls during real-time updates
   const debouncedRefetch = useCallback(
     debounce(async () => {
       console.log('Real-time update: Refetching accounting data');
       try {
-        const [invoicesData, expensesData, remindersData] = await Promise.all([
+        const [invoicesData, expensesData, paymentsData] = await Promise.all([
           fetchInvoices(), 
           fetchExpenses(), 
-          fetchPaymentReminders()
+          fetchPayments()
         ]);
         
         setInvoices(invoicesData);
         setExpenses(expensesData);
-        setPaymentReminders(remindersData);
+        setPayments(paymentsData);
         setError(null);
       } catch (err) {
         console.error('Real-time refetch error:', err);
         setError('Failed to sync real-time data');
       }
     }, 300),
-    [fetchInvoices, fetchExpenses, fetchPaymentReminders]
+    [fetchInvoices, fetchExpenses, fetchPayments]
   );
 
   // Initial data fetch
@@ -185,15 +168,15 @@ export const useAccountingData = () => {
       setError(null);
       
       try {
-        const [invoicesData, expensesData, remindersData] = await Promise.all([
+        const [invoicesData, expensesData, paymentsData] = await Promise.all([
           fetchInvoices(), 
           fetchExpenses(), 
-          fetchPaymentReminders()
+          fetchPayments()
         ]);
         
         setInvoices(invoicesData);
         setExpenses(expensesData);
-        setPaymentReminders(remindersData);
+        setPayments(paymentsData);
       } catch (err) {
         console.error('Initial data load error:', err);
         setError('Failed to load accounting data');
@@ -203,7 +186,7 @@ export const useAccountingData = () => {
     };
 
     loadData();
-  }, [fetchInvoices, fetchExpenses, fetchPaymentReminders]);
+  }, [fetchInvoices, fetchExpenses, fetchPayments]);
 
   // Enhanced real-time subscriptions with better error handling
   useEffect(() => {
@@ -237,38 +220,31 @@ export const useAccountingData = () => {
         console.log('Expenses channel status:', status);
       });
 
-    const remindersChannel = supabase
-      .channel('payment-reminders-realtime')
+    const paymentsChannel = supabase
+      .channel('payments-realtime')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
-        table: 'payment_reminders' 
+        table: 'payments' 
       }, (payload) => {
-        console.log('Real-time payment reminders change:', payload.eventType, payload);
+        console.log('Real-time payments change:', payload.eventType, payload);
         debouncedRefetch();
       })
       .subscribe((status) => {
-        console.log('Payment reminders channel status:', status);
+        console.log('Payments channel status:', status);
       });
 
     return () => {
       console.log('Cleaning up real-time subscriptions');
       supabase.removeChannel(invoicesChannel);
       supabase.removeChannel(expensesChannel);
-      supabase.removeChannel(remindersChannel);
+      supabase.removeChannel(paymentsChannel);
     };
   }, [debouncedRefetch]);
 
-  // Get authenticated user ID
-  const getUserId = async (): Promise<string | null> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user?.id ?? null;
-  };
-
   // CRUD operations for invoices
   const createInvoice = async (invoiceData: Partial<Invoice>) => {
-    const userId = await getUserId();
-    return createRecord<Invoice>('invoices', invoiceData, userId, toast);
+    return createRecord<Invoice>('invoices', invoiceData, toast);
   };
 
   const updateInvoice = async (id: string, updates: Partial<Invoice>) => {
@@ -281,8 +257,7 @@ export const useAccountingData = () => {
 
   // CRUD operations for expenses
   const createExpense = async (expenseData: Partial<Expense>) => {
-    const userId = await getUserId();
-    return createRecord<Expense>('expenses', expenseData, userId, toast);
+    return createRecord<Expense>('expenses', expenseData, toast);
   };
 
   const updateExpense = async (id: string, updates: Partial<Expense>) => {
@@ -293,24 +268,23 @@ export const useAccountingData = () => {
     return deleteRecord('expenses', id, toast);
   };
 
-  // CRUD operations for payment reminders
-  const createPaymentReminder = async (reminderData: Partial<PaymentReminder>) => {
-    const userId = await getUserId();
-    return createRecord<PaymentReminder>('payment_reminders', reminderData, userId, toast);
+  // CRUD operations for payments
+  const createPayment = async (paymentData: Partial<Payment>) => {
+    return createRecord<Payment>('payments', paymentData, toast);
   };
 
-  const updatePaymentReminder = async (id: string, updates: Partial<PaymentReminder>) => {
-    return updateRecord<PaymentReminder>('payment_reminders', id, updates, toast);
+  const updatePayment = async (id: string, updates: Partial<Payment>) => {
+    return updateRecord<Payment>('payments', id, updates, toast);
   };
 
-  const deletePaymentReminder = async (id: string) => {
-    return deleteRecord('payment_reminders', id, toast);
+  const deletePayment = async (id: string) => {
+    return deleteRecord('payments', id, toast);
   };
 
   return {
     invoices,
     expenses,
-    paymentReminders,
+    payments,
     loading,
     error,
     createInvoice,
@@ -319,9 +293,9 @@ export const useAccountingData = () => {
     createExpense,
     updateExpense,
     deleteExpense,
-    createPaymentReminder,
-    updatePaymentReminder,
-    deletePaymentReminder,
+    createPayment,
+    updatePayment,
+    deletePayment,
     refetch: debouncedRefetch,
   };
 };

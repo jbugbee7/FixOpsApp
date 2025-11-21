@@ -6,7 +6,7 @@ import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAccountingData } from '@/hooks/useAccountingData';
 
 const PaymentsTab = () => {
-  const { invoices, paymentReminders, loading } = useAccountingData();
+  const { invoices, payments, loading } = useAccountingData();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -54,8 +54,8 @@ const PaymentsTab = () => {
   const overdueInvoices = invoices.filter(inv => inv.status === 'overdue');
   const pendingInvoices = invoices.filter(inv => inv.status === 'sent');
 
-  const totalRevenue = paidInvoices.reduce((sum, inv) => sum + inv.total_amount, 0);
-  const totalOutstanding = [...pendingInvoices, ...overdueInvoices].reduce((sum, inv) => sum + inv.total_amount, 0);
+  const totalRevenue = paidInvoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
+  const totalOutstanding = [...pendingInvoices, ...overdueInvoices].reduce((sum, inv) => sum + (inv.total || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -133,14 +133,14 @@ const PaymentsTab = () => {
                     {getStatusIcon(invoice.status)}
                     <div>
                       <h4 className="font-medium">{invoice.invoice_number}</h4>
-                      <p className="text-sm text-gray-600">{invoice.customer_name}</p>
+                      <p className="text-sm text-gray-600">Invoice #{invoice.invoice_number}</p>
                       <p className="text-sm text-gray-500">
-                        Due: {new Date(invoice.due_date).toLocaleDateString()}
+                        Due: {new Date(invoice.due_date || invoice.issue_date).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">{formatCurrency(invoice.total_amount)}</p>
+                    <p className="font-semibold">{formatCurrency(invoice.total || 0)}</p>
                     <Badge className={getStatusColor(invoice.status)}>
                       {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                     </Badge>
@@ -173,14 +173,14 @@ const PaymentsTab = () => {
                     <CheckCircle className="h-5 w-5 text-green-600" />
                     <div>
                       <h4 className="font-medium">{invoice.invoice_number}</h4>
-                      <p className="text-sm text-gray-600">{invoice.customer_name}</p>
+                      <p className="text-sm text-gray-600">Invoice #{invoice.invoice_number}</p>
                       <p className="text-sm text-gray-500">
-                        Paid: {new Date(invoice.updated_at).toLocaleDateString()}
+                        Paid: {new Date(invoice.updated_at || invoice.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-green-600">{formatCurrency(invoice.total_amount)}</p>
+                    <p className="font-semibold text-green-600">{formatCurrency(invoice.total || 0)}</p>
                     <Badge className="bg-green-100 text-green-800">Paid</Badge>
                   </div>
                 </div>
