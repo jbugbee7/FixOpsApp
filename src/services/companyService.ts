@@ -13,21 +13,33 @@ export const createCompanyAndAssignOwner = async (
   ownerUserId: string
 ): Promise<{ company_id: string | null; error: string | null }> => {
   try {
-    console.log('Creating company and assigning owner:', companyName, ownerUserId);
+    console.log('Creating company:', companyName, ownerUserId);
     
-    const { data, error } = await supabase
-      .rpc('create_company_and_assign_owner', {
-        company_name: companyName,
-        owner_user_id: ownerUserId
-      });
+    // Create the company directly
+    const { data: companyData, error: companyError } = await supabase
+      .from('companies')
+      .insert({ name: companyName })
+      .select()
+      .single();
 
-    if (error) {
-      console.error('Error creating company:', error);
-      return { company_id: null, error: error.message };
+    if (companyError) {
+      console.error('Error creating company:', companyError);
+      return { company_id: null, error: companyError.message };
     }
 
-    // RPC returns company_id as string
-    return { company_id: typeof data === 'string' ? data : null, error: null };
+    // Update user profile with company_id
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .update({ company_id: companyData.id })
+      .eq('id', ownerUserId);
+
+    if (profileError) {
+      console.error('Error assigning company to user:', profileError);
+      return { company_id: null, error: profileError.message };
+    }
+
+    console.log('Company created successfully:', companyData.id);
+    return { company_id: companyData.id, error: null };
   } catch (err) {
     console.error('Unexpected error creating company:', err);
     return { company_id: null, error: 'Failed to create company' };
