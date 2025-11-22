@@ -4,16 +4,12 @@ import { User } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ForumMessage as ForumMessageType } from '@/types/forumMessage';
 import { useAuth } from '@/contexts/AuthContext';
-import { Case } from '@/types/case';
-import WorkOrderReference from '@/components/chat/WorkOrderReference';
 
 interface EnhancedForumMessageProps {
   message: ForumMessageType;
-  workOrders?: Case[];
-  onViewWorkOrder?: (workOrder: Case) => void;
 }
 
-const EnhancedForumMessage = ({ message, workOrders = [], onViewWorkOrder }: EnhancedForumMessageProps) => {
+const EnhancedForumMessage = ({ message }: EnhancedForumMessageProps) => {
   const { user, userProfile } = useAuth();
   const isOwnMessage = user?.id === message.user_id;
   
@@ -21,58 +17,6 @@ const EnhancedForumMessage = ({ message, workOrders = [], onViewWorkOrder }: Enh
   const displayName = isOwnMessage 
     ? (userProfile?.full_name || user?.email || message.author_name)
     : message.author_name;
-
-  // Function to parse work order references from message text
-  const parseWorkOrderReferences = (text: string) => {
-    const woPattern = /WO-(\d+)/gi;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = woPattern.exec(text)) !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        parts.push({
-          type: 'text',
-          content: text.slice(lastIndex, match.index)
-        });
-      }
-
-      // Find the work order
-      const woNumber = match[0];
-      const foundWorkOrder = workOrders.find(wo => 
-        wo.wo_number === woNumber || 
-        `WO-${wo.id.slice(0, 8)}` === woNumber
-      );
-
-      if (foundWorkOrder) {
-        parts.push({
-          type: 'workorder',
-          content: woNumber,
-          workOrder: foundWorkOrder
-        });
-      } else {
-        parts.push({
-          type: 'text',
-          content: woNumber
-        });
-      }
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < text.length) {
-      parts.push({
-        type: 'text',
-        content: text.slice(lastIndex)
-      });
-    }
-
-    return parts.length > 0 ? parts : [{ type: 'text', content: text }];
-  };
-
-  const messageParts = parseWorkOrderReferences(message.message);
 
   return (
     <div className={`flex px-2 sm:px-4 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
@@ -95,19 +39,7 @@ const EnhancedForumMessage = ({ message, workOrders = [], onViewWorkOrder }: Enh
             </div>
             
             <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-              {messageParts.map((part, index) => {
-                if (part.type === 'workorder' && part.workOrder && onViewWorkOrder) {
-                  return (
-                    <div key={index} className="my-2">
-                      <WorkOrderReference 
-                        workOrder={part.workOrder} 
-                        onViewDetails={onViewWorkOrder}
-                      />
-                    </div>
-                  );
-                }
-                return <span key={index}>{part.content}</span>;
-              })}
+              {message.message}
             </div>
           </CardContent>
         </Card>
