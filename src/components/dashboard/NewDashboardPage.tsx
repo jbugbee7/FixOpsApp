@@ -35,14 +35,14 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
     },
   };
 
-  // Slate + Crimson color palette
+  // Brighter color palette for better dark mode visibility
   const colorPalette = [
-    'hsl(210 10% 30%)', // slate dark
-    'hsl(210 10% 40%)', // slate medium
-    'hsl(0 70% 45%)',   // crimson
-    'hsl(210 10% 50%)', // slate light
-    'hsl(0 60% 40%)',   // crimson dark
-    'hsl(210 10% 35%)', // slate variant
+    'hsl(210 15% 55%)', // slate lighter
+    'hsl(210 15% 65%)', // slate bright
+    'hsl(0 85% 65%)',   // crimson bright
+    'hsl(210 15% 70%)', // slate very light
+    'hsl(0 75% 60%)',   // crimson medium
+    'hsl(210 15% 60%)', // slate medium light
   ];
 
   // Transform monthly data to pie chart format for work orders
@@ -322,7 +322,10 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                   <Legend 
                     verticalAlign="bottom"
                     height={36}
-                    wrapperStyle={{ fontSize: isMobile ? 10 : 12 }}
+                    wrapperStyle={{ 
+                      fontSize: isMobile ? 10 : 12,
+                      color: 'hsl(var(--foreground))'
+                    }}
                     iconSize={isMobile ? 10 : 14}
                   />
                 </PieChart>
