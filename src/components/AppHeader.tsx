@@ -31,14 +31,7 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut, onNavigate }: AppHeaderPr
   return (
     <>
       <header className="bg-background border-b border-border/50 sticky top-0 z-50">
-        <div className="flex justify-between items-center h-16 px-4">
-          {/* Left side - FixOps */}
-          <div className="flex items-center">
-            <div className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              FixOps
-            </div>
-          </div>
-
+        <div className="flex justify-end items-center h-16 px-4">
           {/* Right side - Search and Sidebar trigger */}
           <div className="flex items-center gap-2">
             <Button 
