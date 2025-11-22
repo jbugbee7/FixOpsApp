@@ -8,11 +8,13 @@ import { useRealTimeDashboardData } from '@/hooks/useRealTimeDashboardData';
 import { useCompany } from '@/hooks/useCompany';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useNavigate } from 'react-router-dom';
 
-const NewDashboardPage = () => {
+interface NewDashboardPageProps {
+  onNavigate?: (tab: string) => void;
+}
+
+const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
   const { metrics, monthlyData, serviceCategories, loading, error } = useRealTimeDashboardData();
   const { company } = useCompany();
 
@@ -202,8 +204,8 @@ const NewDashboardPage = () => {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'workOrders' }))}
-                className="p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 transition-all duration-300 group"
+                onClick={() => onNavigate?.('add-case')}
+                className="p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 transition-all duration-300 group cursor-pointer"
               >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -214,8 +216,8 @@ const NewDashboardPage = () => {
               </button>
               
               <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'crm' }))}
-                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group"
+                onClick={() => onNavigate?.('crm')}
+                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer"
               >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -226,8 +228,8 @@ const NewDashboardPage = () => {
               </button>
               
               <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'crm' }))}
-                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group"
+                onClick={() => onNavigate?.('crm')}
+                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer"
               >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -238,8 +240,8 @@ const NewDashboardPage = () => {
               </button>
               
               <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'accounting' }))}
-                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group"
+                onClick={() => onNavigate?.('accounting')}
+                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer"
               >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">

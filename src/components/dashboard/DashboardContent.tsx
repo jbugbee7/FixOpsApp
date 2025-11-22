@@ -43,7 +43,7 @@ const DashboardContent = ({
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <NewDashboardPage />;
+        return <NewDashboardPage onNavigate={onNavigate} />;
       case 'work-order':
         return (
           <DashboardMain
@@ -79,7 +79,7 @@ const DashboardContent = ({
       case 'settings':
         return <SettingsPage />;
       default:
-        return <NewDashboardPage />;
+        return <NewDashboardPage onNavigate={onNavigate} />;
     }
   };
 
