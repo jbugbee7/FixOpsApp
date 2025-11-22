@@ -35,14 +35,14 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
     },
   };
 
-  // Brighter color palette for better dark mode visibility
+  // Distinct color palette with varied hues for better visual distinction
   const colorPalette = [
-    'hsl(210 15% 55%)', // slate lighter
-    'hsl(210 15% 65%)', // slate bright
-    'hsl(0 85% 65%)',   // crimson bright
-    'hsl(210 15% 70%)', // slate very light
-    'hsl(0 75% 60%)',   // crimson medium
-    'hsl(210 15% 60%)', // slate medium light
+    'hsl(210 80% 60%)', // bright blue
+    'hsl(0 85% 65%)',   // crimson red
+    'hsl(140 70% 55%)', // green
+    'hsl(280 70% 65%)', // purple
+    'hsl(35 90% 60%)',  // orange
+    'hsl(190 75% 55%)', // cyan
   ];
 
   // Transform monthly data to pie chart format for work orders
