@@ -115,36 +115,6 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-fade-in">
-      {/* Header Section */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              {company?.name || 'FixOps'} Dashboard
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-xs text-muted-foreground">Last updated</p>
-              <p className="text-sm font-medium">Just now</p>
-            </div>
-            <div className="h-10 w-px bg-border/50" />
-            <Card className="px-4 py-2.5 rounded-2xl bg-card/50 backdrop-blur-sm border-border/50">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <span className="text-sm font-medium">
-                  {new Date().toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
-
       {loading ? (
         <LoadingSkeleton />
       ) : (
