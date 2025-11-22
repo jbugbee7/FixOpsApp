@@ -52,11 +52,21 @@ const SchedulingPage = () => {
     }
   };
 
-  const handleCreateSchedule = () => {
-    toast({
-      title: 'Create Schedule',
-      description: 'Schedule creation feature will be implemented.',
-    });
+  const handleCreateSchedule = async (scheduleData: any) => {
+    try {
+      await createSchedule(scheduleData);
+      toast({
+        title: 'Schedule Created',
+        description: 'New job schedule has been created successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to create schedule. Please try again.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
   };
 
   const handleAssignTechnician = async (scheduleId: string, technicianId: string) => {
