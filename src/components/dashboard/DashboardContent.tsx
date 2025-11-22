@@ -1,6 +1,7 @@
 import DashboardMain from './DashboardMain';
 import NewDashboardPage from './NewDashboardPage';
 import FixChatPage from '@/components/FixChatPage';
+import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
 import CRMPage from './CRMPage';
@@ -69,6 +70,8 @@ const DashboardContent = ({
         return <ModernCaseForm fromDashboard={cameFromDashboard} onNavigate={onNavigate} />;
       case 'fixchat':
         return <FixChatPage />;
+      case 'ai-assistant':
+        return <AiAssistantPage />;
       case 'training':
         return <TrainingPage />;
       case 'crm':
