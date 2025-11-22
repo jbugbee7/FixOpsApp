@@ -37,11 +37,11 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
 
           {/* Center - FixOps Logo */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-red-600 to-red-700 dark:from-red-600 dark:to-white rounded-2xl shadow-lg shadow-red-500/30">
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl shadow-lg shadow-purple-500/30">
               <Wrench className="h-5 w-5 text-white" />
             </div>
             <div className="hidden sm:block">
-              <div className="text-xl font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white bg-clip-text text-transparent">
+              <div className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 FixOps
               </div>
             </div>
@@ -66,7 +66,7 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="rounded-xl hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-red-600 mr-2">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 mr-2">
                   <User className="h-4 w-4 text-white" />
                 </div>
                 <span className="hidden sm:inline font-medium">{displayName}</span>
@@ -86,7 +86,7 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
                         setShowUserMenu(false);
                         onSignOut();
                       }}
-                      className="w-full justify-start rounded-xl text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                      className="w-full justify-start rounded-xl text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
                       Sign Out
