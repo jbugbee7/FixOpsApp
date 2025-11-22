@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, User, Wrench, Globe } from 'lucide-react';
+import { Calendar, MapPin, User, Wrench, Globe, ChevronRight } from 'lucide-react';
 import { Case } from '@/types/case';
 
 interface WorkOrdersListProps {
@@ -10,22 +10,21 @@ interface WorkOrdersListProps {
 }
 
 const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
-  // Add logging to see what cases are being passed
   console.log('WorkOrdersList received cases:', cases);
   console.log('Cases count:', cases.length);
   
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'scheduled':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300';
       case 'in progress':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-red-200 text-red-800 dark:bg-red-800/30 dark:text-red-200';
       case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400';
       case 'cancelled':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400';
     }
   };
 
@@ -38,83 +37,110 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
   };
 
   const isPublicCase = (caseItem: any) => {
-    return !caseItem.user_id; // Public cases don't have user_id
+    return !caseItem.user_id;
   };
 
   if (cases.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Wrench className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No work orders found</h3>
-        <p className="text-gray-500 dark:text-gray-400">Get started by creating your first work order.</p>
+      <div className="text-center py-16">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/20 dark:to-red-950/10 mb-4">
+          <Wrench className="h-8 w-8 text-red-600 dark:text-red-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground mb-2">No work orders found</h3>
+        <p className="text-sm text-muted-foreground">Get started by creating your first work order.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="grid gap-4">
       {cases.map((caseItem) => {
         console.log('Rendering case:', caseItem.id, 'isPublic:', isPublicCase(caseItem));
         return (
           <Card 
             key={caseItem.id} 
-            className="cursor-pointer hover:shadow-md transition-shadow dark:bg-slate-800 dark:border-slate-700"
+            className="group cursor-pointer hover:shadow-lg transition-all duration-300 border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden rounded-2xl"
             onClick={() => onCaseClick(caseItem)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg dark:text-slate-100 flex items-center gap-2">
-                  {isPublicCase(caseItem) && (
-                    <Globe className="h-4 w-4 text-blue-500" />
-                  )}
-                  {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
-                </CardTitle>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700">
+                    <Wrench className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      {isPublicCase(caseItem) && (
+                        <Globe className="h-4 w-4 text-red-500" />
+                      )}
+                      {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
+                    </CardTitle>
+                    <p className="text-xs text-muted-foreground mt-0.5">{formatDate(caseItem.created_at)}</p>
+                  </div>
+                </div>
                 <div className="flex items-center gap-2">
                   {isPublicCase(caseItem) && (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs rounded-full">
                       Public
                     </Badge>
                   )}
-                  <Badge className={getStatusColor(caseItem.status)}>
+                  <Badge className={`${getStatusColor(caseItem.status)} rounded-full px-3`}>
                     {caseItem.status}
                   </Badge>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <User className="h-4 w-4" />
-                <span>{caseItem.customer_name}</span>
-              </div>
-              
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Wrench className="h-4 w-4" />
-                <span>{caseItem.appliance_brand} {caseItem.appliance_type}</span>
-              </div>
-
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Calendar className="h-4 w-4" />
-                <span>{formatDate(caseItem.created_at)}</span>
-              </div>
-
-              {(caseItem.customer_city || caseItem.customer_state) && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                  <MapPin className="h-4 w-4" />
-                  <span>
-                    {caseItem.customer_city}{caseItem.customer_city && caseItem.customer_state ? ', ' : ''}
-                    {caseItem.customer_state}
-                  </span>
+            <CardContent className="space-y-3 pt-0">
+              <div className="grid grid-cols-1 gap-3">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-background">
+                    <User className="h-4 w-4 text-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">Customer</p>
+                    <p className="text-sm font-medium truncate">{caseItem.customer_name}</p>
+                  </div>
                 </div>
-              )}
+                
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-background">
+                    <Wrench className="h-4 w-4 text-foreground" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-muted-foreground">Appliance</p>
+                    <p className="text-sm font-medium truncate">{caseItem.appliance_brand} {caseItem.appliance_type}</p>
+                  </div>
+                </div>
+
+                {(caseItem.customer_city || caseItem.customer_state) && (
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/30">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-background">
+                      <MapPin className="h-4 w-4 text-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-muted-foreground">Location</p>
+                      <p className="text-sm font-medium truncate">
+                        {caseItem.customer_city}{caseItem.customer_city && caseItem.customer_state ? ', ' : ''}
+                        {caseItem.customer_state}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
               
-              <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
-                {caseItem.problem_description}
-              </p>
+              <div className="mt-3 p-3 rounded-xl bg-muted/20 border border-border/30">
+                <p className="text-xs text-muted-foreground mb-1">Issue</p>
+                <p className="text-sm line-clamp-2">
+                  {caseItem.problem_description}
+                </p>
+              </div>
 
               {isPublicCase(caseItem) && (
-                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded-md">
-                  <p className="text-xs text-blue-600 dark:text-blue-400">
-                    🌍 This is a public work order. Edit it to claim ownership.
+                <div className="mt-3 p-3 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/10 rounded-xl border border-red-200 dark:border-red-900/30">
+                  <p className="text-xs text-red-700 dark:text-red-400 flex items-center gap-2">
+                    <Globe className="h-3 w-3" />
+                    This is a public work order. Edit it to claim ownership.
                   </p>
                 </div>
               )}
