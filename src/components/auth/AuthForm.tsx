@@ -113,16 +113,11 @@ const AuthForm = ({
 
           {/* Social Login */}
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/30"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-transparent text-white/80">Or Login with</span>
-              </div>
+            <div className="text-center text-white/80 text-sm mb-4">
+              Or Login with
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 onClick={handleGoogleSignIn}
                 variant="outline"
@@ -185,16 +180,11 @@ const AuthForm = ({
 
         {/* Social Login */}
         <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/30"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-transparent text-white/80">Or Sign Up with</span>
-            </div>
+          <div className="text-center text-white/80 text-sm mb-4">
+            Or Sign Up with
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <Button
               onClick={handleGoogleSignIn}
               variant="outline"
