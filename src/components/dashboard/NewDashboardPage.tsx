@@ -180,11 +180,8 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
             </Card>
           </div>
 
-          {/* Charts Section with Section Header */}
+          {/* Charts Section */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Performance</h2>
-            </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-4">
@@ -319,9 +316,6 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
 
           {/* Service Categories as Cards */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Service Categories</h2>
-            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {serviceCategories.slice(0, 5).map((category, index) => (
                 <Card key={index} className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group cursor-pointer">
