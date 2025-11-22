@@ -125,22 +125,22 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   };
 
   return (
-    <Sidebar side="right" className="bg-white/95 dark:bg-card/80 backdrop-blur-xl border-l border-border/50 z-50">
-      <SidebarHeader className="border-b border-border/50 bg-white/90 dark:bg-card/50 backdrop-blur-xl">
+    <Sidebar side="right" className="bg-background/95 backdrop-blur-xl border-l border-border/50 z-50">
+      <SidebarHeader className="border-b border-border/50 bg-card/90 backdrop-blur-xl">
         <div className="flex items-center gap-3 px-4 py-4">
           <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
           <div className="flex items-center gap-2">
             <img src={logo} alt="FixOps" className="h-8 w-auto" />
-            <div className="text-base font-bold text-gun-metal dark:text-gun-metal">
+            <div className="text-base font-bold text-foreground">
               FixOps
             </div>
           </div>
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="bg-white/80 dark:bg-card/30 p-2">
+      <SidebarContent className="bg-card/30 p-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="px-4 text-xs font-semibold text-slate-700 dark:text-foreground/70 uppercase tracking-wider">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
               {displayMenuItems.map((item) => (
@@ -150,8 +150,8 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
                     onClick={() => handleTabChange(item.value)}
                     className={
                       item.value === 'logout'
-                        ? "rounded-xl hover:bg-destructive/10 text-gun-metal dark:text-gun-metal hover:text-destructive transition-all duration-200 h-11"
-                        : "rounded-xl hover:bg-primary/10 text-gun-metal dark:text-gun-metal data-[active=true]:bg-gradient-to-r data-[active=true]:from-primary data-[active=true]:to-accent data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-primary/30 transition-all duration-200 h-11"
+                        ? "rounded-xl hover:bg-destructive/10 text-foreground hover:text-destructive transition-all duration-200 h-11"
+                        : "rounded-xl hover:bg-primary/10 text-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-primary data-[active=true]:to-accent data-[active=true]:text-primary-foreground data-[active=true]:shadow-lg data-[active=true]:shadow-primary/30 transition-all duration-200 h-11"
                     }
                   >
                     <item.icon className="h-4 w-4" />
