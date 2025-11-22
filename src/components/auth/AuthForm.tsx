@@ -1,11 +1,15 @@
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, Wrench } from 'lucide-react';
+import { CheckCircle, Wrench, Eye, EyeOff } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 import SignInForm from './SignInForm';
 import SignUpForm from './SignUpForm';
+import { supabase } from '@/lib/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthFormProps {
   showVerificationMessage: boolean;
@@ -15,6 +19,8 @@ interface AuthFormProps {
   setShowVerificationMessage: (show: boolean) => void;
 }
 
+type AuthStep = 'initial' | 'signin' | 'signup';
+
 const AuthForm = ({ 
   showVerificationMessage, 
   showVerificationSuccess, 
@@ -22,72 +28,204 @@ const AuthForm = ({
   setActiveTab, 
   setShowVerificationMessage 
 }: AuthFormProps) => {
-  const [error, setError] = useState('');
+  const [step, setStep] = useState<AuthStep>('initial');
+  const { toast } = useToast();
 
-  return (
-    <div className="w-full max-w-md mx-auto px-4 sm:px-0">
-      {/* Mobile-optimized Logo */}
-      <div className="text-center mb-6 sm:mb-8">
-        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
-          <Wrench className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
+      });
+      
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Initial landing page
+  if (step === 'initial') {
+    return (
+      <div className="w-full max-w-sm mx-auto">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+          {/* Logo */}
+          <div className="flex flex-col items-center mb-12">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-700 to-purple-900 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+              <Wrench className="h-10 w-10 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-white">FixOps</h1>
+          </div>
+
+          {/* Buttons */}
+          <div className="space-y-3">
+            <Button
+              onClick={() => setStep('signin')}
+              className="w-full bg-white hover:bg-white/90 text-purple-700 font-semibold rounded-xl h-12 text-base shadow-lg"
+            >
+              Login
+            </Button>
+            
+            <Button
+              onClick={() => setStep('signup')}
+              variant="outline"
+              className="w-full bg-transparent hover:bg-white/10 text-white border-2 border-white/50 font-semibold rounded-xl h-12 text-base"
+            >
+              Sign Up
+            </Button>
+          </div>
+
+          {/* Continue as guest */}
+          <p className="text-center text-white/80 text-sm mt-8">
+            Continue as guest
+          </p>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          FixOps
-        </h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm sm:text-base">
-          Your appliance repair management system
+      </div>
+    );
+  }
+
+  // Login page
+  if (step === 'signin') {
+    return (
+      <div className="w-full max-w-sm mx-auto">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-white mb-2">Welcome.</h1>
+            <p className="text-white/90 text-lg">Glad to see you!</p>
+          </div>
+
+          {/* Success Messages */}
+          {showVerificationSuccess && (
+            <Alert className="mb-4 bg-green-500/20 border-green-400/50">
+              <CheckCircle className="h-4 w-4 text-green-300" />
+              <AlertDescription className="text-green-100 text-sm">
+                Email verified! You can now sign in.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Form */}
+          <SignInForm error="" setError={() => {}} />
+
+          {/* Social Login */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/30"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-transparent text-white/80">Or Login with</span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <Button
+                onClick={handleGoogleSignIn}
+                variant="outline"
+                className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+              >
+                <FcGoogle className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="outline"
+                className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+                disabled
+              >
+                <FaFacebook className="h-5 w-5 text-blue-600" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Sign up link */}
+          <p className="text-center text-white/80 text-sm mt-6">
+            Don't have an account?{' '}
+            <button
+              onClick={() => setStep('signup')}
+              className="text-white font-semibold hover:underline"
+            >
+              Sign Up Now
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Sign up page
+  return (
+    <div className="w-full max-w-sm mx-auto">
+      <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
+          <p className="text-white/90">to get started now!</p>
+        </div>
+
+        {/* Success Messages */}
+        {showVerificationMessage && (
+          <Alert className="mb-4 bg-green-500/20 border-green-400/50">
+            <CheckCircle className="h-4 w-4 text-green-300" />
+            <AlertDescription className="text-green-100 text-sm">
+              Verification email sent! Check your inbox.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Form */}
+        <SignUpForm
+          error=""
+          setError={() => {}}
+          setShowVerificationMessage={setShowVerificationMessage}
+          setActiveTab={setActiveTab}
+        />
+
+        {/* Social Login */}
+        <div className="mt-6">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-white/30"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4 bg-transparent text-white/80">Or Sign Up with</span>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <Button
+              onClick={handleGoogleSignIn}
+              variant="outline"
+              className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+            >
+              <FcGoogle className="h-5 w-5" />
+            </Button>
+            <Button
+              variant="outline"
+              className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+              disabled
+            >
+              <FaFacebook className="h-5 w-5 text-blue-600" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Login link */}
+        <p className="text-center text-white/80 text-sm mt-6">
+          Already have an account?{' '}
+          <button
+            onClick={() => setStep('signin')}
+            className="text-white font-semibold hover:underline"
+          >
+            Login Now
+          </button>
         </p>
       </div>
-
-      <Card className="dark:bg-slate-800 dark:border-slate-700 border-0 sm:border shadow-lg">
-        <CardHeader className="text-center pb-4 sm:pb-6">
-          <CardTitle className="dark:text-slate-100 text-lg sm:text-xl">Welcome</CardTitle>
-          <CardDescription className="dark:text-slate-400 text-sm">
-            Sign in to your account or create a new one
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="px-4 sm:px-6">
-          {/* Email Verification Success Message */}
-          {showVerificationSuccess && (
-            <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
-              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertDescription className="text-green-800 dark:text-green-300 text-sm">
-                Thanks for verifying your email! You can now sign in to your account.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Verification Email Sent Message */}
-          {showVerificationMessage && (
-            <Alert className="mb-4 border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
-              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
-              <AlertDescription className="text-green-800 dark:text-green-300 text-sm">
-                A verification email has been sent to your email address. Please check your inbox and click the verification link to complete your registration.
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 h-9 sm:h-10">
-              <TabsTrigger value="signin" className="text-sm sm:text-base">Sign In</TabsTrigger>
-              <TabsTrigger value="signup" className="text-sm sm:text-base">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin" className="space-y-4 mt-4 sm:mt-6">
-              <SignInForm error={error} setError={setError} />
-            </TabsContent>
-            
-            <TabsContent value="signup" className="space-y-4 mt-4 sm:mt-6">
-              <SignUpForm 
-                error={error} 
-                setError={setError}
-                setShowVerificationMessage={setShowVerificationMessage}
-                setActiveTab={setActiveTab}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
     </div>
   );
 };

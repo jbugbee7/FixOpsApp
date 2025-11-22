@@ -2,11 +2,9 @@
 import { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { AlertCircle } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { signUpUser } from '@/services/authService';
-import GoogleSignInButton from './GoogleSignInButton';
 
 interface SignUpFormProps {
   error: string;
@@ -18,16 +16,29 @@ interface SignUpFormProps {
 const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab }: SignUpFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [companyName, setCompanyName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSignUp = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !fullName || !companyName) {
-      setError('Please fill in all required fields');
+    if (!email || !password || !confirmPassword) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
       return;
     }
 
@@ -35,12 +46,17 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
     setError('');
 
     try {
-      console.log('Creating user account and company:', { email, fullName, companyName });
+      const defaultFullName = email.split('@')[0];
+      const defaultCompanyName = 'My Company';
       
-      const { data, error } = await signUpUser(email, password, fullName, companyName);
+      const { data, error } = await signUpUser(
+        email, 
+        password, 
+        fullName || defaultFullName, 
+        companyName || defaultCompanyName
+      );
 
       if (error) {
-        console.error('Sign up error:', error);
         setError(typeof error === 'string' ? error : error.message || 'Sign up failed');
         toast({
           title: "Sign Up Failed",
@@ -48,25 +64,20 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
           variant: "destructive",
         });
       } else if (data?.user) {
-        console.log('Sign up successful, verification email sent');
-        
-        // Clear form
         setEmail('');
         setPassword('');
+        setConfirmPassword('');
         setFullName('');
         setCompanyName('');
         
-        // Show verification message and switch to sign in tab
         setShowVerificationMessage(true);
-        setActiveTab('signin');
         
         toast({
           title: "Account Created!",
-          description: "Please check your email to verify your account, then you can sign in.",
+          description: "Please check your email to verify your account.",
         });
       }
     } catch (err: any) {
-      console.error('Unexpected error during sign up:', err);
       setError(err.message || 'An unexpected error occurred');
       toast({
         title: "Error",
@@ -76,78 +87,65 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
     } finally {
       setLoading(false);
     }
-  }, [email, password, fullName, companyName, setError, setShowVerificationMessage, setActiveTab, toast]);
+  }, [email, password, confirmPassword, fullName, companyName, setError, setShowVerificationMessage, toast]);
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={handleSignUp} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="signup-name">Full Name *</Label>
-          <Input
-            id="signup-name"
-            type="text"
-            placeholder="Enter your full name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="company-name">Company Name *</Label>
-          <Input
-            id="company-name"
-            type="text"
-            placeholder="Enter your company name"
-            value={companyName}
-            onChange={(e) => setCompanyName(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
+    <form onSubmit={handleSignUp} className="space-y-4">
+      <div>
+        <Input
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          disabled={loading}
+          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/25"
+        />
+      </div>
+      
+      <div className="relative">
+        <Input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={loading}
+          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 pr-10 focus:bg-white/25"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+        >
+          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+        </button>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="signup-email">Email *</Label>
-          <Input
-            id="signup-email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            disabled={loading}
-          />
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="signup-password">Password *</Label>
-          <Input
-            id="signup-password"
-            type="password"
-            placeholder="Choose a password (minimum 6 characters)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-            minLength={6}
-          />
-        </div>
+      <div className="relative">
+        <Input
+          type={showConfirmPassword ? "text" : "password"}
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          disabled={loading}
+          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 pr-10 focus:bg-white/25"
+        />
+        <button
+          type="button"
+          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+        >
+          {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+        </button>
+      </div>
 
-        {error && (
-          <div className="flex items-center space-x-2 text-red-600 dark:text-red-400">
-            <AlertCircle className="h-4 w-4" />
-            <span className="text-sm">{error}</span>
-          </div>
-        )}
-        
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Creating account..." : "Create Account"}
-        </Button>
-      </form>
-
-      <GoogleSignInButton loading={loading} setLoading={setLoading} setError={setError} />
-    </div>
+      <Button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-white hover:bg-white/90 text-purple-700 font-semibold rounded-xl h-12 text-base shadow-lg"
+      >
+        {loading ? 'Creating account...' : 'Sign Up'}
+      </Button>
+    </form>
   );
 };
 
