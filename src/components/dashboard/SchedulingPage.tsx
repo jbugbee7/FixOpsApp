@@ -210,13 +210,12 @@ const SchedulingPage = () => {
 
   // Desktop view (new detailed design)
   return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-1.5">
-          <h1 className="text-xl font-bold mb-0">Job Scheduling & Dispatching</h1>
-          <p className="text-xs text-muted-foreground">Manage appointments, dispatch technicians, and optimize routes</p>
+      <div className="flex flex-col h-full bg-background">
+        <div className="flex-shrink-0 border-b">
+          <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center h-[52px]">
+            <h1 className="text-sm font-bold text-foreground">Job Scheduling & Dispatching</h1>
+          </div>
         </div>
-      </div>
       
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-6 py-8">

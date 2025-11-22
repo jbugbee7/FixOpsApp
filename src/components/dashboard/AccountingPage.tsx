@@ -88,9 +88,8 @@ const AccountingPage = ({ fromDashboard = false, onNavigate }: { fromDashboard?:
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-1.5">
-          <h1 className="text-xl font-bold mb-0">Accounting & Finance</h1>
-          <p className="text-xs text-muted-foreground">Manage invoices, expenses, payments, and financial reports</p>
+        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center h-[52px]">
+          <h1 className="text-sm font-bold text-foreground">Accounting & Finance</h1>
         </div>
       </div>
       
