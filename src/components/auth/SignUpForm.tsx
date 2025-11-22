@@ -98,7 +98,7 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={loading}
-          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/25"
+          className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 focus:bg-muted focus:ring-2 focus:ring-accent"
         />
       </div>
       
@@ -109,12 +109,12 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={loading}
-          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 pr-10 focus:bg-white/25"
+          className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 pr-10 focus:bg-muted focus:ring-2 focus:ring-accent"
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
         >
           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </button>
@@ -127,12 +127,12 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           disabled={loading}
-          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 pr-10 focus:bg-white/25"
+          className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 pr-10 focus:bg-muted focus:ring-2 focus:ring-accent"
         />
         <button
           type="button"
           onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
         >
           {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </button>
@@ -141,7 +141,7 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-white hover:bg-white/90 text-purple-700 font-semibold rounded-xl h-12 text-base shadow-lg"
+        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-xl h-12 text-base shadow-lg"
       >
         {loading ? 'Creating account...' : 'Sign Up'}
       </Button>
