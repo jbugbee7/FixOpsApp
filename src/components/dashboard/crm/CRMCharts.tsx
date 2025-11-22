@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useCRMData } from '@/hooks/useCRMData';
 
 const CRMCharts = () => {
@@ -43,8 +43,9 @@ const CRMCharts = () => {
   }, {} as Record<string, number>);
 
   const statusChartData = Object.entries(statusData).map(([status, count]) => ({
-    status,
-    customers: count
+    name: status,
+    value: count,
+    color: status === 'Active' ? '#10B981' : status === 'New' ? '#3B82F6' : '#EF4444'
   }));
 
   // Monthly revenue data based on customer acquisition dates and spending
@@ -58,7 +59,11 @@ const CRMCharts = () => {
     return acc;
   }, {} as Record<string, any>);
 
-  const revenueData = Object.values(monthlyData).slice(-6); // Last 6 months
+  const revenueData = Object.values(monthlyData).slice(-6).map((item: any, index) => ({
+    name: item.month,
+    value: item.revenue,
+    color: ['#DC2626', '#EF4444', '#B91C1C', '#991B1B', '#7F1D1D', '#450A0A'][index % 6]
+  })); // Last 6 months as pie chart data
 
   const chartConfig = {
     customers: {
@@ -114,13 +119,22 @@ const CRMCharts = () => {
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statusChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" />
-                <YAxis />
+              <PieChart>
+                <Pie
+                  data={statusChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: ${value}`}
+                >
+                  {statusChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="customers" fill="#DC2626" />
-              </BarChart>
+              </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
@@ -134,20 +148,25 @@ const CRMCharts = () => {
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
+              <PieChart>
+                <Pie
+                  data={revenueData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, value }) => `${name}: $${value.toFixed(0)}`}
+                >
+                  {revenueData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
                 <ChartTooltip 
                   content={<ChartTooltipContent />}
+                  formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="revenue" 
-                  stroke="#B91C1C" 
-                  strokeWidth={2}
-                />
-              </LineChart>
+              </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
