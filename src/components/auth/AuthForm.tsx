@@ -55,17 +55,11 @@ const AuthForm = ({
   if (step === 'initial') {
     return (
       <div className="w-full max-w-sm mx-auto">
-        {/* Desktop Welcome Header */}
-        <div className="hidden md:block mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to FixOps</h1>
-          <p className="text-muted-foreground">Manage your field service operations with ease</p>
-        </div>
-
-        <div className="p-8 md:p-0">
+        <div className="p-8">
           {/* Logo */}
           <div className="flex flex-col items-center mb-12">
             <img src={logo} alt="FixOps" className="h-20 w-auto mb-4" />
-            <h1 className="text-4xl font-bold text-foreground md:hidden">FixOps</h1>
+            <h1 className="text-4xl font-bold text-foreground">FixOps</h1>
           </div>
 
           {/* Buttons */}
@@ -99,15 +93,9 @@ const AuthForm = ({
   if (step === 'signin') {
     return (
       <div className="w-full max-w-sm mx-auto">
-        {/* Desktop Welcome Header */}
-        <div className="hidden md:block mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome back</h1>
-          <p className="text-muted-foreground">Sign in to your FixOps account</p>
-        </div>
-
-        <div className="p-8 md:p-0">
-          {/* Header - Mobile Only */}
-          <div className="text-center mb-8 md:hidden">
+        <div className="p-8">
+          {/* Header */}
+          <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-foreground mb-2">Welcome.</h1>
             <p className="text-muted-foreground text-lg">Glad to see you!</p>
           </div>
@@ -159,15 +147,9 @@ const AuthForm = ({
   // Sign up page
   return (
     <div className="w-full max-w-sm mx-auto">
-      {/* Desktop Welcome Header */}
-      <div className="hidden md:block mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Create your account</h1>
-        <p className="text-muted-foreground">Join FixOps and streamline your workflow</p>
-      </div>
-
-      <div className="p-8 md:p-0">
-        {/* Header - Mobile Only */}
-        <div className="text-center mb-8 md:hidden">
+      <div className="p-8">
+        {/* Header */}
+        <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground mb-2">Create Account</h1>
           <p className="text-muted-foreground">to get started now!</p>
         </div>

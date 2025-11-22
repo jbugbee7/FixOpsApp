@@ -94,16 +94,14 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background md:bg-gradient-to-br md:from-purple-500/20 md:via-blue-500/20 md:to-background flex items-center justify-center p-3 sm:p-4">
-      <div className="w-full md:max-w-2xl md:bg-card md:rounded-2xl md:shadow-2xl md:p-8">
-        <AuthForm
-          showVerificationMessage={showVerificationMessage}
-          showVerificationSuccess={showVerificationSuccess}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          setShowVerificationMessage={setShowVerificationMessage}
-        />
-      </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-3 sm:p-4">
+      <AuthForm
+        showVerificationMessage={showVerificationMessage}
+        showVerificationSuccess={showVerificationSuccess}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        setShowVerificationMessage={setShowVerificationMessage}
+      />
     </div>
   );
 };
