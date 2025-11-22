@@ -43,8 +43,8 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
   if (cases.length === 0) {
     return (
       <div className="text-center py-16">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/20 dark:to-red-950/10 mb-4">
-          <Wrench className="h-8 w-8 text-red-600 dark:text-red-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-4">
+          <Wrench className="h-8 w-8 text-primary" />
         </div>
         <h3 className="text-lg font-semibold text-foreground mb-2">No work orders found</h3>
         <p className="text-sm text-muted-foreground">Get started by creating your first work order.</p>
@@ -65,13 +65,13 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 dark:from-red-600 dark:to-red-700">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent">
                     <Wrench className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <CardTitle className="text-base font-semibold flex items-center gap-2">
                       {isPublicCase(caseItem) && (
-                        <Globe className="h-4 w-4 text-red-500" />
+                        <Globe className="h-4 w-4 text-primary" />
                       )}
                       {caseItem.wo_number || `WO-${caseItem.id.slice(0, 8)}`}
                     </CardTitle>
@@ -137,8 +137,8 @@ const WorkOrdersList = ({ cases, onCaseClick }: WorkOrdersListProps) => {
               </div>
 
               {isPublicCase(caseItem) && (
-                <div className="mt-3 p-3 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/20 dark:to-red-900/10 rounded-xl border border-red-200 dark:border-red-900/30">
-                  <p className="text-xs text-red-700 dark:text-red-400 flex items-center gap-2">
+                <div className="mt-3 p-3 bg-gradient-to-br from-primary/10 to-primary/20 rounded-xl border border-primary/30">
+                  <p className="text-xs text-primary flex items-center gap-2">
                     <Globe className="h-3 w-3" />
                     This is a public work order. Edit it to claim ownership.
                   </p>

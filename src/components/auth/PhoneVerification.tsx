@@ -72,12 +72,12 @@ const PhoneVerification = ({ userId, phoneNumber, onVerificationComplete }: Phon
   };
 
   return (
-    <Card className="dark:bg-slate-800 dark:border-slate-700">
+    <Card>
       <CardHeader className="text-center">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4">
+        <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mx-auto mb-4">
           <Smartphone className="h-6 w-6 text-white" />
         </div>
-        <CardTitle className="dark:text-slate-100">Verification Required</CardTitle>
+        <CardTitle>Verification Required</CardTitle>
         <p className="text-slate-600 dark:text-slate-400 text-sm">
           Please contact the administrator for your 6-digit verification code
         </p>

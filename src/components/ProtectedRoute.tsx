@@ -67,13 +67,13 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // Show loading while auth is initializing or checking agreements
   if (loading || (user && checkingAgreements)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
-        <Card className="dark:bg-slate-800 dark:border-slate-700">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card>
           <CardContent className="p-8 text-center">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mx-auto mb-4 animate-pulse">
               <Wrench className="h-6 w-6 text-white" />
             </div>
-            <p className="text-slate-600 dark:text-slate-400">Loading...</p>
+            <p className="text-muted-foreground">Loading...</p>
           </CardContent>
         </Card>
       </div>
