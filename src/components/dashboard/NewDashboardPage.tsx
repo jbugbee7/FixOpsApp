@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, DollarSign, Users, Wrench, Clock, CheckCircle, AlertTriangle, Calendar, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
@@ -17,6 +18,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
   const isMobile = useIsMobile();
   const { metrics, monthlyData, serviceCategories, loading, error } = useRealTimeDashboardData();
   const { company } = useCompany();
+  const [selectedChart, setSelectedChart] = useState<'workOrders' | 'revenue' | 'services' | null>(null);
 
   const chartConfig = {
     workOrders: {
@@ -180,135 +182,69 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
             </Card>
           </div>
 
-          {/* Charts Section */}
+          {/* Charts Section - Stacked Cards */}
           <div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-base sm:text-lg">Work Orders Distribution</CardTitle>
-                  <CardDescription className="text-sm">Monthly work order breakdown</CardDescription>
-                </CardHeader>
+            <div className="space-y-3">
+              {/* Work Orders Distribution Card */}
+              <Card 
+                className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                onClick={() => setSelectedChart('workOrders')}
+              >
                 <CardContent className="p-4">
-                  <ChartContainer 
-                    config={chartConfig} 
-                    className="w-full"
-                    style={{ height: getPieChartHeight() }}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={workOrdersPieData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={isMobile ? "50%" : "65%"}
-                          fill="#8884d8"
-                          dataKey="value"
-                          labelLine={false}
-                          animationBegin={0}
-                          animationDuration={800}
-                        >
-                          {workOrdersPieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
-                          ))}
-                        </Pie>
-                        <ChartTooltip 
-                          formatter={(value, name) => [`${value} orders`, name]}
-                        />
-                        <Legend 
-                          verticalAlign="bottom"
-                          height={isMobile ? 20 : 36}
-                          wrapperStyle={{ fontSize: getLegendFontSize() }}
-                          iconSize={isMobile ? 10 : 14}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent/10">
+                        <BarChart3 className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Work Orders Distribution</h3>
+                        <p className="text-sm text-muted-foreground">Monthly work order breakdown</p>
+                      </div>
+                    </div>
+                    <PieChartIcon className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-base sm:text-lg">Revenue Distribution</CardTitle>
-                  <CardDescription className="text-sm">Monthly revenue breakdown</CardDescription>
-                </CardHeader>
+              {/* Revenue Distribution Card */}
+              <Card 
+                className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                onClick={() => setSelectedChart('revenue')}
+              >
                 <CardContent className="p-4">
-                  <ChartContainer 
-                    config={chartConfig} 
-                    className="w-full"
-                    style={{ height: getPieChartHeight() }}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={revenuePieData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={isMobile ? "50%" : "65%"}
-                          fill="#8884d8"
-                          dataKey="value"
-                          labelLine={false}
-                          animationBegin={0}
-                          animationDuration={800}
-                        >
-                          {revenuePieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
-                          ))}
-                        </Pie>
-                        <ChartTooltip 
-                          formatter={(value, name) => [`$${(Number(value) / 1000).toFixed(1)}k`, name]}
-                        />
-                        <Legend 
-                          verticalAlign="bottom"
-                          height={isMobile ? 20 : 36}
-                          wrapperStyle={{ fontSize: getLegendFontSize() }}
-                          iconSize={isMobile ? 10 : 14}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent/10">
+                        <DollarSign className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Revenue Distribution</h3>
+                        <p className="text-sm text-muted-foreground">Monthly revenue breakdown</p>
+                      </div>
+                    </div>
+                    <PieChartIcon className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-base sm:text-lg">Service Categories</CardTitle>
-                  <CardDescription className="text-sm">Distribution by appliance type</CardDescription>
-                </CardHeader>
+              {/* Service Categories Card */}
+              <Card 
+                className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                onClick={() => setSelectedChart('services')}
+              >
                 <CardContent className="p-4">
-                  <ChartContainer 
-                    config={chartConfig} 
-                    className="w-full"
-                    style={{ height: getPieChartHeight() }}
-                  >
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={serviceCategories}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={isMobile ? "50%" : "65%"}
-                          fill="#8884d8"
-                          dataKey="value"
-                          labelLine={false}
-                          animationBegin={0}
-                          animationDuration={800}
-                        >
-                          {serviceCategories.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
-                          ))}
-                        </Pie>
-                        <ChartTooltip 
-                          formatter={(value, name) => [`${value}%`, name]}
-                        />
-                        <Legend 
-                          verticalAlign="bottom"
-                          height={isMobile ? 20 : 36}
-                          wrapperStyle={{ fontSize: getLegendFontSize() }}
-                          iconSize={isMobile ? 10 : 14}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-accent/10">
+                        <Wrench className="h-5 w-5 text-accent" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Service Categories</h3>
+                        <p className="text-sm text-muted-foreground">Distribution by appliance type</p>
+                      </div>
+                    </div>
+                    <PieChartIcon className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
+                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -337,6 +273,65 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
           </div>
         </div>
       )}
+
+      {/* Chart Dialog */}
+      <Dialog open={selectedChart !== null} onOpenChange={() => setSelectedChart(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedChart === 'workOrders' && 'Work Orders Distribution'}
+              {selectedChart === 'revenue' && 'Revenue Distribution'}
+              {selectedChart === 'services' && 'Service Categories'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <ChartContainer 
+              config={chartConfig} 
+              className="w-full"
+              style={{ height: '400px' }}
+            >
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={
+                      selectedChart === 'workOrders' ? workOrdersPieData :
+                      selectedChart === 'revenue' ? revenuePieData :
+                      serviceCategories
+                    }
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="70%"
+                    fill="#8884d8"
+                    dataKey="value"
+                    labelLine={false}
+                    animationBegin={0}
+                    animationDuration={800}
+                  >
+                    {(selectedChart === 'workOrders' ? workOrdersPieData :
+                      selectedChart === 'revenue' ? revenuePieData :
+                      serviceCategories).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
+                    ))}
+                  </Pie>
+                  <ChartTooltip 
+                    formatter={(value, name) => {
+                      if (selectedChart === 'revenue') return [`$${(Number(value) / 1000).toFixed(1)}k`, name];
+                      if (selectedChart === 'services') return [`${value}%`, name];
+                      return [`${value} orders`, name];
+                    }}
+                  />
+                  <Legend 
+                    verticalAlign="bottom"
+                    height={36}
+                    wrapperStyle={{ fontSize: 12 }}
+                    iconSize={14}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
