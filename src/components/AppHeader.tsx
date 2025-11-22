@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from 'lucide-react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import GlobalSearch from './GlobalSearch';
+import logo from '@/assets/fixops-logo.png';
 
 interface AppHeaderProps {
   isOnline: boolean;
@@ -31,7 +32,12 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut, onNavigate }: AppHeaderPr
   return (
     <>
       <header className="bg-background border-b border-border/50 sticky top-0 z-50">
-        <div className="flex justify-end items-center h-16 px-4">
+        <div className="flex justify-between items-center h-16 px-4">
+          {/* Left side - Logo */}
+          <div className="flex items-center">
+            <img src={logo} alt="FixOps" className="h-10 w-auto" />
+          </div>
+          
           {/* Right side - Search and Sidebar trigger */}
           <div className="flex items-center gap-2">
             <Button 
