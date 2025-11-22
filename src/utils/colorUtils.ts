@@ -1,15 +1,15 @@
 
 export const getLikelihoodColor = (likelihood: string) => {
   switch (likelihood) {
-    case 'Very High': return 'bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300';
-    case 'High': return 'bg-purple-200 text-purple-900 dark:bg-purple-800/50 dark:text-purple-200';
-    case 'Medium': return 'bg-purple-300 text-purple-950 dark:bg-purple-700/50 dark:text-purple-100';
-    default: return 'bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400';
+    case 'Very High': return 'bg-primary/20 text-primary dark:bg-primary/30 dark:text-primary';
+    case 'High': return 'bg-primary/30 text-primary dark:bg-primary/40 dark:text-primary';
+    case 'Medium': return 'bg-accent/30 text-accent dark:bg-accent/40 dark:text-accent';
+    default: return 'bg-muted text-muted-foreground dark:bg-muted/50 dark:text-muted-foreground';
   }
 };
 
 export const getSuccessRateColor = (rate: number) => {
-  if (rate >= 80) return 'text-purple-600 dark:text-purple-400';
-  if (rate >= 60) return 'text-purple-700 dark:text-purple-500';
-  return 'text-purple-800 dark:text-purple-600';
+  if (rate >= 80) return 'text-primary dark:text-primary';
+  if (rate >= 60) return 'text-accent dark:text-accent';
+  return 'text-muted-foreground dark:text-muted-foreground';
 };
