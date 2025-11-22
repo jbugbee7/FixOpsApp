@@ -74,8 +74,8 @@ const InvoicesTab = () => {
               <div className="flex items-center">
                 <FileText className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Invoices</p>
-                  <p className="text-2xl font-bold">{invoices.length}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Invoices</p>
+                  <p className="text-2xl font-bold text-foreground">{invoices.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -86,8 +86,8 @@ const InvoicesTab = () => {
               <div className="flex items-center">
                 <DollarSign className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+                  <p className="text-2xl font-bold text-foreground">
                     {formatCurrency(invoices.reduce((sum, inv) => sum + (inv.total || 0), 0))}
                   </p>
                 </div>
@@ -100,8 +100,8 @@ const InvoicesTab = () => {
               <div className="flex items-center">
                 <Send className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                  <p className="text-2xl font-bold text-foreground">
                     {invoices.filter(inv => inv.status === 'sent').length}
                   </p>
                 </div>
@@ -114,8 +114,8 @@ const InvoicesTab = () => {
               <div className="flex items-center">
                 <DollarSign className="h-8 w-8 text-red-600" />
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Overdue</p>
-                  <p className="text-2xl font-bold">
+                  <p className="text-sm font-medium text-muted-foreground">Overdue</p>
+                  <p className="text-2xl font-bold text-foreground">
                     {invoices.filter(inv => inv.status === 'overdue').length}
                   </p>
                 </div>
@@ -129,9 +129,9 @@ const InvoicesTab = () => {
           {invoices.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
-                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No invoices yet</h3>
-                <p className="text-gray-500 mb-6">Create your first invoice to get started.</p>
+                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">No invoices yet</h3>
+                <p className="text-muted-foreground mb-6">Create your first invoice to get started.</p>
                 <Button onClick={() => setShowCreateDialog(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Invoice
@@ -150,14 +150,14 @@ const InvoicesTab = () => {
                           {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                         </Badge>
                       </div>
-                      <p className="text-gray-600 mb-1">Invoice #{invoice.invoice_number}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-muted-foreground mb-1">Invoice #{invoice.invoice_number}</p>
+                      <p className="text-sm text-muted-foreground">
                         Due: {new Date(invoice.due_date).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold">{formatCurrency(invoice.total || 0)}</p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-2xl font-bold text-foreground">{formatCurrency(invoice.total || 0)}</p>
+                      <p className="text-sm text-muted-foreground">
                         Issued: {new Date(invoice.issue_date).toLocaleDateString()}
                       </p>
                     </div>
