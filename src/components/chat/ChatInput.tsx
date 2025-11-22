@@ -29,31 +29,30 @@ const ChatInput = ({
 
   useEffect(() => {
     const handleResize = () => {
-      // Better Safari keyboard detection
+      // Detect keyboard on mobile devices
       let isKeyboard = false;
       
       if (window.visualViewport) {
-        // Modern Safari with Visual Viewport API
-        isKeyboard = window.visualViewport.height < window.innerHeight * 0.75;
-      } else {
-        // Fallback for older Safari versions
-        isKeyboard = window.innerHeight < screen.height * 0.75;
+        // Modern browsers with Visual Viewport API
+        const viewportHeight = window.visualViewport.height;
+        const windowHeight = window.innerHeight;
+        isKeyboard = viewportHeight < windowHeight * 0.75;
       }
       
       setIsKeyboardVisible(isKeyboard);
     };
 
     const handleFocus = () => {
-      // Safari-specific handling
+      // Delay to ensure keyboard is fully shown
       setTimeout(() => {
         setIsKeyboardVisible(true);
         onScrollToBottom();
         
-        // Safari iOS specific: scroll input into view
-        if (inputRef.current && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        // Scroll input into view on mobile
+        if (inputRef.current) {
           inputRef.current.scrollIntoView({ 
             behavior: 'smooth', 
-            block: 'center' 
+            block: 'nearest' 
           });
         }
       }, 300);
@@ -62,15 +61,13 @@ const ChatInput = ({
     const handleBlur = () => {
       setTimeout(() => {
         setIsKeyboardVisible(false);
-      }, 300);
+      }, 100);
     };
 
-    // Use Visual Viewport API if available (Safari 13+)
+    // Listen to viewport changes
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleResize);
-    } else {
-      // Fallback for older Safari
-      window.addEventListener('resize', handleResize);
+      window.visualViewport.addEventListener('scroll', handleResize);
     }
 
     const inputElement = inputRef.current;
@@ -82,8 +79,7 @@ const ChatInput = ({
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleResize);
-      } else {
-        window.removeEventListener('resize', handleResize);
+        window.visualViewport.removeEventListener('scroll', handleResize);
       }
       if (inputElement) {
         inputElement.removeEventListener('focus', handleFocus);
@@ -101,9 +97,10 @@ const ChatInput = ({
 
   return (
     <div 
-      className="fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 z-[60]"
+      className="fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 z-[60] transition-all duration-200"
       style={{
-        bottom: isKeyboardVisible ? '0' : '0',
+        bottom: 0,
+        transform: isKeyboardVisible ? 'translateY(0)' : 'translateY(0)',
         paddingBottom: 'env(safe-area-inset-bottom)'
       }}
     >
@@ -114,13 +111,14 @@ const ChatInput = ({
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={hasConnectionError 
-            ? "AI features temporarily limited - basic responses only..." 
-            : "Ask about repairs, parts, troubleshooting, or work orders..."
+            ? "AI features temporarily limited..." 
+            : "Type your message..."
           }
           className="flex-1 text-sm sm:text-base h-10 sm:h-11 touch-manipulation"
           disabled={isLoading}
           enterKeyHint="send"
           inputMode="text"
+          autoComplete="off"
         />
         <Button 
           onClick={onSendMessage} 
