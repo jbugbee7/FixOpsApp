@@ -132,11 +132,6 @@ const IndexPage = ({
   return (
     <SidebarProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex w-full pb-20 md:pb-0">
-        {/* Desktop Sidebar */}
-        <div className="hidden md:block">
-          <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
-        
         <div className="flex-1 flex flex-col min-w-0">
           <AppHeader 
             isOnline={isOnline} 
@@ -161,6 +156,11 @@ const IndexPage = ({
               onResync={handleResyncWrapper}
             />
           </div>
+        </div>
+
+        {/* Desktop Sidebar - Right Side */}
+        <div className="hidden md:block">
+          <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         </div>
 
         {/* Mobile Bottom Navigation */}
