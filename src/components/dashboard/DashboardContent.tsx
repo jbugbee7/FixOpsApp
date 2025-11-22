@@ -9,6 +9,9 @@ import AccountingPage from './AccountingPage';
 import InventoryPage from './InventoryPage';
 import SchedulingPage from './SchedulingPage';
 import ModernCaseForm from '@/components/forms/ModernCaseForm';
+import MobileAnalyticsPage from './mobile/MobileAnalyticsPage';
+import MobileCRMPage from './mobile/MobileCRMPage';
+import MobileAccountingPage from './mobile/MobileAccountingPage';
 import { Case } from '@/types/case';
 
 interface DashboardContentProps {
@@ -81,6 +84,12 @@ const DashboardContent = ({
         return <SchedulingPage />;
       case 'settings':
         return <SettingsPage onNavigate={onNavigate} />;
+      case 'mobile-analytics':
+        return <MobileAnalyticsPage />;
+      case 'mobile-crm':
+        return <MobileCRMPage />;
+      case 'mobile-accounting':
+        return <MobileAccountingPage />;
       default:
         return <NewDashboardPage onNavigate={onNavigate} />;
     }

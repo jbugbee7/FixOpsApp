@@ -167,6 +167,7 @@ const IndexPage = ({
           <BottomNavigation 
             activeTab={activeTab} 
             onTabChange={setActiveTab}
+            onAddWorkOrder={() => setActiveTab('add-case')}
           />
         </div>
       </div>
