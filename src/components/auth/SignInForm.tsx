@@ -162,7 +162,7 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isLoading}
-          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/25"
+          className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 focus:bg-muted focus:ring-2 focus:ring-accent"
         />
       </div>
       
@@ -173,12 +173,12 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={isLoading}
-          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 pr-10 focus:bg-white/25"
+          className="bg-muted/50 border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 pr-10 focus:bg-muted focus:ring-2 focus:ring-accent"
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
         >
           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
         </button>
@@ -190,11 +190,11 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
             id="remember"
             checked={rememberMe}
             onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-            className="border-white/30 data-[state=checked]:bg-white data-[state=checked]:text-purple-700"
+            className="border-border data-[state=checked]:bg-accent data-[state=checked]:text-accent-foreground"
           />
           <label
             htmlFor="remember"
-            className="text-sm text-white/80 cursor-pointer"
+            className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
           >
             Remember me
           </label>
@@ -202,7 +202,7 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
         
         <button
           type="button"
-          className="text-white/80 text-sm hover:text-white hover:underline"
+          className="text-muted-foreground text-sm hover:text-accent hover:underline transition-colors"
         >
           Forgot Password?
         </button>
@@ -211,7 +211,7 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-white hover:bg-white/90 text-purple-700 font-semibold rounded-xl h-12 text-base shadow-lg"
+        className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-xl h-12 text-base shadow-lg"
       >
         {isLoading ? 'Signing in...' : 'Login'}
       </Button>
@@ -219,10 +219,10 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
       {biometricAvailable && biometricSetup && (
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-white/30" />
+            <span className="w-full border-t border-border" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-transparent px-2 text-white/60">Or</span>
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
           </div>
         </div>
       )}
@@ -233,7 +233,7 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
           onClick={handleBiometricLogin}
           disabled={isLoading}
           variant="outline"
-          className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 rounded-xl h-12 text-base"
+          className="w-full bg-muted/30 hover:bg-muted/50 text-foreground border-border rounded-xl h-12 text-base"
         >
           <Fingerprint className="h-5 w-5 mr-2" />
           {isLoading ? 'Authenticating...' : 'Login with Face ID / Touch ID'}
