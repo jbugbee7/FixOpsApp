@@ -8,7 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 import { Search, FileText, Users, Wrench, LayoutDashboard, Calendar, Package, Calculator, Settings, MessageCircle, Bot, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
