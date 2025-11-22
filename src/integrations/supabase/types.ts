@@ -768,6 +768,50 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_rules: {
+        Row: {
+          action: string
+          company_id: string
+          created_at: string | null
+          enabled: boolean | null
+          execution_count: number | null
+          id: string
+          name: string
+          trigger: string
+          updated_at: string | null
+        }
+        Insert: {
+          action: string
+          company_id: string
+          created_at?: string | null
+          enabled?: boolean | null
+          execution_count?: number | null
+          id?: string
+          name: string
+          trigger: string
+          updated_at?: string | null
+        }
+        Update: {
+          action?: string
+          company_id?: string
+          created_at?: string | null
+          enabled?: boolean | null
+          execution_count?: number | null
+          id?: string
+          name?: string
+          trigger?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_rules_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
