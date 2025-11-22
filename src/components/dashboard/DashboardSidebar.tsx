@@ -41,11 +41,6 @@ const menuItems = [
     icon: MessageCircle,
   },
   {
-    title: "AI Assistant",
-    value: "ai-assistant",
-    icon: Bot,
-  },
-  {
     title: "Training",
     value: "training",
     icon: GraduationCap,
@@ -87,8 +82,8 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Filter menu items for mobile - only show Dashboard, Work Order, AI Assistant, Settings, Logout
-  const mobileAllowedTabs = ['dashboard', 'work-order', 'ai-assistant', 'settings', 'logout'];
+  // Filter menu items for mobile - only show Dashboard, Work Order, Settings, Logout
+  const mobileAllowedTabs = ['dashboard', 'work-order', 'settings', 'logout'];
   const displayMenuItems = isMobile 
     ? menuItems.filter(item => mobileAllowedTabs.includes(item.value))
     : menuItems;
