@@ -8,9 +8,11 @@ import { useRealTimeDashboardData } from '@/hooks/useRealTimeDashboardData';
 import { useCompany } from '@/hooks/useCompany';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useNavigate } from 'react-router-dom';
 
 const NewDashboardPage = () => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { metrics, monthlyData, serviceCategories, loading, error } = useRealTimeDashboardData();
   const { company } = useCompany();
 
@@ -98,28 +100,33 @@ const NewDashboardPage = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-fade-in">
-      {/* Modern Header with Greeting */}
+      {/* Header Section */}
       <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-500 dark:to-white bg-clip-text text-transparent">
-              {company?.name || 'FixOps'}
+              {company?.name || 'FixOps'} Dashboard
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Welcome back! Here's what's happening today.
-            </p>
           </div>
-          <Card className="px-4 py-2.5 rounded-2xl bg-card/50 backdrop-blur-sm border-border/50">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-red-600 dark:text-red-400" />
-              <span className="text-sm font-medium">
-                {new Date().toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric'
-                })}
-              </span>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">Last updated</p>
+              <p className="text-sm font-medium">Just now</p>
             </div>
-          </Card>
+            <div className="h-10 w-px bg-border/50" />
+            <Card className="px-4 py-2.5 rounded-2xl bg-card/50 backdrop-blur-sm border-border/50">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-red-600 dark:text-red-400" />
+                <span className="text-sm font-medium">
+                  {new Date().toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+            </Card>
+          </div>
         </div>
       </div>
 
@@ -194,7 +201,10 @@ const NewDashboardPage = () => {
               <h2 className="text-lg font-semibold">Quick Actions</h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <button className="p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 transition-all duration-300 group">
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'workOrders' }))}
+                className="p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 transition-all duration-300 group"
+              >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Wrench className="h-6 w-6" />
@@ -203,7 +213,10 @@ const NewDashboardPage = () => {
                 </div>
               </button>
               
-              <button className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group">
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'crm' }))}
+                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group"
+              >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -212,7 +225,10 @@ const NewDashboardPage = () => {
                 </div>
               </button>
               
-              <button className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group">
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'crm' }))}
+                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group"
+              >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <BarChart3 className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -221,7 +237,10 @@ const NewDashboardPage = () => {
                 </div>
               </button>
               
-              <button className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group">
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('changeTab', { detail: 'accounting' }))}
+                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group"
+              >
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <PieChartIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
