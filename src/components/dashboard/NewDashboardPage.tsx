@@ -210,62 +210,6 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
             </Card>
           </div>
 
-          {/* Quick Actions Section */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Quick Actions</h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <button 
-                onClick={() => onNavigate?.('add-case')}
-                className="p-4 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-600/30 hover:shadow-xl hover:shadow-purple-600/40 transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Wrench className="h-6 w-6" />
-                  </div>
-                  <span className="text-sm font-medium">New Order</span>
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => onNavigate?.('crm')}
-                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <span className="text-sm font-medium">Customers</span>
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => onNavigate?.('crm')}
-                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <span className="text-sm font-medium">Analytics</span>
-                </div>
-              </button>
-              
-              <button 
-                onClick={() => onNavigate?.('accounting')}
-                className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group cursor-pointer"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <PieChartIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <span className="text-sm font-medium">Reports</span>
-                </div>
-              </button>
-            </div>
-          </div>
-
           {/* Charts Section with Section Header */}
           <div>
             <div className="flex items-center justify-between mb-4">
