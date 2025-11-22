@@ -10,6 +10,7 @@ import SignInForm from './SignInForm';
 import SignUpForm from './SignUpForm';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
+import logo from '@/assets/fixops-logo.png';
 
 interface AuthFormProps {
   showVerificationMessage: boolean;
@@ -57,7 +58,8 @@ const AuthForm = ({
         <div className="p-8">
           {/* Logo */}
           <div className="flex flex-col items-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-8">FixOps</h1>
+            <img src={logo} alt="FixOps" className="h-20 w-auto mb-4" />
+            <h1 className="text-4xl font-bold text-white">FixOps</h1>
           </div>
 
           {/* Buttons */}
