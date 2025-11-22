@@ -87,7 +87,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Filter menu items for mobile - only show Dashboard, Work Order, AI Assistant, Settings
+  // Filter menu items for mobile - only show Dashboard, Work Order, AI Assistant, Settings, Logout
   const mobileAllowedTabs = ['dashboard', 'work-order', 'ai-assistant', 'settings', 'logout'];
   const displayMenuItems = isMobile 
     ? menuItems.filter(item => mobileAllowedTabs.includes(item.value))
