@@ -102,7 +102,7 @@ const ChatInput = ({
   return (
     <div 
       className={`fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 transition-all duration-300 z-[60] ${
-        isKeyboardVisible ? 'bottom-0' : 'bottom-16 sm:bottom-20'
+        isKeyboardVisible ? 'bottom-0' : 'bottom-0'
       }`}
     >
       <div className="max-w-4xl mx-auto flex space-x-2 sm:space-x-3 p-3 sm:p-4">
@@ -113,11 +113,10 @@ const ChatInput = ({
           onKeyPress={handleKeyPress}
           placeholder={hasConnectionError 
             ? "AI features temporarily limited - basic responses only..." 
-            : "Ask FixBot about repairs, parts, troubleshooting, or specific work orders..."
+            : "Ask about repairs, parts, troubleshooting, or work orders..."
           }
           className="flex-1 text-sm sm:text-base h-10 sm:h-11 touch-manipulation"
           disabled={isLoading}
-          // Safari-specific attributes
           enterKeyHint="send"
           inputMode="text"
         />
