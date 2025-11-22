@@ -36,16 +36,6 @@ const menuItems = [
     icon: ClipboardList,
   },
   {
-    title: "FixChat",
-    value: "fixchat",
-    icon: MessageCircle,
-  },
-  {
-    title: "AI Assistant",
-    value: "ai-assistant",
-    icon: Bot,
-  },
-  {
     title: "Training",
     value: "training",
     icon: GraduationCap,
@@ -82,6 +72,14 @@ const menuItems = [
   },
 ];
 
+const mobileOnlyItems = [
+  {
+    title: "AI Assistant",
+    value: "ai-assistant",
+    icon: Bot,
+  },
+];
+
 const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => {
   const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
@@ -90,7 +88,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   // Filter menu items for mobile - only show Dashboard, Work Order, AI Assistant, Settings, Logout
   const mobileAllowedTabs = ['dashboard', 'work-order', 'ai-assistant', 'settings', 'logout'];
   const displayMenuItems = isMobile 
-    ? menuItems.filter(item => mobileAllowedTabs.includes(item.value))
+    ? [...menuItems.filter(item => mobileAllowedTabs.includes(item.value)), ...mobileOnlyItems]
     : menuItems;
 
   const handleTabChange = (tab: string) => {

@@ -1,7 +1,6 @@
 
 import { TabsContent } from "@/components/ui/tabs";
 import DashboardMain from '@/components/dashboard/DashboardMain';
-import FixChatPage from '@/components/FixChatPage';
 import AiAssistantPage from '@/components/AiAssistantPage';
 import TrainingPage from '@/components/TrainingPage';
 import SettingsPage from '@/components/SettingsPage';
@@ -50,10 +49,6 @@ const TabContent = ({
           onCaseClick={onCaseClick}
           onResync={onResync}
         />
-      </TabsContent>
-
-      <TabsContent value="fixchat" className="mt-0">
-        <FixChatPage />
       </TabsContent>
 
       <TabsContent value="ai-assistant" className="mt-0">
