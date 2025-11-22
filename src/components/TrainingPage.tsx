@@ -58,12 +58,12 @@ const TrainingPage = () => {
     <div className="w-full max-w-7xl mx-auto px-6 py-8 animate-fade-in">
       <div className="space-y-6">
         {/* Header */}
-        <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-8 border border-border/50">
-          <div className="flex items-center gap-4 mb-2">
-            <GraduationCap className="h-12 w-12 text-primary" />
-            <h1 className="text-3xl font-bold">Training Center</h1>
+        <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-4 border border-border/50">
+          <div className="flex items-center gap-4 mb-0.5">
+            <GraduationCap className="h-10 w-10 text-primary" />
+            <h1 className="text-2xl font-bold">Training Center</h1>
           </div>
-          <p className="text-muted-foreground">Access AI-powered training, troubleshooting guides, and skill development resources</p>
+          <p className="text-sm text-muted-foreground">Access AI-powered training, troubleshooting guides, and skill development resources</p>
         </div>
 
         <div className="grid grid-cols-12 gap-6">
