@@ -94,7 +94,7 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-white flex items-center justify-center p-3 sm:p-4">
       <AuthForm
         showVerificationMessage={showVerificationMessage}
         showVerificationSuccess={showVerificationSuccess}
