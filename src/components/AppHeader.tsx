@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Search, PanelRightClose } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface AppHeaderProps {
