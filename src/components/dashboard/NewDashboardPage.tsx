@@ -351,9 +351,9 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
       ) : (
         <div className="space-y-6">
           {/* Welcome Header */}
-          <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-4 border border-border/50">
-            <h1 className="text-2xl font-bold mb-0.5">Welcome, {userProfile?.full_name || 'User'}</h1>
-            <p className="text-sm text-muted-foreground">Here's what's happening with your business today</p>
+          <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-3 border border-border/50">
+            <h1 className="text-xl font-bold mb-0">Welcome, {userProfile?.full_name || 'User'}</h1>
+            <p className="text-xs text-muted-foreground">Here's what's happening with your business today</p>
           </div>
 
           <div className="grid grid-cols-12 gap-6">

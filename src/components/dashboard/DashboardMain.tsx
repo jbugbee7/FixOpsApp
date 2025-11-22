@@ -68,9 +68,9 @@ const DashboardMain = React.memo((props: DashboardMainProps) => {
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-2">
-          <h1 className="text-2xl font-bold mb-0.5">Work Orders Management</h1>
-          <p className="text-sm text-muted-foreground">Track and manage all work orders, service requests, and repairs</p>
+        <div className="max-w-7xl mx-auto px-6 py-1.5">
+          <h1 className="text-xl font-bold mb-0">Work Orders Management</h1>
+          <p className="text-xs text-muted-foreground">Track and manage all work orders, service requests, and repairs</p>
         </div>
       </div>
       
