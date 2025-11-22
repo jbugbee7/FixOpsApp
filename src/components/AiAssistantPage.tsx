@@ -1,11 +1,8 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from 'lucide-react';
-import AnimatedRepairBot from './AnimatedRepairBot';
 import ChatMessage from './chat/ChatMessage';
 import ChatInput from './chat/ChatInput';
-import ConnectionStatus from './chat/ConnectionStatus';
 import { useAiChat } from '@/hooks/useAiChat';
 
 const AiAssistantPage = () => {
@@ -32,22 +29,17 @@ const AiAssistantPage = () => {
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Header with repair bot */}
-      <div className="text-center mb-6">
-        <div className="flex items-center justify-center space-x-3 mb-4">
-          <AnimatedRepairBot className="h-8 w-8" />
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">FixBot</h2>
-        </div>
-        
-        <ConnectionStatus hasConnectionError={hasConnectionError} />
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold text-foreground">AI Assistant</h2>
       </div>
 
-      {/* Chat Container - now with bottom padding to account for input */}
+      {/* Chat Container */}
       <div 
         ref={chatContainerRef}
         className="flex flex-col flex-1 pb-32"
         style={{
-          maxHeight: 'calc(100vh - 240px)',
+          maxHeight: 'calc(100vh - 200px)',
           minHeight: '400px'
         }}
       >
@@ -60,18 +52,9 @@ const AiAssistantPage = () => {
           {/* Loading indicator */}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="flex items-start space-x-2 max-w-[80%]">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center bg-slate-200 dark:bg-slate-700">
-                  <AnimatedRepairBot className="h-5 w-5" />
-                </div>
-                <Card className="bg-white dark:bg-slate-800 dark:border-slate-700">
-                  <CardContent className="p-3">
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <p className="text-sm">FixBot is thinking...</p>
-                    </div>
-                  </CardContent>
-                </Card>
+              <div className="flex items-center space-x-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <p className="text-sm">Thinking...</p>
               </div>
             </div>
           )}
