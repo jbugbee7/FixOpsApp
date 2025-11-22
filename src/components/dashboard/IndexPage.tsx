@@ -136,7 +136,8 @@ const IndexPage = ({
           <AppHeader 
             isOnline={isOnline} 
             onHomeClick={handleHomeClick} 
-            onSignOut={handleSignOut} 
+            onSignOut={handleSignOut}
+            onNavigate={handleEnhancedNavigate}
           />
 
           <div className="flex-1">
