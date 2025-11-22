@@ -7,6 +7,7 @@ import PartDetails from '@/components/PartDetails';
 import AppHeader from '@/components/AppHeader';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardContent from '@/components/dashboard/DashboardContent';
+import BottomNavigation from '@/components/BottomNavigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { IndexPageProps } from '@/types/indexPage';
 
@@ -130,8 +131,11 @@ const IndexPage = ({
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex w-full">
-        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex w-full pb-20 md:pb-0">
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block">
+          <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
         
         <div className="flex-1 flex flex-col min-w-0">
           <AppHeader 
@@ -157,6 +161,15 @@ const IndexPage = ({
               onResync={handleResyncWrapper}
             />
           </div>
+        </div>
+
+        {/* Mobile Bottom Navigation */}
+        <div className="md:hidden">
+          <BottomNavigation 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab}
+            onAddWorkOrder={() => setActiveTab('add-case')}
+          />
         </div>
       </div>
     </SidebarProvider>
