@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Calendar, Truck, ClipboardList, Users, Clock, MapPin, Activity, CheckCircle } from 'lucide-react';
 import { useSchedulingData } from '@/hooks/useSchedulingData';
 import { SchedulingCalendar } from '@/components/scheduling/SchedulingCalendar';
@@ -9,6 +10,7 @@ import { DispatchingBoard } from '@/components/scheduling/DispatchingBoard';
 import { ChecklistManager } from '@/components/scheduling/ChecklistManager';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useGoogleCalendar } from '@/hooks/useGoogleCalendar';
 
 const SchedulingPage = () => {
   const {
@@ -27,6 +29,12 @@ const SchedulingPage = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('calendar');
   const isMobile = useIsMobile();
+  const { 
+    isConnected, 
+    isLoading: calendarLoading, 
+    connectGoogleCalendar, 
+    disconnectGoogleCalendar 
+  } = useGoogleCalendar();
 
   const handleScheduleUpdate = async (id: string, updates: any) => {
     try {
@@ -281,6 +289,46 @@ const SchedulingPage = () => {
 
             {/* Right Column - Sidebar Info */}
             <div className="col-span-4 space-y-6">
+              {/* Google Calendar Integration */}
+              <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-blue-500/5 to-blue-600/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                    Google Calendar
+                  </CardTitle>
+                  <CardDescription>
+                    {isConnected ? 'Sync jobs with Google Calendar' : 'Connect to sync jobs automatically'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {isConnected ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium text-green-700 dark:text-green-400">Connected</span>
+                      </div>
+                      <Button
+                        onClick={disconnectGoogleCalendar}
+                        variant="outline"
+                        className="w-full"
+                        size="sm"
+                      >
+                        Disconnect
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={connectGoogleCalendar}
+                      disabled={calendarLoading}
+                      className="w-full"
+                      size="sm"
+                    >
+                      {calendarLoading ? 'Connecting...' : 'Connect Google Calendar'}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Today's Schedule */}
               <Card className="rounded-2xl border-border/50">
                 <CardHeader>
