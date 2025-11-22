@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Area, AreaChart } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, DollarSign, Users, Wrench, Clock, CheckCircle, AlertTriangle, Calendar, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useRealTimeDashboardData } from '@/hooks/useRealTimeDashboardData';
@@ -33,21 +33,34 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
     },
   };
 
+  // Red color palette for pie charts
+  const redColorPalette = [
+    '#DC2626', // red-600
+    '#991B1B', // red-800
+    '#B91C1C', // red-700
+    '#EF4444', // red-500
+    '#7F1D1D', // red-900
+    '#FCA5A5', // red-300
+  ];
+
+  // Transform monthly data to pie chart format for work orders
+  const workOrdersPieData = monthlyData.map((item, index) => ({
+    name: item.month,
+    value: item.workOrders,
+    color: redColorPalette[index % redColorPalette.length]
+  }));
+
+  // Transform monthly data to pie chart format for revenue
+  const revenuePieData = monthlyData.map((item, index) => ({
+    name: item.month,
+    value: item.revenue,
+    color: redColorPalette[index % redColorPalette.length]
+  }));
+
   // Mobile-first chart configuration
-  const getChartHeight = () => isMobile ? '200px' : '300px';
-  const getAreaChartHeight = () => isMobile ? '220px' : '300px';
-  const getPieChartHeight = () => isMobile ? '180px' : '250px';
+  const getPieChartHeight = () => isMobile ? '200px' : '280px';
 
-  const getChartMargins = () => ({
-    top: isMobile ? 10 : 20,
-    right: isMobile ? 5 : 30,
-    left: isMobile ? 0 : 20,
-    bottom: isMobile ? 30 : 20
-  });
-
-  const getTickFontSize = () => isMobile ? 8 : 12;
-  const getLegendFontSize = () => isMobile ? 8 : 12;
-  const getAxisWidth = () => isMobile ? 20 : 60;
+  const getLegendFontSize = () => isMobile ? 10 : 12;
 
   // Loading skeleton
   const LoadingSkeleton = () => (
@@ -260,73 +273,93 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               <button className="text-sm text-red-600 dark:text-red-400 hover:underline">View all</button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-4">
-                  <CardTitle className="text-base sm:text-lg">Monthly Trends</CardTitle>
-                  <CardDescription className="text-sm">Work orders and revenue over time</CardDescription>
+                  <CardTitle className="text-base sm:text-lg">Work Orders Distribution</CardTitle>
+                  <CardDescription className="text-sm">Monthly work order breakdown</CardDescription>
                 </CardHeader>
                 <CardContent className="p-4">
                   <ChartContainer 
                     config={chartConfig} 
                     className="w-full"
-                    style={{ height: getAreaChartHeight() }}
+                    style={{ height: getPieChartHeight() }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={monthlyData} margin={getChartMargins()}>
-                        <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                        <XAxis 
-                          dataKey="month" 
-                          tick={{ fontSize: getTickFontSize() }}
-                          interval={0}
-                          angle={isMobile ? -45 : 0}
-                          textAnchor={isMobile ? 'end' : 'middle'}
-                          height={isMobile ? 40 : 30}
+                      <PieChart>
+                        <Pie
+                          data={workOrdersPieData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={isMobile ? "50%" : "65%"}
+                          fill="#8884d8"
+                          dataKey="value"
+                          labelLine={false}
+                          animationBegin={0}
+                          animationDuration={800}
+                        >
+                          {workOrdersPieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
+                          ))}
+                        </Pie>
+                        <ChartTooltip 
+                          formatter={(value, name) => [`${value} orders`, name]}
                         />
-                        <YAxis 
-                          yAxisId="left" 
-                          tick={{ fontSize: getTickFontSize() }}
-                          width={getAxisWidth()}
+                        <Legend 
+                          verticalAlign="bottom"
+                          height={isMobile ? 20 : 36}
+                          wrapperStyle={{ fontSize: getLegendFontSize() }}
+                          iconSize={isMobile ? 10 : 14}
                         />
-                        <YAxis 
-                          yAxisId="right" 
-                          orientation="right" 
-                          tick={{ fontSize: getTickFontSize() }}
-                          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                          width={isMobile ? 15 : 40}
-                        />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        {!isMobile && (
-                          <Legend 
-                            wrapperStyle={{ fontSize: getLegendFontSize() }}
-                            iconSize={12}
-                          />
-                        )}
-                        <Area 
-                          yAxisId="left"
-                          type="monotone" 
-                          dataKey="workOrders" 
-                          stackId="1"
-                          stroke="#DC2626" 
-                          fill="#DC2626"
-                          fillOpacity={0.3}
-                          name="Work Orders"
-                        />
-                        <Line 
-                          yAxisId="right"
-                          type="monotone" 
-                          dataKey="revenue" 
-                          stroke="#991B1B" 
-                          strokeWidth={isMobile ? 2 : 3}
-                          name="Revenue ($)"
-                          dot={{ fill: '#991B1B', strokeWidth: 1, r: isMobile ? 2 : 4 }}
-                        />
-                      </AreaChart>
+                      </PieChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-base sm:text-lg">Revenue Distribution</CardTitle>
+                  <CardDescription className="text-sm">Monthly revenue breakdown</CardDescription>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <ChartContainer 
+                    config={chartConfig} 
+                    className="w-full"
+                    style={{ height: getPieChartHeight() }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={revenuePieData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={isMobile ? "50%" : "65%"}
+                          fill="#8884d8"
+                          dataKey="value"
+                          labelLine={false}
+                          animationBegin={0}
+                          animationDuration={800}
+                        >
+                          {revenuePieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
+                          ))}
+                        </Pie>
+                        <ChartTooltip 
+                          formatter={(value, name) => [`$${(Number(value) / 1000).toFixed(1)}k`, name]}
+                        />
+                        <Legend 
+                          verticalAlign="bottom"
+                          height={isMobile ? 20 : 36}
+                          wrapperStyle={{ fontSize: getLegendFontSize() }}
+                          iconSize={isMobile ? 10 : 14}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-base sm:text-lg">Service Categories</CardTitle>
                   <CardDescription className="text-sm">Distribution by appliance type</CardDescription>
@@ -343,13 +376,15 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                           data={serviceCategories}
                           cx="50%"
                           cy="50%"
-                          outerRadius={isMobile ? "45%" : "60%"}
+                          outerRadius={isMobile ? "50%" : "65%"}
                           fill="#8884d8"
                           dataKey="value"
                           labelLine={false}
+                          animationBegin={0}
+                          animationDuration={800}
                         >
                           {serviceCategories.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
+                            <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
                           ))}
                         </Pie>
                         <ChartTooltip 
@@ -359,7 +394,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                           verticalAlign="bottom"
                           height={isMobile ? 20 : 36}
                           wrapperStyle={{ fontSize: getLegendFontSize() }}
-                          iconSize={isMobile ? 8 : 18}
+                          iconSize={isMobile ? 10 : 14}
                         />
                       </PieChart>
                     </ResponsiveContainer>
