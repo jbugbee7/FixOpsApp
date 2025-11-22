@@ -9,7 +9,6 @@ export const useAiChat = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasConnectionError, setHasConnectionError] = useState(false);
-  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -34,12 +33,9 @@ export const useAiChat = () => {
         throw new Error('Not authenticated');
       }
 
-      // Call the AI chat function with conversation history
+      // Call the AI chat function
       const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { 
-          message: inputMessage,
-          conversationId: conversationId 
-        },
+        body: { message: inputMessage },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
@@ -51,11 +47,6 @@ export const useAiChat = () => {
 
       if (data.error) {
         throw new Error(data.error);
-      }
-
-      // Store conversation ID for future messages
-      if (data.conversationId && !conversationId) {
-        setConversationId(data.conversationId);
       }
 
       // Add AI response

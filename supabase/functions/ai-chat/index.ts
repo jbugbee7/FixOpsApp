@@ -20,11 +20,16 @@ serve(async (req) => {
   }
 
   try {
-    const { message, conversationId } = await req.json();
+    const { message } = await req.json();
     
     if (!message) {
       throw new Error('Message is required');
     }
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get the user from the request
     const authHeader = req.headers.get('Authorization');
@@ -32,66 +37,11 @@ serve(async (req) => {
       throw new Error('Authorization header is required');
     }
 
-    const token = authHeader.replace('Bearer ', '');
-
-    // Initialize Supabase client with the user's JWT so RLS uses their identity
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
+    // Set the auth header for supabase
+    supabase.auth.setSession({
+      access_token: authHeader.replace('Bearer ', ''),
+      refresh_token: '',
     });
-
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
-
-    // Get or create AI assistant conversation
-    let currentConversationId = conversationId;
-    if (!currentConversationId) {
-      const { data: conversation, error: convError } = await supabase
-        .from('conversations')
-        .insert({
-          name: 'AI Assistant',
-          is_group: false,
-          company_id: null
-        })
-        .select()
-        .single();
-
-      if (convError) throw convError;
-      currentConversationId = conversation.id;
-
-      // Add user as member
-      await supabase
-        .from('conversation_members')
-        .insert({
-          conversation_id: currentConversationId,
-          user_id: user.id
-        });
-    }
-
-    // Store user message
-    await supabase
-      .from('messages')
-      .insert({
-        conversation_id: currentConversationId,
-        user_id: user.id,
-        content: message
-      });
-
-    // Get conversation history (last 20 messages)
-    const { data: history } = await supabase
-      .from('messages')
-      .select('content, user_id')
-      .eq('conversation_id', currentConversationId)
-      .order('created_at', { ascending: true })
-      .limit(20);
 
     // Gather context from the database
     const context = await gatherDatabaseContext(supabase);
@@ -105,12 +55,6 @@ serve(async (req) => {
     // Create system prompt with database context
     const systemPrompt = createSystemPrompt(context);
 
-    // Build message history for AI
-    const aiMessages = (history || []).map((msg: any) => ({
-      role: msg.user_id === user.id ? 'user' : 'assistant',
-      content: msg.content
-    }));
-
     // Call Lovable AI Gateway
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -122,7 +66,7 @@ serve(async (req) => {
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          ...aiMessages
+          { role: 'user', content: message }
         ],
       }),
     });
@@ -135,21 +79,9 @@ serve(async (req) => {
     const data = await response.json();
     const aiResponse = data.choices[0].message.content;
 
-    // Store AI response
-    await supabase
-      .from('messages')
-      .insert({
-        conversation_id: currentConversationId,
-        user_id: user.id, // Using user.id for AI messages too (to distinguish by content)
-        content: aiResponse
-      });
-
     console.log('AI Response generated successfully');
 
-    return new Response(JSON.stringify({ 
-      response: aiResponse,
-      conversationId: currentConversationId 
-    }), {
+    return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
