@@ -55,7 +55,7 @@ const SettingsPage = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/')}
             className="h-10 w-10"
           >
             <ArrowLeft className="h-5 w-5" />
