@@ -1,33 +1,21 @@
 
 import React from "react";
-import { Users, BarChart3, Home, FileText, Plus } from 'lucide-react';
+import { Home, Wrench, Bot, Settings } from 'lucide-react';
 
 interface BottomNavigationProps {
   activeTab: string;
   onTabChange: (value: string) => void;
-  onAddWorkOrder?: () => void;
 }
 
-const BottomNavigation = ({ activeTab, onTabChange, onAddWorkOrder }: BottomNavigationProps) => {
+const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-lg pb-safe-bottom">
       <div className="relative">
-        <div className="grid w-full grid-cols-5 h-16">
+        <div className="grid w-full grid-cols-4 h-16">
           <NavButton value="dashboard" icon={<Home />} label="Home" activeTab={activeTab} onTabChange={onTabChange} />
-          <NavButton value="crm" icon={<Users />} label="Customers" activeTab={activeTab} onTabChange={onTabChange} />
-          
-          {/* Center Add Button */}
-          <div className="relative flex items-center justify-center">
-            <button
-              onClick={onAddWorkOrder}
-              className="absolute -top-6 w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
-            >
-              <Plus className="h-7 w-7 text-white" strokeWidth={3} />
-            </button>
-          </div>
-          
-          <NavButton value="accounting" icon={<BarChart3 />} label="Analytics" activeTab={activeTab} onTabChange={onTabChange} />
-          <NavButton value="inventory" icon={<FileText />} label="Reports" activeTab={activeTab} onTabChange={onTabChange} />
+          <NavButton value="work-order" icon={<Wrench />} label="Work Order" activeTab={activeTab} onTabChange={onTabChange} />
+          <NavButton value="ai-assistant" icon={<Bot />} label="AI Assistant" activeTab={activeTab} onTabChange={onTabChange} />
+          <NavButton value="settings" icon={<Settings />} label="Settings" activeTab={activeTab} onTabChange={onTabChange} />
         </div>
       </div>
     </div>

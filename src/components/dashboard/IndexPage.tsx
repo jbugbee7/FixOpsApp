@@ -162,16 +162,13 @@ const IndexPage = ({
         {/* Sidebar - right side on desktop, offcanvas on mobile */}
         <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* Mobile Bottom Navigation - only show on dashboard */}
-        {activeTab === 'dashboard' && (
-          <div className="md:hidden">
-            <BottomNavigation 
-              activeTab={activeTab} 
-              onTabChange={setActiveTab}
-              onAddWorkOrder={() => setActiveTab('add-case')}
-            />
-          </div>
-        )}
+        {/* Mobile Bottom Navigation */}
+        <div className="md:hidden">
+          <BottomNavigation 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab}
+          />
+        </div>
       </div>
     </SidebarProvider>
   );

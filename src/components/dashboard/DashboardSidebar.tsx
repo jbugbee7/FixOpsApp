@@ -87,6 +87,12 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Filter menu items for mobile - only show Dashboard, Work Order, AI Assistant, Settings
+  const mobileAllowedTabs = ['dashboard', 'work-order', 'ai-assistant', 'settings', 'logout'];
+  const displayMenuItems = isMobile 
+    ? menuItems.filter(item => mobileAllowedTabs.includes(item.value))
+    : menuItems;
+
   const handleTabChange = (tab: string) => {
     if (tab === 'logout') {
       handleLogout();
@@ -137,7 +143,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
           <SidebarGroupLabel className="px-4 text-xs font-semibold text-slate-700 dark:text-foreground/70 uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {menuItems.map((item) => (
+              {displayMenuItems.map((item) => (
                 <SidebarMenuItem key={item.value}>
                   <SidebarMenuButton
                     isActive={activeTab === item.value}
