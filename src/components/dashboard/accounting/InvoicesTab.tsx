@@ -14,12 +14,12 @@ const InvoicesTab = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'bg-green-100 text-green-800';
-      case 'sent': return 'bg-blue-100 text-blue-800';
-      case 'overdue': return 'bg-red-100 text-red-800';
-      case 'draft': return 'bg-gray-100 text-gray-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'paid': return 'bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-secondary';
+      case 'sent': return 'bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary';
+      case 'overdue': return 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive';
+      case 'draft': return 'bg-muted text-muted-foreground';
+      case 'cancelled': return 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -45,8 +45,8 @@ const InvoicesTab = () => {
             {[1, 2, 3].map((i) => (
               <Card key={i} className="animate-pulse">
                 <CardContent className="p-6">
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-1/2"></div>
                 </CardContent>
               </Card>
             ))}

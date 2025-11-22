@@ -13,10 +13,10 @@ const ExpensesTab = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'approved': return 'bg-secondary/10 text-secondary dark:bg-secondary/20 dark:text-secondary';
+      case 'pending': return 'bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent';
+      case 'rejected': return 'bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -41,8 +41,8 @@ const ExpensesTab = () => {
           {[1, 2, 3].map((i) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+                <div className="h-4 bg-muted rounded w-1/2"></div>
               </CardContent>
             </Card>
           ))}
@@ -69,9 +69,9 @@ const ExpensesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <Receipt className="h-8 w-8 text-blue-600" />
+              <Receipt className="h-8 w-8 text-primary" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Expenses</p>
+                <p className="text-sm font-medium text-muted-foreground">Total Expenses</p>
                 <p className="text-2xl font-bold">{formatCurrency(totalExpenses)}</p>
               </div>
             </div>
@@ -81,9 +81,9 @@ const ExpensesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <TrendingUp className="h-8 w-8 text-green-600" />
+              <TrendingUp className="h-8 w-8 text-secondary" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Billable</p>
+                <p className="text-sm font-medium text-muted-foreground">Billable</p>
                 <p className="text-2xl font-bold">{billableExpenses.length}</p>
               </div>
             </div>
@@ -93,9 +93,9 @@ const ExpensesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <Calendar className="h-8 w-8 text-purple-600" />
+              <Calendar className="h-8 w-8 text-accent" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
+                <p className="text-sm font-medium text-muted-foreground">This Month</p>
                 <p className="text-2xl font-bold">
                   {expenses.filter(expense => 
                     new Date(expense.expense_date).getMonth() === new Date().getMonth()
@@ -109,9 +109,9 @@ const ExpensesTab = () => {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-center">
-              <Receipt className="h-8 w-8 text-orange-600" />
+              <Receipt className="h-8 w-8 text-primary" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Billable</p>
+                <p className="text-sm font-medium text-muted-foreground">Billable</p>
                 <p className="text-2xl font-bold">{billableExpenses.length}</p>
               </div>
             </div>
@@ -124,9 +124,9 @@ const ExpensesTab = () => {
         {expenses.length === 0 ? (
           <Card>
             <CardContent className="p-12 text-center">
-              <Receipt className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No expenses recorded</h3>
-              <p className="text-gray-500 mb-6">Start tracking your business expenses.</p>
+              <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium mb-2">No expenses recorded</h3>
+              <p className="text-muted-foreground mb-6">Start tracking your business expenses.</p>
               <Button onClick={() => setShowCreateDialog(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Expense
@@ -145,11 +145,11 @@ const ExpensesTab = () => {
                         <Badge variant="outline">Billable</Badge>
                       )}
                     </div>
-                    <p className="text-gray-600 mb-1">Category: {expense.category}</p>
+                    <p className="text-muted-foreground mb-1">Category: {expense.category}</p>
                     {expense.vendor && (
-                      <p className="text-sm text-gray-500">Vendor: {expense.vendor}</p>
+                      <p className="text-sm text-muted-foreground">Vendor: {expense.vendor}</p>
                     )}
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       Date: {new Date(expense.expense_date).toLocaleDateString()}
                     </p>
                   </div>
