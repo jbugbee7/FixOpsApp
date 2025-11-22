@@ -69,27 +69,6 @@ const DashboardWorkOrders = React.memo(({
         cases={activeCases} 
         onCaseClick={onCaseClick} 
       />
-
-      {/* Resync Button */}
-      <div className="flex justify-center">
-        <Button 
-          onClick={onResync}
-          disabled={isResyncing}
-          variant="outline"
-          className="flex items-center space-x-2 text-sm px-4 py-2"
-          size="sm"
-        >
-          <RefreshCw className={`h-3 w-3 ${isResyncing ? 'animate-spin' : ''}`} />
-          <span>
-            {isResyncing 
-              ? 'Syncing...' 
-              : isOnline 
-                ? 'Sync' 
-                : 'Load Cache'
-            }
-          </span>
-        </Button>
-      </div>
     </div>
   );
 });
