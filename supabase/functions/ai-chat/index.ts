@@ -12,6 +12,7 @@ interface DatabaseContext {
   recentCases: any[];
   commonParts: any[];
   applianceModels: any[];
+  modelDetails: any | null;
 }
 
 serve(async (req) => {
@@ -44,7 +45,7 @@ serve(async (req) => {
     });
 
     // Gather context from the database
-    const context = await gatherDatabaseContext(supabase);
+    const context = await gatherDatabaseContext(supabase, message);
 
     // Get Lovable AI API key
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
@@ -94,7 +95,7 @@ serve(async (req) => {
   }
 });
 
-async function gatherDatabaseContext(supabase: any): Promise<DatabaseContext> {
+async function gatherDatabaseContext(supabase: any, message: string): Promise<DatabaseContext> {
   try {
     // Get recent cases for context (excluding customer information)
     const { data: recentCases } = await supabase
@@ -115,10 +116,39 @@ async function gatherDatabaseContext(supabase: any): Promise<DatabaseContext> {
       .select('*')
       .limit(20);
 
+    // Try to extract model number from message and fetch specific model details
+    let modelDetails = null;
+    const modelMatch = message.match(/\b[A-Z0-9]{4,}\b/); // Basic pattern for model numbers
+    if (modelMatch) {
+      const potentialModel = modelMatch[0];
+      const { data: specificModel } = await supabase
+        .from('appliance_models')
+        .select('*')
+        .ilike('model', `%${potentialModel}%`)
+        .limit(1)
+        .single();
+      
+      if (specificModel) {
+        modelDetails = specificModel;
+        
+        // Get related cases for this specific model
+        const { data: modelCases } = await supabase
+          .from('cases')
+          .select('id, appliance_model, problem_description, initial_diagnosis, parts_needed, technician_notes')
+          .ilike('appliance_model', `%${potentialModel}%`)
+          .limit(5);
+        
+        if (modelCases) {
+          modelDetails.relatedCases = modelCases;
+        }
+      }
+    }
+
     return {
       recentCases: recentCases || [],
       commonParts: commonParts || [],
       applianceModels: applianceModels || [],
+      modelDetails,
     };
   } catch (error) {
     console.error('Error gathering database context:', error);
@@ -126,25 +156,38 @@ async function gatherDatabaseContext(supabase: any): Promise<DatabaseContext> {
       recentCases: [],
       commonParts: [],
       applianceModels: [],
+      modelDetails: null,
     };
   }
 }
 
 function createSystemPrompt(context: DatabaseContext): string {
-  const { recentCases, commonParts, applianceModels } = context;
+  const { recentCases, commonParts, applianceModels, modelDetails } = context;
 
-  return `You are FixBot, a professional appliance repair assistant. Provide clear, confident, and helpful guidance.
+  let contextInfo = `DATABASE CONTEXT:
+Recent Cases: ${recentCases.length} | Parts: ${commonParts.length} | Models: ${applianceModels.length}`;
 
-DATABASE CONTEXT:
-Recent Cases: ${recentCases.length} | Parts: ${commonParts.length} | Models: ${applianceModels.length}
+  if (modelDetails) {
+    contextInfo += `\n\nSPECIFIC MODEL FOUND: ${modelDetails.brand} ${modelDetails.model} (${modelDetails.appliance_type})`;
+    if (modelDetails.relatedCases && modelDetails.relatedCases.length > 0) {
+      contextInfo += `\nRelated cases for this model: ${modelDetails.relatedCases.length} cases in database`;
+      contextInfo += `\nCommon issues: ${modelDetails.relatedCases.map((c: any) => c.problem_description).join(', ')}`;
+    }
+  }
 
-RESPONSE STYLE:
-- Be direct and professional - answer what's asked with enough detail to be helpful
-- Provide context and reasoning when relevant to build confidence
-- Include specific model numbers, part numbers, or technical details when available
-- If you need more information (brand/model/error code), ask clearly
-- Balance brevity with completeness - give enough info to be useful
-- Use your database knowledge to provide informed, specific answers
+  return `You are FixBot - talk to me as a fellow technician. I know how to diagnose, I'm just bouncing ideas off you.
 
-GOAL: Help technicians feel confident and well-informed in their repair decisions.`;
+${contextInfo}
+
+COMMUNICATION STYLE:
+- Peer-to-peer technician conversation - skip the basics, I know my stuff
+- When I give you a model number, USE THE DATABASE to look up actual specs and past cases
+- NEVER assume generic parts or components - if I mention a model, reference what's actually in that model
+- Challenge my thinking if something doesn't add up with the model specs
+- Share what you've seen in similar cases from the database
+- Be direct - "That model uses X, not Y" or "I've seen 3 cases with similar symptoms"
+
+CRITICAL: DO NOT make assumptions about components (like start relays, capacitors, etc.) without checking if that model actually has them. Use the database context and model-specific information.
+
+GOAL: Be a knowledgeable sounding board who helps me work through the diagnosis using actual data.`;
 }
