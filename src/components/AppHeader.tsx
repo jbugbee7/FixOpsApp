@@ -46,7 +46,7 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut, onNavigate }: AppHeaderPr
               className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors"
               onClick={() => setSearchOpen(true)}
             >
-              <Search className="h-5 w-5 text-white" />
+              <Search className="h-5 w-5 text-foreground dark:text-white" />
             </Button>
             <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
           </div>

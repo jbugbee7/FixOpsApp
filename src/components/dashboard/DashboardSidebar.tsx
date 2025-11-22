@@ -125,8 +125,8 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   };
 
   return (
-    <Sidebar side="right" className="bg-background/95 backdrop-blur-xl border-l border-border/50 z-50">
-      <SidebarHeader className="border-b border-border/50 bg-card/90 backdrop-blur-xl">
+    <Sidebar side="right" className="bg-card/95 dark:bg-background/95 backdrop-blur-xl border-l border-border/50 z-50">
+      <SidebarHeader className="border-b border-border/50 bg-card/90 dark:bg-card/50 backdrop-blur-xl">
         <div className="flex items-center gap-3 px-4 py-4">
           <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
           <div className="flex items-center gap-2">
@@ -138,7 +138,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="bg-card/30 p-2">
+      <SidebarContent className="bg-card/80 dark:bg-card/30 p-2">
         <SidebarGroup>
           <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
