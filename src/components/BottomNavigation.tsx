@@ -1,6 +1,5 @@
 
 import React from "react";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MessageCircle, Settings, Home, Bot, Plus } from 'lucide-react';
 
 interface BottomNavigationProps {
@@ -13,9 +12,9 @@ const BottomNavigation = ({ activeTab, onTabChange, onAddWorkOrder }: BottomNavi
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-lg pb-safe-bottom">
       <div className="relative">
-        <TabsList className="grid w-full grid-cols-5 h-16 bg-white dark:bg-slate-900 rounded-none">
-          <TabItem value="dashboard" icon={<Home />} label="Home" activeTab={activeTab} onTabChange={onTabChange} />
-          <TabItem value="fixchat" icon={<MessageCircle />} label="Chat" activeTab={activeTab} onTabChange={onTabChange} />
+        <div className="grid w-full grid-cols-5 h-16">
+          <NavButton value="dashboard" icon={<Home />} label="Home" activeTab={activeTab} onTabChange={onTabChange} />
+          <NavButton value="fixchat" icon={<MessageCircle />} label="Chat" activeTab={activeTab} onTabChange={onTabChange} />
           
           {/* Center Add Button */}
           <div className="relative flex items-center justify-center">
@@ -27,15 +26,15 @@ const BottomNavigation = ({ activeTab, onTabChange, onAddWorkOrder }: BottomNavi
             </button>
           </div>
           
-          <TabItem value="ai-assistant" icon={<Bot />} label="AI" activeTab={activeTab} onTabChange={onTabChange} />
-          <TabItem value="settings" icon={<Settings />} label="Settings" activeTab={activeTab} onTabChange={onTabChange} />
-        </TabsList>
+          <NavButton value="ai-assistant" icon={<Bot />} label="AI" activeTab={activeTab} onTabChange={onTabChange} />
+          <NavButton value="settings" icon={<Settings />} label="Settings" activeTab={activeTab} onTabChange={onTabChange} />
+        </div>
       </div>
     </div>
   );
 };
 
-const TabItem = ({ 
+const NavButton = ({ 
   value, 
   icon,
   label,
@@ -51,10 +50,9 @@ const TabItem = ({
   const isActive = activeTab === value;
   
   return (
-    <TabsTrigger
-      value={value}
+    <button
       onClick={() => onTabChange(value)}
-      className="relative flex flex-col items-center justify-center h-full bg-transparent data-[state=active]:bg-transparent gap-1"
+      className="relative flex flex-col items-center justify-center h-full bg-transparent gap-1 transition-colors"
     >
       {React.cloneElement(icon as React.ReactElement, { 
         className: isActive ? "h-5 w-5 text-purple-600 dark:text-purple-400" : "h-5 w-5 text-slate-400 dark:text-slate-500",
@@ -62,7 +60,7 @@ const TabItem = ({
       <span className={`text-xs ${isActive ? 'text-purple-600 dark:text-purple-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
         {label}
       </span>
-    </TabsTrigger>
+    </button>
   );
 };
 
