@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ChevronLeft, ChevronRight, Clock, User, MapPin, Plus } from 'lucide-react';
-import { format, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
+import { CreateScheduleDialog } from './CreateScheduleDialog';
+import { supabase } from '@/lib/supabaseClient';
 
 interface SchedulingCalendarProps {
   schedules: any[];
   technicians: any[];
   onScheduleUpdate: (id: string, updates: any) => void;
-  onCreateSchedule: () => void;
+  onCreateSchedule: (scheduleData: any) => Promise<void>;
 }
 
 export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
@@ -23,6 +25,40 @@ export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [viewDate, setViewDate] = useState<Date>(new Date());
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [cases, setCases] = useState<any[]>([]);
+  const [companyId, setCompanyId] = useState<string>('');
+
+  // Fetch cases and company ID for the create dialog
+  React.useEffect(() => {
+    const fetchData = async () => {
+      // Get user's company ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('company_id')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.company_id) {
+          setCompanyId(profile.company_id);
+          
+          // Fetch recent cases
+          const { data: casesData } = await supabase
+            .from('cases')
+            .select('*')
+            .eq('company_id', profile.company_id)
+            .order('created_at', { ascending: false })
+            .limit(20);
+          
+          if (casesData) setCases(casesData);
+        }
+      }
+    };
+    
+    fetchData();
+  }, []);
 
   // Get schedules for a specific date
   const getSchedulesForDate = (date: Date) => {
@@ -140,11 +176,11 @@ export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
 
       {/* Schedule List for Selected Date */}
       <Card className="lg:col-span-1">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-lg">
             {format(selectedDate, 'MMM dd, yyyy')}
           </CardTitle>
-          <Button size="sm" onClick={onCreateSchedule}>
+          <Button size="sm" onClick={() => setShowCreateDialog(true)}>
             <Plus className="h-4 w-4 mr-1" />
             New
           </Button>
@@ -221,7 +257,7 @@ export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
               <div className="text-center py-8 text-muted-foreground">
                 <Clock className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No schedules for this date</p>
-                <Button className="mt-4" onClick={onCreateSchedule}>
+                <Button className="mt-4" onClick={() => setShowCreateDialog(true)}>
                   Create New Schedule
                 </Button>
               </div>
@@ -279,6 +315,17 @@ export const SchedulingCalendar: React.FC<SchedulingCalendarProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Create Schedule Dialog */}
+      <CreateScheduleDialog
+        open={showCreateDialog}
+        onOpenChange={setShowCreateDialog}
+        onCreateSchedule={onCreateSchedule}
+        technicians={technicians}
+        cases={cases}
+        initialDate={selectedDate}
+        companyId={companyId}
+      />
     </div>
   );
 };
