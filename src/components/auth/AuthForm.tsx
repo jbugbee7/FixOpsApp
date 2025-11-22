@@ -54,13 +54,10 @@ const AuthForm = ({
   if (step === 'initial') {
     return (
       <div className="w-full max-w-sm mx-auto">
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+        <div className="p-8">
           {/* Logo */}
           <div className="flex flex-col items-center mb-12">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-700 to-purple-900 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-              <Wrench className="h-10 w-10 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-white">FixOps</h1>
+            <h1 className="text-4xl font-bold text-white mb-8">FixOps</h1>
           </div>
 
           {/* Buttons */}
@@ -94,7 +91,7 @@ const AuthForm = ({
   if (step === 'signin') {
     return (
       <div className="w-full max-w-sm mx-auto">
-        <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+        <div className="p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-white mb-2">Welcome.</h1>
@@ -161,7 +158,7 @@ const AuthForm = ({
   // Sign up page
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20">
+      <div className="p-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
