@@ -101,9 +101,11 @@ const ChatInput = ({
 
   return (
     <div 
-      className={`fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 transition-all duration-300 z-[60] ${
-        isKeyboardVisible ? 'bottom-0' : 'bottom-0'
-      }`}
+      className="fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 z-[60]"
+      style={{
+        bottom: isKeyboardVisible ? '0' : '0',
+        paddingBottom: 'env(safe-area-inset-bottom)'
+      }}
     >
       <div className="max-w-4xl mx-auto flex space-x-2 sm:space-x-3 p-3 sm:p-4">
         <Input

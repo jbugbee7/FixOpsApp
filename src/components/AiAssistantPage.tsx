@@ -32,21 +32,22 @@ const AiAssistantPage = () => {
       {/* Chat Container */}
       <div 
         ref={chatContainerRef}
-        className="flex flex-col flex-1 pb-20"
-        style={{
-          maxHeight: 'calc(100vh - 80px)',
-          minHeight: '400px'
-        }}
+        className="flex-1 overflow-hidden"
       >
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <div 
+          className="h-full overflow-y-auto space-y-4 pb-24"
+          style={{
+            paddingBottom: isKeyboardVisible ? '120px' : '96px'
+          }}
+        >
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
           
           {/* Loading indicator */}
           {isLoading && (
-            <div className="flex justify-start">
+            <div className="flex justify-start px-4">
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
               </div>
