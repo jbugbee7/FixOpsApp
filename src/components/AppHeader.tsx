@@ -29,9 +29,7 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
           >
             <Search className="h-5 w-5" />
           </Button>
-          <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors">
-            <PanelRightClose className="h-5 w-5" />
-          </SidebarTrigger>
+          <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
         </div>
       </div>
     </header>
