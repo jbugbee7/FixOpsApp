@@ -119,22 +119,14 @@ const AuthForm = ({
               Or Login with
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                onClick={handleGoogleSignIn}
-                variant="outline"
-                className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
-              >
-                <FcGoogle className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="outline"
-                className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
-                disabled
-              >
-                <FaFacebook className="h-5 w-5 text-blue-600" />
-              </Button>
-            </div>
+            <Button
+              onClick={handleGoogleSignIn}
+              variant="outline"
+              className="w-full bg-muted hover:bg-muted/80 border-border h-12 rounded-xl flex items-center justify-center gap-2"
+            >
+              <FcGoogle className="h-5 w-5" />
+              <span>Google</span>
+            </Button>
           </div>
 
           {/* Sign up link */}
@@ -186,22 +178,14 @@ const AuthForm = ({
             Or Sign Up with
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              onClick={handleGoogleSignIn}
-              variant="outline"
-              className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
-            >
-              <FcGoogle className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
-              disabled
-            >
-              <FaFacebook className="h-5 w-5 text-blue-600" />
-            </Button>
-          </div>
+          <Button
+            onClick={handleGoogleSignIn}
+            variant="outline"
+            className="w-full bg-muted hover:bg-muted/80 border-border h-12 rounded-xl flex items-center justify-center gap-2"
+          >
+            <FcGoogle className="h-5 w-5" />
+            <span>Google</span>
+          </Button>
         </div>
 
         {/* Login link */}
