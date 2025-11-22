@@ -98,8 +98,9 @@ const InventoryPage = () => {
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center h-[52px]">
-          <h1 className="text-sm font-bold text-foreground">Inventory Management</h1>
+        <div className="max-w-7xl mx-auto px-6 py-1.5">
+          <h1 className="text-xl font-bold mb-0">Inventory Management</h1>
+          <p className="text-xs text-muted-foreground">Track parts, manage stock levels, and monitor inventory transactions</p>
         </div>
       </div>
       

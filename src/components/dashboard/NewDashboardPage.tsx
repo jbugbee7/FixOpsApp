@@ -345,19 +345,17 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
 
   // Desktop view (new detailed design)
   return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center h-[52px]">
-          <h1 className="text-sm font-bold text-foreground">Welcome, {userProfile?.full_name || 'User'}</h1>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto px-6 py-8 animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto px-6 py-8 animate-fade-in">
       {loading ? (
         <LoadingSkeleton />
       ) : (
         <div className="space-y-6">
+          {/* Welcome Header */}
+          <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-3 border border-border/50">
+            <h1 className="text-xl font-bold mb-0">Welcome, {userProfile?.full_name || 'User'}</h1>
+            <p className="text-xs text-muted-foreground">Here's what's happening with your business today</p>
+          </div>
+
           <div className="grid grid-cols-12 gap-6">
             {/* Left Column - Main Content */}
             <div className="col-span-8 space-y-6">
@@ -578,8 +576,6 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
           </div>
         </div>
       )}
-        </div>
-      </div>
 
       {/* Chart Sheet - Slides up from bottom */}
       <Sheet open={selectedChart !== null} onOpenChange={() => setSelectedChart(null)}>

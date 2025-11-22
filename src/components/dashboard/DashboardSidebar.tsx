@@ -124,7 +124,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   return (
     <Sidebar side="right" className="bg-card/95 dark:bg-background/95 backdrop-blur-xl border-l border-border/50 z-50">
       <SidebarHeader className="border-b border-border/50 bg-card/90 dark:bg-card/50 backdrop-blur-xl">
-        <div className="flex items-center gap-3 px-4 py-1.5 h-[52px]">
+        <div className="flex items-center gap-3 px-4 py-1.5">
           <SidebarTrigger className="h-8 w-8 rounded-xl hover:bg-muted/50 transition-colors" />
           <div className="text-sm font-bold text-foreground">
             FixOps

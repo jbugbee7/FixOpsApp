@@ -55,17 +55,17 @@ const TrainingPage = () => {
 
   // Desktop view (new detailed design)
   return (
-    <div className="flex flex-col h-full bg-background">
-      <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-1.5 flex items-center gap-3 h-[52px]">
-          <GraduationCap className="h-5 w-5 text-primary" />
-          <h1 className="text-sm font-bold text-foreground">Training & Resources</h1>
-        </div>
-      </div>
-      
-      <div className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto px-6 py-8 animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto px-6 py-8 animate-fade-in">
       <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-gradient-to-br from-primary/10 via-accent/5 to-secondary/10 rounded-3xl p-3 border border-border/50">
+          <div className="flex items-center gap-3 mb-0">
+            <GraduationCap className="h-8 w-8 text-primary" />
+            <h1 className="text-xl font-bold">Training Center</h1>
+          </div>
+          <p className="text-xs text-muted-foreground">Access AI-powered training, troubleshooting guides, and skill development resources</p>
+        </div>
+
         <div className="grid grid-cols-12 gap-6">
           {/* Left Column - Main Content */}
           <div className="col-span-8 space-y-6">
@@ -200,8 +200,6 @@ const TrainingPage = () => {
               </CardContent>
             </Card>
           </div>
-        </div>
-      </div>
         </div>
       </div>
     </div>
