@@ -89,7 +89,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
         <div className="flex items-center gap-2 px-2 py-2">
           <SidebarTrigger className="h-8 w-8" />
           <div className="flex items-center space-x-1">
-            <div className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <div className="text-lg font-bold bg-gradient-to-r from-red-600 to-black bg-clip-text text-transparent">
               FixOps
             </div>
           </div>

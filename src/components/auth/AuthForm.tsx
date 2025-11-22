@@ -28,10 +28,10 @@ const AuthForm = ({
     <div className="w-full max-w-md mx-auto px-4 sm:px-0">
       {/* Mobile-optimized Logo */}
       <div className="text-center mb-6 sm:mb-8">
-        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
+        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-600 to-black rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4">
           <Wrench className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-black bg-clip-text text-transparent">
           FixOps
         </h1>
         <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm sm:text-base">
