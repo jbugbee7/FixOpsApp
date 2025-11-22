@@ -162,8 +162,8 @@ const IndexPage = ({
         {/* Sidebar - right side on desktop, offcanvas on mobile */}
         <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* Mobile Bottom Navigation */}
-        {activeTab !== 'ai-assistant' && (
+        {/* Mobile Bottom Navigation - only show on dashboard */}
+        {activeTab === 'dashboard' && (
           <div className="md:hidden">
             <BottomNavigation 
               activeTab={activeTab} 
