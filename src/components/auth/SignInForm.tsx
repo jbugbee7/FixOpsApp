@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabaseClient';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface SignInFormProps {
   error: string;
@@ -16,6 +14,7 @@ interface SignInFormProps {
 const SignInForm = ({ error, setError }: SignInFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -31,15 +30,12 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
     setError('');
 
     try {
-      console.log('Attempting to sign in user:', email);
-      
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password,
       });
 
       if (signInError) {
-        console.error('Sign in error:', signInError);
         if (signInError.message.includes('Invalid login credentials')) {
           setError('Invalid email or password. Please check your credentials and try again.');
         } else if (signInError.message.includes('Email not confirmed')) {
@@ -51,14 +47,11 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
       }
 
       if (data.user && data.session) {
-        console.log('Sign in successful for user:', data.user.email);
         navigate('/', { replace: true });
       } else {
-        console.error('Sign in succeeded but no user or session returned');
         setError('Authentication failed. Please try again.');
       }
     } catch (err) {
-      console.error('Unexpected error during sign in:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
@@ -66,50 +59,53 @@ const SignInForm = ({ error, setError }: SignInFormProps) => {
   }, [email, password, setError, navigate]);
 
   return (
-    <>
-      {error && (
-        <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
-          <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-          <AlertDescription className="text-red-800 dark:text-red-300">
-            {error}
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <form onSubmit={handleSignIn} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email" className="dark:text-slate-200">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
-            className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password" className="dark:text-slate-200">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-            className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-100"
-          />
-        </div>
-        <Button 
-          type="submit" 
-          className="w-full" 
+    <form onSubmit={handleSignIn} className="space-y-4">
+      <div>
+        <Input
+          type="email"
+          placeholder="Email Address"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
           disabled={isLoading}
+          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 focus:bg-white/25"
+        />
+      </div>
+      
+      <div className="relative">
+        <Input
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isLoading}
+          className="bg-white/20 border-white/30 text-white placeholder:text-white/60 rounded-xl h-12 pr-10 focus:bg-white/25"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
         >
-          {isLoading ? 'Signing in...' : 'Sign In'}
-        </Button>
-      </form>
-    </>
+          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+        </button>
+      </div>
+
+      <div className="text-right">
+        <button
+          type="button"
+          className="text-white/80 text-sm hover:text-white hover:underline"
+        >
+          Forgot Password?
+        </button>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={isLoading}
+        className="w-full bg-white hover:bg-white/90 text-purple-700 font-semibold rounded-xl h-12 text-base shadow-lg"
+      >
+        {isLoading ? 'Signing in...' : 'Login'}
+      </Button>
+    </form>
   );
 };
 
