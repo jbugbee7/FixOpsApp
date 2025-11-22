@@ -56,10 +56,10 @@
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
-    --card: 210 10% 18%;
+    --card: 0 0% 18%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 210 10% 18%;
+    --popover: 0 0% 18%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 210 15% 75%;
@@ -80,13 +80,13 @@
     --border: 0 0% 25%;
     --input: 0 0% 20%;
     --ring: 0 85% 65%;
-    --sidebar-background: 210 10% 18%;
+    --sidebar-background: 0 0% 18%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 210 15% 75%;
     --sidebar-primary-foreground: 210 15% 8%;
-    --sidebar-accent: 210 10% 25%;
+    --sidebar-accent: 0 0% 25%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 210 15% 30%;
+    --sidebar-border: 0 0% 25%;
     --sidebar-ring: 0 85% 65%;
     --font-sans: Montserrat, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
     --font-serif: "Cormorant Garamond", ui-serif, Georgia, Cambria, Times New Roman, Times, serif;
