@@ -29,17 +29,12 @@ const AiAssistantPage = () => {
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-foreground">AI Assistant</h2>
-      </div>
-
       {/* Chat Container */}
       <div 
         ref={chatContainerRef}
         className="flex flex-col flex-1 pb-32"
         style={{
-          maxHeight: 'calc(100vh - 200px)',
+          maxHeight: 'calc(100vh - 140px)',
           minHeight: '400px'
         }}
       >
