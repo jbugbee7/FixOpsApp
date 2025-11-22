@@ -183,7 +183,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
           {/* Charts Section */}
           <div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+              <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-base sm:text-lg">Work Orders Distribution</CardTitle>
                   <CardDescription className="text-sm">Monthly work order breakdown</CardDescription>
@@ -226,7 +226,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+              <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-base sm:text-lg">Revenue Distribution</CardTitle>
                   <CardDescription className="text-sm">Monthly revenue breakdown</CardDescription>
@@ -269,7 +269,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                 </CardContent>
               </Card>
 
-              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
+              <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-base sm:text-lg">Service Categories</CardTitle>
                   <CardDescription className="text-sm">Distribution by appliance type</CardDescription>
