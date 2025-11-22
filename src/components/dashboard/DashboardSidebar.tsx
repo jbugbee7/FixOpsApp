@@ -10,10 +10,14 @@ import {
   SidebarMenuItem,
   SidebarTrigger,
   SidebarHeader,
+  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package, Calendar, Wrench } from 'lucide-react';
+import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package, Calendar, Wrench, LogOut } from 'lucide-react';
 import logo from '@/assets/fixops-logo.png';
+import { supabase } from '@/lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -75,12 +79,33 @@ const menuItems = [
 
 const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => {
   const { isMobile, setOpenMobile } = useSidebar();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleTabChange = (tab: string) => {
     onTabChange(tab);
     // Close mobile sidebar when an item is clicked
     if (isMobile) {
       setOpenMobile(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      navigate('/auth');
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -119,6 +144,20 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="border-t border-border/50 p-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 text-slate-900 dark:text-foreground hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 h-11"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="font-medium">Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 };
