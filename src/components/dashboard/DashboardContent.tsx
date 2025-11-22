@@ -80,7 +80,7 @@ const DashboardContent = ({
       case 'scheduling':
         return <SchedulingPage />;
       case 'settings':
-        return <SettingsPage />;
+        return <SettingsPage onNavigate={onNavigate} />;
       default:
         return <NewDashboardPage onNavigate={onNavigate} />;
     }
