@@ -125,7 +125,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gun-metal/10 dark:bg-gun-metal/20">
-                    <Wrench className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                    <Wrench className="h-5 w-5 text-accent" />
                   </div>
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full ${metrics.monthlyGrowth >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'}`}>
                     {metrics.monthlyGrowth >= 0 ? '+' : ''}{metrics.monthlyGrowth.toFixed(0)}%
@@ -140,7 +140,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gun-metal/10 dark:bg-gun-metal/20">
-                    <CheckCircle className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                    <CheckCircle className="h-5 w-5 text-accent" />
                   </div>
                   <div className="w-12 h-12 rounded-full border-4 border-muted flex items-center justify-center">
                     <span className="text-xs font-bold">{metrics.completionRate.toFixed(0)}%</span>
@@ -155,9 +155,9 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gun-metal/10 dark:bg-gun-metal/20">
-                    <DollarSign className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                    <DollarSign className="h-5 w-5 text-accent" />
                   </div>
-                  <TrendingUp className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                  <TrendingUp className="h-5 w-5 text-accent" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform">
                   ${(metrics.monthlyRevenue / 1000).toFixed(1)}k
@@ -170,9 +170,9 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gun-metal/10 dark:bg-gun-metal/20">
-                    <Clock className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                    <Clock className="h-5 w-5 text-accent" />
                   </div>
-                  <AlertTriangle className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                  <AlertTriangle className="h-5 w-5 text-accent" />
                 </div>
                 <div className="text-2xl sm:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform">{metrics.avgResponseTime}</div>
                 <p className="text-xs text-muted-foreground">Avg Response</p>
@@ -322,7 +322,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gun-metal/10 dark:bg-gun-metal/20">
-                        <Wrench className="h-5 w-5 text-gun-metal dark:text-gun-metal" />
+                        <Wrench className="h-5 w-5 text-accent" />
                       </div>
                       <span className="text-xs font-semibold px-2 py-1 rounded-full bg-muted">
                         {category.value}%
