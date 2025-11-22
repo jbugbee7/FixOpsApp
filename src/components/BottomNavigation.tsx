@@ -27,7 +27,7 @@ const BottomNavigation = ({ activeTab, onTabChange, onAddWorkOrder }: BottomNavi
           <div className="relative flex items-center justify-center">
             <button
               onClick={onAddWorkOrder}
-              className="absolute -top-6 w-14 h-14 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+              className="absolute -top-6 w-14 h-14 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
             >
               <Plus className="h-7 w-7 text-white" strokeWidth={3} />
             </button>
@@ -62,9 +62,9 @@ const NavButton = ({
       className="relative flex flex-col items-center justify-center h-full bg-transparent gap-1 transition-colors"
     >
       {React.cloneElement(icon as React.ReactElement, { 
-        className: isActive ? "h-5 w-5 text-purple-600 dark:text-purple-400" : "h-5 w-5 text-slate-400 dark:text-slate-500",
+        className: isActive ? "h-5 w-5 text-primary" : "h-5 w-5 text-muted-foreground",
       })}
-      <span className={`text-xs ${isActive ? 'text-purple-600 dark:text-purple-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>
+      <span className={`text-xs ${isActive ? 'text-primary font-medium' : 'text-muted-foreground'}`}>
         {label}
       </span>
     </button>
