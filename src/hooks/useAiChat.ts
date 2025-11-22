@@ -33,9 +33,18 @@ export const useAiChat = () => {
         throw new Error('Not authenticated');
       }
 
-      // Call the AI chat function
+      // Get last 10 messages for context (5 exchanges)
+      const recentMessages = [...messages, userMessage].slice(-10);
+      
+      // Call the AI chat function with conversation history
       const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: { message: inputMessage },
+        body: { 
+          message: inputMessage,
+          conversationHistory: recentMessages.map(m => ({
+            role: m.sender === 'user' ? 'user' : 'assistant',
+            content: m.text
+          }))
+        },
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
