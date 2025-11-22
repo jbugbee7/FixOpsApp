@@ -23,22 +23,12 @@ const CRMPage = ({ fromDashboard = false, onNavigate }: { fromDashboard?: boolea
       
       <div className="flex-1 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 py-6 h-full">
-          {cameFromDashboard && (
-            <Button
-              variant="ghost"
-              onClick={() => onNavigate?.('dashboard')}
-              className="mb-4 hover:bg-muted/80"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          )}
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-200 text-red-700 rounded-md">
               {error}
             </div>
           )}
-          <CRMTabs 
+          <CRMTabs
             interactions={interactions} 
             communications={communications} 
             loading={loading} 
