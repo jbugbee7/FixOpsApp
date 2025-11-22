@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, Area, AreaChart } from 'recharts';
 import { TrendingUp, DollarSign, Users, Wrench, Clock, CheckCircle, AlertTriangle, Calendar, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
@@ -18,15 +17,15 @@ const NewDashboardPage = () => {
   const chartConfig = {
     workOrders: {
       label: "Work Orders",
-      color: "hsl(var(--chart-1))",
+      color: "#DC2626",
     },
     revenue: {
       label: "Revenue",
-      color: "hsl(var(--chart-2))",
+      color: "#991B1B",
     },
     completion: {
       label: "Completion Rate",
-      color: "hsl(var(--chart-3))",
+      color: "#B91C1C",
     },
   };
 
@@ -48,11 +47,11 @@ const NewDashboardPage = () => {
 
   // Loading skeleton
   const LoadingSkeleton = () => (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-4">
+          <Card key={i} className="rounded-2xl">
+            <CardContent className="p-6">
               <Skeleton className="h-4 w-16 mb-2" />
               <Skeleton className="h-8 w-20 mb-1" />
               <Skeleton className="h-3 w-24" />
@@ -60,8 +59,8 @@ const NewDashboardPage = () => {
           </Card>
         ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <Card className="rounded-2xl">
           <CardHeader>
             <Skeleton className="h-6 w-48" />
             <Skeleton className="h-4 w-64" />
@@ -70,7 +69,7 @@ const NewDashboardPage = () => {
             <Skeleton className="h-48 w-full" />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="rounded-2xl">
           <CardHeader>
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-48" />
@@ -86,10 +85,10 @@ const NewDashboardPage = () => {
   // Error state
   if (error) {
     return (
-      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-8">
-        <Alert className="border-red-200 bg-red-50">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20 rounded-2xl">
           <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
+          <AlertDescription className="text-red-800 dark:text-red-400">
             {error}. Please try refreshing the page.
           </AlertDescription>
         </Alert>
@@ -98,26 +97,25 @@ const NewDashboardPage = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 sm:py-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 sm:mb-8">
-        <div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
-            {company?.name ? `${company.name} Dashboard` : 'Business Dashboard'}
-          </h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1 sm:mt-2">
-            Real-time business analytics and performance metrics
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Card className="px-3 py-2">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 animate-fade-in">
+      {/* Modern Header with Greeting */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-500 dark:to-white bg-clip-text text-transparent">
+              {company?.name || 'FixOps'}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Welcome back! Here's what's happening today.
+            </p>
+          </div>
+          <Card className="px-4 py-2.5 rounded-2xl bg-card/50 backdrop-blur-sm border-border/50">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs sm:text-sm font-medium">
+              <Calendar className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <span className="text-sm font-medium">
                 {new Date().toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric', 
-                  year: 'numeric' 
+                  month: 'short', 
+                  day: 'numeric'
                 })}
               </span>
             </div>
@@ -128,334 +126,254 @@ const NewDashboardPage = () => {
       {loading ? (
         <LoadingSkeleton />
       ) : (
-        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
-            <TabsTrigger value="financial" className="text-xs sm:text-sm">Financial</TabsTrigger>
-            <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-            {/* Key Performance Indicators */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Total Work Orders</CardTitle>
-                  <Wrench className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">{metrics.totalWorkOrders}</div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className={metrics.monthlyGrowth >= 0 ? "text-green-600" : "text-red-600"}>
-                      {metrics.monthlyGrowth >= 0 ? '+' : ''}{metrics.monthlyGrowth.toFixed(1)}%
-                    </span> from last month
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Completion Rate</CardTitle>
-                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">{metrics.completionRate.toFixed(1)}%</div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600">Good performance</span>
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Monthly Revenue</CardTitle>
-                  <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">
-                    ${metrics.monthlyRevenue.toLocaleString()}
+        <div className="space-y-8">
+          {/* Stats Overview - Modern Card Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-red-500/10 transition-all duration-300 group">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-500/30">
+                    <Wrench className="h-5 w-5 text-white" />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className={metrics.monthlyGrowth >= 0 ? "text-green-600" : "text-red-600"}>
-                      {metrics.monthlyGrowth >= 0 ? '+' : ''}{metrics.monthlyGrowth.toFixed(1)}%
-                    </span> from last month
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-medium">Avg Response Time</CardTitle>
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold">{metrics.avgResponseTime}</div>
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-600">Good response</span>
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${metrics.monthlyGrowth >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'}`}>
+                    {metrics.monthlyGrowth >= 0 ? '+' : ''}{metrics.monthlyGrowth.toFixed(0)}%
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform">{metrics.totalWorkOrders}</div>
+                <p className="text-xs text-muted-foreground">Work Orders</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-red-500/10 transition-all duration-300 group">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-700 shadow-lg shadow-red-600/30">
+                    <CheckCircle className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="w-12 h-12 rounded-full border-4 border-muted flex items-center justify-center">
+                    <span className="text-xs font-bold">{metrics.completionRate.toFixed(0)}%</span>
+                  </div>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform">{metrics.completionRate.toFixed(1)}%</div>
+                <p className="text-xs text-muted-foreground">Completion Rate</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-red-500/10 transition-all duration-300 group">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-700 to-red-800 shadow-lg shadow-red-700/30">
+                    <DollarSign className="h-5 w-5 text-white" />
+                  </div>
+                  <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform">
+                  ${(metrics.monthlyRevenue / 1000).toFixed(1)}k
+                </div>
+                <p className="text-xs text-muted-foreground">Monthly Revenue</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-red-500/10 transition-all duration-300 group">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-red-800 to-red-900 shadow-lg shadow-red-800/30">
+                    <Clock className="h-5 w-5 text-white" />
+                  </div>
+                  <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold mb-1 group-hover:scale-105 transition-transform">{metrics.avgResponseTime}</div>
+                <p className="text-xs text-muted-foreground">Avg Response</p>
+              </CardContent>
+            </Card>
+          </div>
 
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <Card>
-                <CardHeader>
+          {/* Quick Actions Section */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Quick Actions</h2>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <button className="p-4 rounded-2xl bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg shadow-red-600/30 hover:shadow-xl hover:shadow-red-600/40 transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Wrench className="h-6 w-6" />
+                  </div>
+                  <span className="text-sm font-medium">New Order</span>
+                </div>
+              </button>
+              
+              <button className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Users className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <span className="text-sm font-medium">Customers</span>
+                </div>
+              </button>
+              
+              <button className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <BarChart3 className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <span className="text-sm font-medium">Analytics</span>
+                </div>
+              </button>
+              
+              <button className="p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:bg-card hover:shadow-lg transition-all duration-300 group">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950/30 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <PieChartIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <span className="text-sm font-medium">Reports</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Charts Section with Section Header */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Performance</h2>
+              <button className="text-sm text-red-600 dark:text-red-400 hover:underline">View all</button>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+                <CardHeader className="pb-4">
                   <CardTitle className="text-base sm:text-lg">Monthly Trends</CardTitle>
                   <CardDescription className="text-sm">Work orders and revenue over time</CardDescription>
                 </CardHeader>
-                <CardContent className="p-2 sm:p-6">
-                  <div className="w-full overflow-hidden">
-                    <ChartContainer 
-                      config={chartConfig} 
-                      className="w-full"
-                      style={{ height: getAreaChartHeight() }}
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart 
-                          data={monthlyData}
-                          margin={getChartMargins()}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                          <XAxis 
-                            dataKey="month" 
-                            tick={{ fontSize: getTickFontSize() }}
-                            interval={0}
-                            angle={isMobile ? -45 : 0}
-                            textAnchor={isMobile ? 'end' : 'middle'}
-                            height={isMobile ? 40 : 30}
+                <CardContent className="p-4">
+                  <ChartContainer 
+                    config={chartConfig} 
+                    className="w-full"
+                    style={{ height: getAreaChartHeight() }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={monthlyData} margin={getChartMargins()}>
+                        <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                        <XAxis 
+                          dataKey="month" 
+                          tick={{ fontSize: getTickFontSize() }}
+                          interval={0}
+                          angle={isMobile ? -45 : 0}
+                          textAnchor={isMobile ? 'end' : 'middle'}
+                          height={isMobile ? 40 : 30}
+                        />
+                        <YAxis 
+                          yAxisId="left" 
+                          tick={{ fontSize: getTickFontSize() }}
+                          width={getAxisWidth()}
+                        />
+                        <YAxis 
+                          yAxisId="right" 
+                          orientation="right" 
+                          tick={{ fontSize: getTickFontSize() }}
+                          tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                          width={isMobile ? 15 : 40}
+                        />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        {!isMobile && (
+                          <Legend 
+                            wrapperStyle={{ fontSize: getLegendFontSize() }}
+                            iconSize={12}
                           />
-                          <YAxis 
-                            yAxisId="left" 
-                            tick={{ fontSize: getTickFontSize() }}
-                            width={getAxisWidth()}
-                          />
-                          <YAxis 
-                            yAxisId="right" 
-                            orientation="right" 
-                            tick={{ fontSize: getTickFontSize() }}
-                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                            width={isMobile ? 15 : 40}
-                          />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          {!isMobile && (
-                            <Legend 
-                              wrapperStyle={{ fontSize: getLegendFontSize() }}
-                              iconSize={12}
-                            />
-                          )}
-                          <Area 
-                            yAxisId="left"
-                            type="monotone" 
-                            dataKey="workOrders" 
-                            stackId="1"
-                            stroke="#DC2626" 
-                            fill="#DC2626"
-                            fillOpacity={0.3}
-                            name="Work Orders"
-                          />
-                          <Line 
-                            yAxisId="right"
-                            type="monotone" 
-                            dataKey="revenue" 
-                            stroke="#991B1B" 
-                            strokeWidth={isMobile ? 2 : 3}
-                            name="Revenue ($)"
-                            dot={{ fill: '#991B1B', strokeWidth: 1, r: isMobile ? 2 : 4 }}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
+                        )}
+                        <Area 
+                          yAxisId="left"
+                          type="monotone" 
+                          dataKey="workOrders" 
+                          stackId="1"
+                          stroke="#DC2626" 
+                          fill="#DC2626"
+                          fillOpacity={0.3}
+                          name="Work Orders"
+                        />
+                        <Line 
+                          yAxisId="right"
+                          type="monotone" 
+                          dataKey="revenue" 
+                          stroke="#991B1B" 
+                          strokeWidth={isMobile ? 2 : 3}
+                          name="Revenue ($)"
+                          dot={{ fill: '#991B1B', strokeWidth: 1, r: isMobile ? 2 : 4 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm">
+                <CardHeader className="pb-4">
                   <CardTitle className="text-base sm:text-lg">Service Categories</CardTitle>
                   <CardDescription className="text-sm">Distribution by appliance type</CardDescription>
                 </CardHeader>
-                <CardContent className="p-2 sm:p-6">
-                  <div className="w-full overflow-hidden">
-                    <ChartContainer 
-                      config={chartConfig} 
-                      className="w-full"
-                      style={{ height: getPieChartHeight() }}
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={serviceCategories}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={isMobile ? "45%" : "60%"}
-                            fill="#8884d8"
-                            dataKey="value"
-                            labelLine={false}
-                          >
-                            {serviceCategories.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <ChartTooltip 
-                            formatter={(value, name) => [`${value}%`, name]}
-                          />
-                          <Legend 
-                            verticalAlign="bottom"
-                            height={isMobile ? 20 : 36}
-                            wrapperStyle={{ fontSize: getLegendFontSize() }}
-                            iconSize={isMobile ? 8 : 18}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="performance" className="space-y-4 sm:space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Analytics</CardTitle>
-                <CardDescription>Detailed performance metrics and insights</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="text-center p-4 border rounded-lg">
-                    <CheckCircle className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                    <div className="text-2xl font-bold">{metrics.completionRate.toFixed(1)}%</div>
-                    <div className="text-sm text-muted-foreground">Completion Rate</div>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                    <div className="text-2xl font-bold">{metrics.avgResponseTime}</div>
-                    <div className="text-sm text-muted-foreground">Avg Response Time</div>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Wrench className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                    <div className="text-2xl font-bold">{metrics.totalWorkOrders}</div>
-                    <div className="text-sm text-muted-foreground">Total Work Orders</div>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-red-600" />
-                    <div className="text-2xl font-bold">{metrics.monthlyGrowth.toFixed(1)}%</div>
-                    <div className="text-sm text-muted-foreground">Monthly Growth</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="financial" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Revenue Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>This Month</span>
-                    <span className="font-semibold">${metrics.monthlyRevenue.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Growth Rate</span>
-                    <span className={`font-semibold ${metrics.monthlyGrowth >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {metrics.monthlyGrowth >= 0 ? '+' : ''}{metrics.monthlyGrowth.toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Work Orders</span>
-                    <span className="font-semibold">{metrics.totalWorkOrders}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Completion Rate</span>
-                    <span className="font-semibold text-green-600">{metrics.completionRate.toFixed(1)}%</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Service Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {serviceCategories.slice(0, 4).map((service) => (
-                    <div key={service.name} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div 
-                          className="w-3 h-3 rounded"
-                          style={{ backgroundColor: service.color }}
+                <CardContent className="p-4">
+                  <ChartContainer 
+                    config={chartConfig} 
+                    className="w-full"
+                    style={{ height: getPieChartHeight() }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={serviceCategories}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={isMobile ? "45%" : "60%"}
+                          fill="#8884d8"
+                          dataKey="value"
+                          labelLine={false}
+                        >
+                          {serviceCategories.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip 
+                          formatter={(value, name) => [`${value}%`, name]}
                         />
-                        <span className="text-sm">{service.name}</span>
-                      </div>
-                      <span className="text-sm font-semibold">{service.count}</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Key Metrics</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Avg Response Time</span>
-                    <span className="font-semibold">{metrics.avgResponseTime}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Total Categories</span>
-                    <span className="font-semibold">{serviceCategories.length}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Top Category</span>
-                    <span className="font-semibold">{serviceCategories[0]?.name || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Success Rate</span>
-                    <span className="font-semibold text-green-600">{metrics.completionRate.toFixed(1)}%</span>
-                  </div>
+                        <Legend 
+                          verticalAlign="bottom"
+                          height={isMobile ? 20 : 36}
+                          wrapperStyle={{ fontSize: getLegendFontSize() }}
+                          iconSize={isMobile ? 8 : 18}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="analytics" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Business Intelligence</CardTitle>
-                <CardDescription>Advanced analytics and insights from real data</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="text-center p-4 border rounded-lg">
-                    <BarChart3 className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-                    <div className="text-2xl font-bold">{metrics.completionRate.toFixed(1)}%</div>
-                    <div className="text-sm text-muted-foreground">Success Rate</div>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                    <div className="text-2xl font-bold">{serviceCategories.length}</div>
-                    <div className="text-sm text-muted-foreground">Service Types</div>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                    <div className="text-2xl font-bold">{metrics.avgResponseTime}</div>
-                    <div className="text-sm text-muted-foreground">Response Time</div>
-                  </div>
-                  <div className="text-center p-4 border rounded-lg">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-                    <div className="text-2xl font-bold">{metrics.monthlyGrowth.toFixed(1)}%</div>
-                    <div className="text-sm text-muted-foreground">Growth Rate</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          {/* Service Categories as Cards */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Service Categories</h2>
+              <button className="text-sm text-red-600 dark:text-red-400 hover:underline">View all</button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {serviceCategories.slice(0, 5).map((category, index) => (
+                <Card key={index} className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${category.color}20` }}>
+                        <Wrench className="h-5 w-5" style={{ color: category.color }} />
+                      </div>
+                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-muted">
+                        {category.value}%
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium truncate">{category.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">devices</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
