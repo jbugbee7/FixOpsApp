@@ -184,7 +184,6 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Performance</h2>
-              <button className="text-sm text-purple-600 dark:text-purple-400 hover:underline">View all</button>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card className="rounded-2xl border-border/50 bg-card/50 backdrop-blur-sm hover:shadow-lg transition-shadow duration-300">
@@ -322,7 +321,6 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Service Categories</h2>
-              <button className="text-sm text-red-600 dark:text-red-400 hover:underline">View all</button>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {serviceCategories.slice(0, 5).map((category, index) => (
