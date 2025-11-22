@@ -250,8 +250,8 @@ const NewDashboardPage = () => {
                             type="monotone" 
                             dataKey="workOrders" 
                             stackId="1"
-                            stroke="#8B5CF6" 
-                            fill="#8B5CF6"
+                            stroke="#DC2626" 
+                            fill="#DC2626"
                             fillOpacity={0.3}
                             name="Work Orders"
                           />
@@ -259,10 +259,10 @@ const NewDashboardPage = () => {
                             yAxisId="right"
                             type="monotone" 
                             dataKey="revenue" 
-                            stroke="#10B981" 
+                            stroke="#991B1B" 
                             strokeWidth={isMobile ? 2 : 3}
                             name="Revenue ($)"
-                            dot={{ fill: '#10B981', strokeWidth: 1, r: isMobile ? 2 : 4 }}
+                            dot={{ fill: '#991B1B', strokeWidth: 1, r: isMobile ? 2 : 4 }}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -325,22 +325,22 @@ const NewDashboardPage = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="text-center p-4 border rounded-lg">
-                    <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                    <CheckCircle className="h-8 w-8 mx-auto mb-2 text-red-600" />
                     <div className="text-2xl font-bold">{metrics.completionRate.toFixed(1)}%</div>
                     <div className="text-sm text-muted-foreground">Completion Rate</div>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
-                    <Clock className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                    <Clock className="h-8 w-8 mx-auto mb-2 text-red-600" />
                     <div className="text-2xl font-bold">{metrics.avgResponseTime}</div>
                     <div className="text-sm text-muted-foreground">Avg Response Time</div>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
-                    <Wrench className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                    <Wrench className="h-8 w-8 mx-auto mb-2 text-red-600" />
                     <div className="text-2xl font-bold">{metrics.totalWorkOrders}</div>
                     <div className="text-sm text-muted-foreground">Total Work Orders</div>
                   </div>
                   <div className="text-center p-4 border rounded-lg">
-                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+                    <TrendingUp className="h-8 w-8 mx-auto mb-2 text-red-600" />
                     <div className="text-2xl font-bold">{metrics.monthlyGrowth.toFixed(1)}%</div>
                     <div className="text-sm text-muted-foreground">Monthly Growth</div>
                   </div>

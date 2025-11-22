@@ -31,9 +31,9 @@ const HealthMetricsSummary = ({ metrics }: HealthMetricsSummaryProps) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Excellent Health</p>
-              <p className="text-2xl font-bold text-green-600">{excellentCount}</p>
+              <p className="text-2xl font-bold text-red-600">{excellentCount}</p>
             </div>
-            <Heart className="h-8 w-8 text-green-500" />
+            <Heart className="h-8 w-8 text-red-500" />
           </div>
         </CardContent>
       </Card>
@@ -43,9 +43,9 @@ const HealthMetricsSummary = ({ metrics }: HealthMetricsSummaryProps) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">At Risk</p>
-              <p className="text-2xl font-bold text-yellow-600">{atRiskCount}</p>
+              <p className="text-2xl font-bold text-red-700">{atRiskCount}</p>
             </div>
-            <AlertTriangle className="h-8 w-8 text-yellow-500" />
+            <AlertTriangle className="h-8 w-8 text-red-600" />
           </div>
         </CardContent>
       </Card>
@@ -55,9 +55,9 @@ const HealthMetricsSummary = ({ metrics }: HealthMetricsSummaryProps) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Critical</p>
-              <p className="text-2xl font-bold text-red-600">{criticalCount}</p>
+              <p className="text-2xl font-bold text-red-800">{criticalCount}</p>
             </div>
-            <TrendingDown className="h-8 w-8 text-red-500" />
+            <TrendingDown className="h-8 w-8 text-red-700" />
           </div>
         </CardContent>
       </Card>
@@ -69,7 +69,7 @@ const HealthMetricsSummary = ({ metrics }: HealthMetricsSummaryProps) => {
               <p className="text-sm text-muted-foreground">Avg Score</p>
               <p className="text-2xl font-bold">{avgScore}</p>
             </div>
-            <TrendingUp className="h-8 w-8 text-blue-500" />
+            <TrendingUp className="h-8 w-8 text-red-500" />
           </div>
         </CardContent>
       </Card>

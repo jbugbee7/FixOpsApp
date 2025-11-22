@@ -67,11 +67,11 @@ const ReportsTab = () => {
   };
 
   const chartConfig = {
-    revenue: { label: 'Revenue', color: '#10B981' },
-    expenses: { label: 'Expenses', color: '#EF4444' },
-    profit: { label: 'Profit', color: '#3B82F6' },
-    amount: { label: 'Amount', color: '#8B5CF6' },
-    count: { label: 'Count', color: '#06B6D4' },
+    revenue: { label: 'Revenue', color: '#DC2626' },
+    expenses: { label: 'Expenses', color: '#991B1B' },
+    profit: { label: 'Profit', color: '#B91C1C' },
+    amount: { label: 'Amount', color: '#EF4444' },
+    count: { label: 'Count', color: '#DC2626' },
   };
 
   if (loading) {
@@ -150,8 +150,8 @@ const ReportsTab = () => {
                       content={<ChartTooltipContent />}
                       formatter={(value) => [formatCurrency(Number(value)), '']}
                     />
-                    <Bar dataKey="revenue" fill="#10B981" name="Revenue" />
-                    <Bar dataKey="expenses" fill="#EF4444" name="Expenses" />
+                    <Bar dataKey="revenue" fill="#DC2626" name="Revenue" />
+                    <Bar dataKey="expenses" fill="#991B1B" name="Expenses" />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
@@ -180,7 +180,7 @@ const ReportsTab = () => {
                       content={<ChartTooltipContent />}
                       formatter={(value) => [formatCurrency(Number(value)), 'Amount']}
                     />
-                    <Bar dataKey="amount" fill="#8B5CF6" />
+                    <Bar dataKey="amount" fill="#EF4444" />
                   </BarChart>
                 </ResponsiveContainer>
               </ChartContainer>
@@ -209,8 +209,8 @@ const ReportsTab = () => {
                       content={<ChartTooltipContent />}
                       formatter={(value) => [formatCurrency(Number(value)), '']}
                     />
-                    <Line type="monotone" dataKey="revenue" stroke="#10B981" strokeWidth={2} name="Revenue" />
-                    <Line type="monotone" dataKey="profit" stroke="#3B82F6" strokeWidth={2} name="Profit" />
+                    <Line type="monotone" dataKey="revenue" stroke="#DC2626" strokeWidth={2} name="Revenue" />
+                    <Line type="monotone" dataKey="profit" stroke="#B91C1C" strokeWidth={2} name="Profit" />
                   </LineChart>
                 </ResponsiveContainer>
               </ChartContainer>

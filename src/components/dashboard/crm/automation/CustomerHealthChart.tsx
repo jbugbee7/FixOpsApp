@@ -17,11 +17,11 @@ interface CustomerHealthChartProps {
 const CustomerHealthChart = ({ healthMetrics }: CustomerHealthChartProps) => {
   // Prepare data for health score distribution
   const healthDistribution = [
-    { range: '0-20', count: healthMetrics.filter(m => m.health_score <= 20).length, color: '#ef4444' },
-    { range: '21-40', count: healthMetrics.filter(m => m.health_score > 20 && m.health_score <= 40).length, color: '#f97316' },
-    { range: '41-60', count: healthMetrics.filter(m => m.health_score > 40 && m.health_score <= 60).length, color: '#eab308' },
-    { range: '61-80', count: healthMetrics.filter(m => m.health_score > 60 && m.health_score <= 80).length, color: '#22c55e' },
-    { range: '81-100', count: healthMetrics.filter(m => m.health_score > 80).length, color: '#16a34a' }
+    { range: '0-20', count: healthMetrics.filter(m => m.health_score <= 20).length, color: '#7F1D1D' },
+    { range: '21-40', count: healthMetrics.filter(m => m.health_score > 20 && m.health_score <= 40).length, color: '#991B1B' },
+    { range: '41-60', count: healthMetrics.filter(m => m.health_score > 40 && m.health_score <= 60).length, color: '#B91C1C' },
+    { range: '61-80', count: healthMetrics.filter(m => m.health_score > 60 && m.health_score <= 80).length, color: '#DC2626' },
+    { range: '81-100', count: healthMetrics.filter(m => m.health_score > 80).length, color: '#EF4444' }
   ];
 
   // Prepare risk factors data
@@ -41,7 +41,7 @@ const CustomerHealthChart = ({ healthMetrics }: CustomerHealthChartProps) => {
     count
   })).slice(0, 5);
 
-  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#d084d0'];
+  const COLORS = ['#DC2626', '#B91C1C', '#991B1B', '#7F1D1D', '#EF4444'];
 
   const chartConfig = {
     count: {

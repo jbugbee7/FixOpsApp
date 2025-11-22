@@ -34,7 +34,7 @@ const CRMCharts = () => {
   const segmentChartData = Object.entries(segmentData).map(([segment, count]) => ({
     name: segment,
     value: count,
-    color: segment === 'Premium' ? '#8B5CF6' : segment === 'Standard' ? '#3B82F6' : '#10B981'
+    color: segment === 'Premium' ? '#DC2626' : segment === 'Standard' ? '#EF4444' : '#B91C1C'
   }));
 
   const statusData = allCustomers.reduce((acc, customer) => {
@@ -63,15 +63,15 @@ const CRMCharts = () => {
   const chartConfig = {
     customers: {
       label: "Customers",
-      color: "#3B82F6",
+      color: "#DC2626",
     },
     revenue: {
       label: "Revenue",
-      color: "#10B981",
+      color: "#B91C1C",
     },
     value: {
       label: "Count",
-      color: "#8B5CF6",
+      color: "#EF4444",
     },
   };
 
@@ -119,7 +119,7 @@ const CRMCharts = () => {
                 <XAxis dataKey="status" />
                 <YAxis />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="customers" fill="#3B82F6" />
+                <Bar dataKey="customers" fill="#DC2626" />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>
@@ -144,7 +144,7 @@ const CRMCharts = () => {
                 <Line 
                   type="monotone" 
                   dataKey="revenue" 
-                  stroke="#10B981" 
+                  stroke="#B91C1C" 
                   strokeWidth={2}
                 />
               </LineChart>
