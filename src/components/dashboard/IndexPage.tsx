@@ -159,10 +159,8 @@ const IndexPage = ({
           </div>
         </div>
 
-        {/* Desktop Sidebar - Right Side */}
-        <div className="hidden md:block">
-          <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
+        {/* Sidebar - right side on desktop, offcanvas on mobile */}
+        <DashboardSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
         {/* Mobile Bottom Navigation */}
         {activeTab !== 'ai-assistant' && (
