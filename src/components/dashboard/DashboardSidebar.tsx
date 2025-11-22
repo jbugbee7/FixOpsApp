@@ -89,10 +89,10 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
         <div className="flex items-center gap-3 px-4 py-4">
           <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-red-600 to-red-700 dark:from-red-600 dark:to-white rounded-xl shadow-lg shadow-red-500/20">
+            <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl shadow-lg shadow-purple-500/20">
               <Wrench className="h-4 w-4 text-white" />
             </div>
-            <div className="text-base font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white bg-clip-text text-transparent">
+            <div className="text-base font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               FixOps
             </div>
           </div>
@@ -109,7 +109,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
                   <SidebarMenuButton
                     isActive={activeTab === item.value}
                     onClick={() => handleTabChange(item.value)}
-                    className="rounded-xl hover:bg-muted/80 text-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-red-600 data-[active=true]:to-red-700 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-red-500/30 transition-all duration-200 h-11"
+                    className="rounded-xl hover:bg-muted/80 text-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-600 data-[active=true]:to-pink-600 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-purple-500/30 transition-all duration-200 h-11"
                   >
                     <item.icon className="h-4 w-4" />
                     <span className="font-medium">{item.title}</span>

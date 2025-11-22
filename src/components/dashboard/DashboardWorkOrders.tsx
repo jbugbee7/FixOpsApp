@@ -53,7 +53,7 @@ const DashboardWorkOrders = React.memo(({
       <div className="flex justify-center mb-6">
         <Button 
           onClick={() => onNavigate('add-case')}
-          className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-6 text-base font-semibold w-full max-w-xs rounded-2xl shadow-lg shadow-red-500/30 hover:shadow-xl hover:shadow-red-500/40 transition-all duration-300"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-base font-semibold w-full max-w-xs rounded-2xl shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 transition-all duration-300"
           size="lg"
         >
           <Plus className="h-5 w-5 mr-2" />
