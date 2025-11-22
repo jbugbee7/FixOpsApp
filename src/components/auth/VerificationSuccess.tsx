@@ -12,8 +12,8 @@ const VerificationSuccess = () => {
       <div className="w-full max-w-md">
         <Card>
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-8 w-8 text-white" />
+            <div className="w-16 h-16 bg-gun-metal/10 dark:bg-gun-metal/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-8 w-8 text-gun-metal dark:text-gun-metal" />
             </div>
             <h1 className="text-2xl font-bold mb-4">
               Thank You for Signing Up!

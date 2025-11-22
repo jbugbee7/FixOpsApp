@@ -32,9 +32,9 @@ const AgreementItem = ({
         disabled={!viewed}
       />
       <div className="flex-1">
-        <div className="flex items-center space-x-2">
-          <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-          <label
+      <div className="flex items-center space-x-2">
+        <Icon className="h-4 w-4 text-gun-metal dark:text-gun-metal" />
+        <label
             htmlFor={type}
             className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 dark:text-slate-200 ${!viewed ? 'text-muted-foreground' : ''}`}
           >
