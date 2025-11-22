@@ -49,9 +49,9 @@ const CRMPage = ({ fromDashboard = false, onNavigate }: { fromDashboard?: boolea
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-shrink-0 border-b">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <h1 className="text-3xl font-bold mb-1">Customer Relationship Management</h1>
-          <p className="text-muted-foreground">Manage customers, track interactions, and analyze relationships</p>
+        <div className="max-w-7xl mx-auto px-6 py-2">
+          <h1 className="text-2xl font-bold mb-0.5">Customer Relationship Management</h1>
+          <p className="text-sm text-muted-foreground">Manage customers, track interactions, and analyze relationships</p>
         </div>
       </div>
       

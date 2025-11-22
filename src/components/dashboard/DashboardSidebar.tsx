@@ -14,7 +14,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package, Calendar, Wrench, LogOut } from 'lucide-react';
-import logo from '@/assets/fixops-logo.png';
 import { supabase } from '@/lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -125,13 +124,10 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   return (
     <Sidebar side="right" className="bg-card/95 dark:bg-background/95 backdrop-blur-xl border-l border-border/50 z-50">
       <SidebarHeader className="border-b border-border/50 bg-card/90 dark:bg-card/50 backdrop-blur-xl">
-        <div className="flex items-center gap-3 px-4 py-4">
+        <div className="flex items-center gap-3 px-4 py-2">
           <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
-          <div className="flex items-center gap-2">
-            <img src={logo} alt="FixOps" className="h-8 w-auto" />
-            <div className="text-base font-bold text-foreground">
-              FixOps
-            </div>
+          <div className="text-base font-bold text-foreground">
+            FixOps
           </div>
         </div>
       </SidebarHeader>
