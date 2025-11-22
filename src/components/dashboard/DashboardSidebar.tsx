@@ -131,7 +131,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
           <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
           <div className="flex items-center gap-2">
             <img src={logo} alt="FixOps" className="h-8 w-auto" />
-            <div className="text-base font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <div className="text-base font-bold text-gun-metal dark:text-gun-metal">
               FixOps
             </div>
           </div>
@@ -150,8 +150,8 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
                     onClick={() => handleTabChange(item.value)}
                     className={
                       item.value === 'logout'
-                        ? "rounded-xl hover:bg-destructive/10 text-slate-900 dark:text-foreground hover:text-destructive transition-all duration-200 h-11"
-                        : "rounded-xl hover:bg-primary/10 text-slate-900 dark:text-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-primary data-[active=true]:to-accent data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-primary/30 transition-all duration-200 h-11"
+                        ? "rounded-xl hover:bg-destructive/10 text-gun-metal dark:text-gun-metal hover:text-destructive transition-all duration-200 h-11"
+                        : "rounded-xl hover:bg-primary/10 text-gun-metal dark:text-gun-metal data-[active=true]:bg-gradient-to-r data-[active=true]:from-primary data-[active=true]:to-accent data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-primary/30 transition-all duration-200 h-11"
                     }
                   >
                     <item.icon className="h-4 w-4" />

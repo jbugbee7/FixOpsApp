@@ -74,8 +74,8 @@ const PhoneVerification = ({ userId, phoneNumber, onVerificationComplete }: Phon
   return (
     <Card>
       <CardHeader className="text-center">
-        <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mx-auto mb-4">
-          <Smartphone className="h-6 w-6 text-white" />
+        <div className="w-12 h-12 bg-gun-metal/10 dark:bg-gun-metal/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <Smartphone className="h-6 w-6 text-gun-metal dark:text-gun-metal" />
         </div>
         <CardTitle>Verification Required</CardTitle>
         <p className="text-slate-600 dark:text-slate-400 text-sm">

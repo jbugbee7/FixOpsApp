@@ -37,6 +37,8 @@
 
     --radius: 1rem;
 
+    --gun-metal: 210 24% 16%;
+
     --sidebar-background: 40 30% 92%;
     --sidebar-foreground: 210 10% 25%;
     --sidebar-primary: 80 25% 40%;
@@ -90,6 +92,8 @@
     --font-serif: "Cormorant Garamond", ui-serif, Georgia, Cambria, Times New Roman, Times, serif;
     --font-mono: "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
     --radius: 1rem;
+
+    --gun-metal: 210 24% 16%;
   }
 }
 
