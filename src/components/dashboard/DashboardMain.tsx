@@ -7,7 +7,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ClipboardList, CheckCircle, Clock, AlertCircle, TrendingUp, Activity, Plus, Calendar } from 'lucide-react';
+import { ClipboardList, CheckCircle, Clock, AlertCircle, TrendingUp, Activity, RefreshCw, Calendar } from 'lucide-react';
 
 interface DashboardMainProps {
   isOnline: boolean;
@@ -129,25 +129,30 @@ const DashboardMain = React.memo((props: DashboardMainProps) => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button 
-                    onClick={() => props.onNavigate('add-case')}
-                    className="w-full justify-start h-auto p-4"
+                    onClick={props.onResync}
+                    disabled={props.isResyncing}
+                    className="w-full justify-start h-auto p-3"
                     variant="outline"
                   >
-                    <Plus className="h-4 w-4 mr-3" />
-                    <div className="text-left">
-                      <div className="font-medium">New Work Order</div>
-                      <div className="text-xs text-muted-foreground">Create a new service request</div>
+                    <RefreshCw className={`h-4 w-4 mr-3 flex-shrink-0 ${props.isResyncing ? 'animate-spin' : ''}`} />
+                    <div className="text-left flex-1 min-w-0">
+                      <div className="font-medium text-sm">
+                        {props.isResyncing ? 'Syncing...' : props.isOnline ? 'Sync Data' : 'Load Cache'}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {props.isResyncing ? 'Please wait...' : 'Refresh work orders'}
+                      </div>
                     </div>
                   </Button>
                   <Button 
                     onClick={() => props.onNavigate('scheduling')}
-                    className="w-full justify-start h-auto p-4"
+                    className="w-full justify-start h-auto p-3"
                     variant="outline"
                   >
-                    <Calendar className="h-4 w-4 mr-3" />
-                    <div className="text-left">
-                      <div className="font-medium">Schedule Jobs</div>
-                      <div className="text-xs text-muted-foreground">Manage technician schedules</div>
+                    <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
+                    <div className="text-left flex-1 min-w-0">
+                      <div className="font-medium text-sm">Schedule Jobs</div>
+                      <div className="text-xs text-muted-foreground truncate">Manage schedules</div>
                     </div>
                   </Button>
                 </CardContent>
