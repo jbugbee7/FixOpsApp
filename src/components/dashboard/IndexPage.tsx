@@ -1,5 +1,6 @@
 
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useRef, useEffect } from 'react';
 import CaseDetails from '@/components/CaseDetails';
 import ModelDetails from '@/components/ModelDetails';
 import PartDetails from '@/components/PartDetails';
@@ -33,6 +34,12 @@ const IndexPage = ({
   handleHomeClick,
   handleNavigate
 }: IndexPageProps) => {
+  const previousTabRef = useRef<string>('dashboard');
+  
+  useEffect(() => {
+    previousTabRef.current = activeTab;
+  }, [activeTab]);
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -55,6 +62,7 @@ const IndexPage = ({
 
   // Enhanced navigation handler to use setActiveTab for specific tabs
   const handleEnhancedNavigate = (tab: string) => {
+    previousTabRef.current = activeTab; // Store current tab before navigating
     if (tab === 'add-case') {
       setActiveTab('add-case');
     } else {
@@ -135,6 +143,7 @@ const IndexPage = ({
           <div className="flex-1">
             <DashboardContent
               activeTab={activeTab}
+              previousTab={previousTabRef.current}
               isOnline={isOnline}
               hasOfflineData={hasOfflineData}
               cases={cases}

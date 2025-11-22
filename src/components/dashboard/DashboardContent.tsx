@@ -24,6 +24,7 @@ interface DashboardContentProps {
   onPartFound: (part: any) => void;
   onCaseClick: (caseItem: Case) => void;
   onResync: () => void;
+  previousTab?: string;
 }
 
 const DashboardContent = ({
@@ -38,8 +39,10 @@ const DashboardContent = ({
   onModelFound,
   onPartFound,
   onCaseClick,
-  onResync
+  onResync,
+  previousTab
 }: DashboardContentProps) => {
+  const cameFromDashboard = previousTab === 'dashboard';
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
@@ -61,7 +64,7 @@ const DashboardContent = ({
           />
         );
       case 'add-case':
-        return <ModernCaseForm />;
+        return <ModernCaseForm fromDashboard={cameFromDashboard} onNavigate={onNavigate} />;
       case 'fixchat':
         return <FixChatPage />;
       case 'ai-assistant':
@@ -69,11 +72,11 @@ const DashboardContent = ({
       case 'training':
         return <TrainingPage />;
       case 'crm':
-        return <CRMPage />;
+        return <CRMPage fromDashboard={cameFromDashboard} onNavigate={onNavigate} />;
       case 'inventory':
         return <InventoryPage />;
       case 'accounting':
-        return <AccountingPage />;
+        return <AccountingPage fromDashboard={cameFromDashboard} onNavigate={onNavigate} />;
       case 'scheduling':
         return <SchedulingPage />;
       case 'settings':
