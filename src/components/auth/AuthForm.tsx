@@ -55,18 +55,18 @@ const AuthForm = ({
   if (step === 'initial') {
     return (
       <div className="w-full max-w-sm mx-auto">
-        <div className="p-8">
+        <div className="p-8 bg-card rounded-2xl shadow-2xl">
           {/* Logo */}
           <div className="flex flex-col items-center mb-12">
             <img src={logo} alt="FixOps" className="h-20 w-auto mb-4" />
-            <h1 className="text-4xl font-bold text-white">FixOps</h1>
+            <h1 className="text-4xl font-bold text-foreground">FixOps</h1>
           </div>
 
           {/* Buttons */}
           <div className="space-y-3">
             <Button
               onClick={() => setStep('signin')}
-              className="w-full bg-white hover:bg-white/90 text-purple-700 font-semibold rounded-xl h-12 text-base shadow-lg"
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-semibold rounded-xl h-12 text-base shadow-lg"
             >
               Login
             </Button>
@@ -74,14 +74,14 @@ const AuthForm = ({
             <Button
               onClick={() => setStep('signup')}
               variant="outline"
-              className="w-full bg-transparent hover:bg-white/10 text-white border-2 border-white/50 font-semibold rounded-xl h-12 text-base"
+              className="w-full bg-transparent hover:bg-muted border-2 border-border font-semibold rounded-xl h-12 text-base"
             >
               Sign Up
             </Button>
           </div>
 
           {/* Continue as guest */}
-          <p className="text-center text-white/80 text-sm mt-8">
+          <p className="text-center text-muted-foreground text-sm mt-8">
             Continue as guest
           </p>
         </div>
@@ -93,11 +93,11 @@ const AuthForm = ({
   if (step === 'signin') {
     return (
       <div className="w-full max-w-sm mx-auto">
-        <div className="p-8">
+        <div className="p-8 bg-card rounded-2xl shadow-2xl">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-white mb-2">Welcome.</h1>
-            <p className="text-white/90 text-lg">Glad to see you!</p>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Welcome.</h1>
+            <p className="text-muted-foreground text-lg">Glad to see you!</p>
           </div>
 
           {/* Success Messages */}
@@ -115,7 +115,7 @@ const AuthForm = ({
 
           {/* Social Login */}
           <div className="mt-6">
-            <div className="text-center text-white/80 text-sm mb-4">
+            <div className="text-center text-muted-foreground text-sm mb-4">
               Or Login with
             </div>
 
@@ -123,13 +123,13 @@ const AuthForm = ({
               <Button
                 onClick={handleGoogleSignIn}
                 variant="outline"
-                className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+                className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
               >
                 <FcGoogle className="h-5 w-5" />
               </Button>
               <Button
                 variant="outline"
-                className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+                className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
                 disabled
               >
                 <FaFacebook className="h-5 w-5 text-blue-600" />
@@ -138,11 +138,11 @@ const AuthForm = ({
           </div>
 
           {/* Sign up link */}
-          <p className="text-center text-white/80 text-sm mt-6">
+          <p className="text-center text-muted-foreground text-sm mt-6">
             Don't have an account?{' '}
             <button
               onClick={() => setStep('signup')}
-              className="text-white font-semibold hover:underline"
+              className="text-accent font-semibold hover:underline"
             >
               Sign Up Now
             </button>
@@ -155,11 +155,11 @@ const AuthForm = ({
   // Sign up page
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className="p-8">
+      <div className="p-8 bg-card rounded-2xl shadow-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-white/90">to get started now!</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Create Account</h1>
+          <p className="text-muted-foreground">to get started now!</p>
         </div>
 
         {/* Success Messages */}
@@ -182,7 +182,7 @@ const AuthForm = ({
 
         {/* Social Login */}
         <div className="mt-6">
-          <div className="text-center text-white/80 text-sm mb-4">
+          <div className="text-center text-muted-foreground text-sm mb-4">
             Or Sign Up with
           </div>
 
@@ -190,13 +190,13 @@ const AuthForm = ({
             <Button
               onClick={handleGoogleSignIn}
               variant="outline"
-              className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+              className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
             >
               <FcGoogle className="h-5 w-5" />
             </Button>
             <Button
               variant="outline"
-              className="bg-white hover:bg-white/90 border-0 h-12 rounded-xl"
+              className="bg-muted hover:bg-muted/80 border-border h-12 rounded-xl"
               disabled
             >
               <FaFacebook className="h-5 w-5 text-blue-600" />
@@ -205,11 +205,11 @@ const AuthForm = ({
         </div>
 
         {/* Login link */}
-        <p className="text-center text-white/80 text-sm mt-6">
+        <p className="text-center text-muted-foreground text-sm mt-6">
           Already have an account?{' '}
           <button
             onClick={() => setStep('signin')}
-            className="text-white font-semibold hover:underline"
+            className="text-accent font-semibold hover:underline"
           >
             Login Now
           </button>
