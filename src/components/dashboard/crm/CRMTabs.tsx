@@ -5,6 +5,12 @@ import CRMMetrics from './CRMMetrics';
 import CRMCharts from './CRMCharts';
 import AnalyticsTab from './AnalyticsTab';
 import AutomationTab from './AutomationTab';
+import CustomerList from './CustomerList';
+import CustomerFilters from './CustomerFilters';
+import AddCustomerDialog from './AddCustomerDialog';
+import { useCRMData } from '@/hooks/useCRMData';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface ContactInteraction {
   id: string;
@@ -40,10 +46,14 @@ interface CRMTabsProps {
 }
 
 const CRMTabs = ({ interactions, communications, loading }: CRMTabsProps) => {
+  const [showAddCustomer, setShowAddCustomer] = React.useState(false);
+  const crmData = useCRMData();
+
   return (
     <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+        <TabsTrigger value="contacts" className="text-xs sm:text-sm">Contacts</TabsTrigger>
         <TabsTrigger value="interactions" className="text-xs sm:text-sm">Interactions</TabsTrigger>
         <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
         <TabsTrigger value="automation" className="text-xs sm:text-sm">Automation</TabsTrigger>
@@ -52,6 +62,32 @@ const CRMTabs = ({ interactions, communications, loading }: CRMTabsProps) => {
       <TabsContent value="overview" className="space-y-4 sm:space-y-6">
         <CRMMetrics />
         <CRMCharts />
+      </TabsContent>
+
+      <TabsContent value="contacts" className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="text-lg font-semibold">Contacts & Leads</h3>
+            <p className="text-sm text-muted-foreground">Manage your customer contacts and leads</p>
+          </div>
+          <Button onClick={() => setShowAddCustomer(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Contact
+          </Button>
+        </div>
+        <CustomerFilters
+          searchTerm={crmData.searchTerm}
+          setSearchTerm={crmData.setSearchTerm}
+          statusFilter={crmData.statusFilter}
+          setStatusFilter={crmData.setStatusFilter}
+          segmentFilter={crmData.segmentFilter}
+          setSegmentFilter={crmData.setSegmentFilter}
+        />
+        <CustomerList customers={crmData.customers} />
+        <AddCustomerDialog 
+          open={showAddCustomer} 
+          onOpenChange={setShowAddCustomer}
+        />
       </TabsContent>
 
       <TabsContent value="interactions" className="space-y-4 sm:space-y-6">
