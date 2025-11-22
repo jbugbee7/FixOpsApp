@@ -6,32 +6,32 @@ export const statusOptions = [
     value: 'travel', 
     label: 'Travel', 
     icon: MapPin, 
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50 hover:bg-blue-100',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50 hover:bg-red-100',
     description: 'Traveling to appointment' 
   },
   { 
     value: 'active', 
     label: 'Active', 
     icon: Play, 
-    color: 'text-green-600',
-    bgColor: 'bg-green-50 hover:bg-green-100',
+    color: 'text-red-700',
+    bgColor: 'bg-red-100 hover:bg-red-200',
     description: 'Currently working on the job' 
   },
   { 
     value: 'appointment', 
     label: 'Appointment', 
     icon: Calendar, 
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-50 hover:bg-orange-100',
+    color: 'text-red-800',
+    bgColor: 'bg-red-200 hover:bg-red-300',
     description: 'Scheduled appointment' 
   },
   { 
     value: 'cancel', 
     label: 'Cancel', 
     icon: X, 
-    color: 'text-red-600',
-    bgColor: 'bg-red-50 hover:bg-red-100',
+    color: 'text-red-900',
+    bgColor: 'bg-red-300 hover:bg-red-400',
     description: 'Cancel this work order' 
   },
 ];
@@ -41,24 +41,24 @@ export const sptOptions = [
     value: 'Scheduled', 
     label: 'Scheduled', 
     icon: Calendar, 
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-50 hover:bg-blue-100',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50 hover:bg-red-100',
     description: 'Schedule this work order' 
   },
   { 
     value: 'spr', 
     label: 'SPR', 
     icon: Clock,
-    color: 'text-yellow-600',
-    bgColor: 'bg-yellow-50 hover:bg-yellow-100',
+    color: 'text-red-700',
+    bgColor: 'bg-red-100 hover:bg-red-200',
     description: 'Schedule a return visit for parts' 
   },
   { 
     value: 'complete', 
     label: 'Complete', 
     icon: CheckCircle,
-    color: 'text-green-600',
-    bgColor: 'bg-green-50 hover:bg-green-100',
+    color: 'text-red-800',
+    bgColor: 'bg-red-200 hover:bg-red-300',
     description: 'Mark work order as complete' 
   },
 ];

@@ -103,9 +103,9 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
   }, [casesData]);
 
   const chartConfig = {
-    revenue: { label: 'Revenue', color: '#8B5CF6' },
-    cases: { label: 'Cases', color: '#06B6D4' },
-    count: { label: 'Count', color: '#10B981' },
+    revenue: { label: 'Revenue', color: '#DC2626' },
+    cases: { label: 'Cases', color: '#B91C1C' },
+    count: { label: 'Count', color: '#EF4444' },
   };
 
   return (
@@ -138,7 +138,7 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
                     content={<ChartTooltipContent />}
                     formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Revenue']}
                   />
-                  <Line type="monotone" dataKey="revenue" stroke="#8B5CF6" strokeWidth={2} dot={{ r: 3 }} />
+                  <Line type="monotone" dataKey="revenue" stroke="#DC2626" strokeWidth={2} dot={{ r: 3 }} />
                 </LineChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -206,7 +206,7 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
                   />
                   <YAxis tick={{ fontSize: 10 }} width={30} />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="cases" fill="#06B6D4" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="cases" fill="#B91C1C" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
@@ -240,7 +240,7 @@ const CRMAnalyticsCharts = ({ casesData }: CRMAnalyticsChartsProps) => {
                     interval={0}
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="count" fill="#10B981" radius={[0, 2, 2, 0]} />
+                  <Bar dataKey="count" fill="#EF4444" radius={[0, 2, 2, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
