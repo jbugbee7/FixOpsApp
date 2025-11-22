@@ -113,7 +113,7 @@ const IndexPage = ({
 
   if (showLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-20 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-background pb-20">
         <div className="max-w-4xl mx-auto px-3 py-6">
           <div className="space-y-4">
             <Skeleton className="h-10 w-full rounded-lg" />
@@ -131,7 +131,7 @@ const IndexPage = ({
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 flex w-full pb-20 md:pb-0">
+      <div className="min-h-screen bg-background flex w-full pb-20 md:pb-0">
         <div className="flex-1 flex flex-col min-w-0">
           <AppHeader 
             isOnline={isOnline} 
