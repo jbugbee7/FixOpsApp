@@ -33,14 +33,14 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
     },
   };
 
-  // Moss green color palette
+  // Slate + Crimson color palette
   const colorPalette = [
-    'hsl(120 20% 35%)', // moss green dark
-    'hsl(120 25% 45%)', // moss green medium
-    'hsl(120 15% 40%)', // moss green variant
-    'hsl(120 30% 50%)', // moss green light
-    'hsl(120 18% 38%)', // moss green mid
-    'hsl(120 22% 42%)', // moss green accent
+    'hsl(210 10% 30%)', // slate dark
+    'hsl(210 10% 40%)', // slate medium
+    'hsl(0 70% 45%)',   // crimson
+    'hsl(210 10% 50%)', // slate light
+    'hsl(0 60% 40%)',   // crimson dark
+    'hsl(210 10% 35%)', // slate variant
   ];
 
   // Transform monthly data to pie chart format for work orders
