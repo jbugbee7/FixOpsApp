@@ -12,7 +12,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package, Calendar } from 'lucide-react';
+import { Home, MessageCircle, Bot, GraduationCap, Settings, Users, Calculator, ClipboardList, BarChart3, Package, Calendar, Wrench } from 'lucide-react';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -84,32 +84,35 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   };
 
   return (
-    <Sidebar className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 z-50">
-      <SidebarHeader className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
-        <div className="flex items-center gap-2 px-2 py-2">
-          <SidebarTrigger className="h-8 w-8" />
-          <div className="flex items-center space-x-1">
-            <div className="text-lg font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white bg-clip-text text-transparent">
+    <Sidebar className="bg-card/50 backdrop-blur-xl border-r border-border/50 z-50">
+      <SidebarHeader className="border-b border-border/50 bg-card/30 backdrop-blur-xl">
+        <div className="flex items-center gap-3 px-4 py-4">
+          <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-red-600 to-red-700 dark:from-red-600 dark:to-white rounded-xl shadow-lg shadow-red-500/20">
+              <Wrench className="h-4 w-4 text-white" />
+            </div>
+            <div className="text-base font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white bg-clip-text text-transparent">
               FixOps
             </div>
           </div>
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="bg-white dark:bg-slate-900">
+      <SidebarContent className="bg-transparent p-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.value}>
                   <SidebarMenuButton
                     isActive={activeTab === item.value}
                     onClick={() => handleTabChange(item.value)}
-                    className="w-full hover:bg-slate-100 dark:hover:bg-red-900/20 data-[active=true]:bg-red-100 dark:data-[active=true]:bg-red-900/30 data-[active=true]:text-red-700 dark:data-[active=true]:text-red-400"
+                    className="rounded-xl hover:bg-muted/50 data-[active=true]:bg-gradient-to-r data-[active=true]:from-red-600 data-[active=true]:to-red-700 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-red-500/30 transition-all duration-200 h-11"
                   >
                     <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <span className="font-medium">{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

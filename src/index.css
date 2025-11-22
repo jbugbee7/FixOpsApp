@@ -127,3 +127,28 @@
     -webkit-overflow-scrolling: touch;
   }
 }
+
+@layer components {
+  /* Modern card styling */
+  .card {
+    @apply backdrop-blur-sm;
+  }
+  
+  /* Smooth scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+}
