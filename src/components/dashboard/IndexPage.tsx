@@ -165,13 +165,15 @@ const IndexPage = ({
         </div>
 
         {/* Mobile Bottom Navigation */}
-        <div className="md:hidden">
-          <BottomNavigation 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab}
-            onAddWorkOrder={() => setActiveTab('add-case')}
-          />
-        </div>
+        {activeTab !== 'ai-assistant' && (
+          <div className="md:hidden">
+            <BottomNavigation 
+              activeTab={activeTab} 
+              onTabChange={setActiveTab}
+              onAddWorkOrder={() => setActiveTab('add-case')}
+            />
+          </div>
+        )}
       </div>
     </SidebarProvider>
   );
