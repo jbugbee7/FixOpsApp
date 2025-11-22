@@ -37,11 +37,11 @@ const AppHeader = ({ isOnline, onHomeClick, onSignOut }: AppHeaderProps) => {
 
           {/* Center - FixOps Logo */}
           <div className="flex items-center space-x-1">
-            <div className="p-1.5 bg-gradient-to-r from-red-600 to-black rounded-lg shadow-md">
+            <div className="p-1.5 bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white rounded-lg shadow-md">
               <Wrench className="h-4 w-4 text-white" />
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold bg-gradient-to-r from-red-600 to-black bg-clip-text text-transparent">
+              <div className="text-2xl font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white bg-clip-text text-transparent">
                 FixOps
               </div>
             </div>

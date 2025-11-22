@@ -89,7 +89,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
         <div className="flex items-center gap-2 px-2 py-2">
           <SidebarTrigger className="h-8 w-8" />
           <div className="flex items-center space-x-1">
-            <div className="text-lg font-bold bg-gradient-to-r from-red-600 to-black bg-clip-text text-transparent">
+            <div className="text-lg font-bold bg-gradient-to-r from-red-600 to-black dark:from-red-600 dark:to-white bg-clip-text text-transparent">
               FixOps
             </div>
           </div>
@@ -106,7 +106,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
                   <SidebarMenuButton
                     isActive={activeTab === item.value}
                     onClick={() => handleTabChange(item.value)}
-                    className="w-full hover:bg-slate-100 dark:hover:bg-slate-800 data-[active=true]:bg-purple-100 dark:data-[active=true]:bg-purple-900/20 data-[active=true]:text-purple-700 dark:data-[active=true]:text-purple-300"
+                    className="w-full hover:bg-slate-100 dark:hover:bg-red-900/20 data-[active=true]:bg-red-100 dark:data-[active=true]:bg-red-900/30 data-[active=true]:text-red-700 dark:data-[active=true]:text-red-400"
                   >
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
