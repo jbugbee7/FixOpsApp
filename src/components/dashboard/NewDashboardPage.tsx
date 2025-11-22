@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 import { TrendingUp, DollarSign, Users, Wrench, Clock, CheckCircle, AlertTriangle, Calendar, BarChart3, PieChart as PieChartIcon } from 'lucide-react';
@@ -274,21 +274,20 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
         </div>
       )}
 
-      {/* Chart Dialog */}
-      <Dialog open={selectedChart !== null} onOpenChange={() => setSelectedChart(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
+      {/* Chart Sheet - Slides up from bottom */}
+      <Sheet open={selectedChart !== null} onOpenChange={() => setSelectedChart(null)}>
+        <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl">
+          <SheetHeader>
+            <SheetTitle>
               {selectedChart === 'workOrders' && 'Work Orders Distribution'}
               {selectedChart === 'revenue' && 'Revenue Distribution'}
               {selectedChart === 'services' && 'Service Categories'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-4">
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-6 h-[calc(100%-80px)]">
             <ChartContainer 
               config={chartConfig} 
-              className="w-full"
-              style={{ height: '400px' }}
+              className="w-full h-full"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -300,7 +299,7 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                     }
                     cx="50%"
                     cy="50%"
-                    outerRadius="70%"
+                    outerRadius="60%"
                     fill="#8884d8"
                     dataKey="value"
                     labelLine={false}
@@ -323,15 +322,15 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
                   <Legend 
                     verticalAlign="bottom"
                     height={36}
-                    wrapperStyle={{ fontSize: 12 }}
-                    iconSize={14}
+                    wrapperStyle={{ fontSize: isMobile ? 10 : 12 }}
+                    iconSize={isMobile ? 10 : 14}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </ChartContainer>
           </div>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
