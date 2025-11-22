@@ -84,7 +84,7 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   };
 
   return (
-    <Sidebar className="bg-white/95 dark:bg-card/80 backdrop-blur-xl border-r border-border/50 z-50">
+    <Sidebar side="right" className="bg-white/95 dark:bg-card/80 backdrop-blur-xl border-l border-border/50 z-50">
       <SidebarHeader className="border-b border-border/50 bg-white/90 dark:bg-card/50 backdrop-blur-xl">
         <div className="flex items-center gap-3 px-4 py-4">
           <SidebarTrigger className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors" />
