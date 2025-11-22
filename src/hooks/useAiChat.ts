@@ -5,14 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { toast } from "@/hooks/use-toast";
 
 export const useAiChat = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "Hello! I'm FixBot, your intelligent AI repair assistant. I have access to your work orders, parts database, and appliance models to provide you with specific, data-driven repair recommendations. What can I help you troubleshoot today?",
-      sender: 'ai',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasConnectionError, setHasConnectionError] = useState(false);
@@ -70,16 +63,15 @@ export const useAiChat = () => {
       console.error('Error calling AI chat:', error);
       setHasConnectionError(true);
       
-      let errorText = "I'm having trouble connecting to my intelligent systems right now. ";
+      let errorText = "Connection issue. Please try again.";
       
       // Check for specific error types
       if (error.message?.includes('infinite recursion') || error.message?.includes('Failed to fetch')) {
-        errorText += "This appears to be a temporary database configuration issue. Please try again in a few minutes.";
+        errorText = "Temporary issue. Try again in a moment.";
       } else if (error.message?.includes('Not authenticated')) {
-        errorText += "Please make sure you're properly signed in and try again.";
-      } else {
-        errorText += "Please try again in a moment.";
+        errorText = "Please sign in and try again.";
       }
+      
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -93,8 +85,8 @@ export const useAiChat = () => {
       // Only show toast for unexpected errors
       if (!error.message?.includes('infinite recursion') && !error.message?.includes('Failed to fetch')) {
         toast({
-          title: "FixBot Error",
-          description: "Failed to get AI response. Please try again.",
+          title: "Error",
+          description: "Failed to get response. Please try again.",
           variant: "destructive"
         });
       }

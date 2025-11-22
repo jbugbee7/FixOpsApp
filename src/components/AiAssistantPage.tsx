@@ -32,9 +32,9 @@ const AiAssistantPage = () => {
       {/* Chat Container */}
       <div 
         ref={chatContainerRef}
-        className="flex flex-col flex-1 pb-32"
+        className="flex flex-col flex-1 pb-20"
         style={{
-          maxHeight: 'calc(100vh - 140px)',
+          maxHeight: 'calc(100vh - 80px)',
           minHeight: '400px'
         }}
       >
@@ -49,7 +49,6 @@ const AiAssistantPage = () => {
             <div className="flex justify-start">
               <div className="flex items-center space-x-2 text-muted-foreground">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <p className="text-sm">Thinking...</p>
               </div>
             </div>
           )}
