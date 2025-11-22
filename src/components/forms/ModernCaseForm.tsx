@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Save, RotateCcw } from 'lucide-react';
+import { ChevronDown, ChevronUp, Save, RotateCcw, ArrowLeft } from 'lucide-react';
 import CustomerSection from './modern/CustomerSection';
 import ApplianceSection from './modern/ApplianceSection';
 import ServiceSection from './modern/ServiceSection';
@@ -12,7 +13,11 @@ import NotesSection from './modern/NotesSection';
 import { useCreateCaseForm } from '@/hooks/useCreateCaseForm';
 import { useCreateCaseSubmit } from '@/hooks/useCreateCaseSubmit';
 
-const ModernCaseForm = () => {
+const ModernCaseForm = ({ fromDashboard = false, onNavigate }: { fromDashboard?: boolean; onNavigate?: (tab: string) => void }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const cameFromDashboard = fromDashboard || location.state?.fromQuickAction;
+  
   const [expandedSections, setExpandedSections] = useState({
     customer: false,
     appliance: false,
@@ -70,6 +75,16 @@ const ModernCaseForm = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-4">
+      {cameFromDashboard && (
+        <Button
+          variant="ghost"
+          onClick={() => onNavigate?.('dashboard')}
+          className="mb-4 hover:bg-muted/80"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Dashboard
+        </Button>
+      )}
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Create Work Order</h1>
