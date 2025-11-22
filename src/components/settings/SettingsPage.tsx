@@ -25,12 +25,24 @@ import {
   Info
 } from 'lucide-react';
 
-const SettingsPage = () => {
+interface SettingsPageProps {
+  onNavigate?: (tab: string) => void;
+}
+
+const SettingsPage = ({ onNavigate }: SettingsPageProps = {}) => {
   const navigate = useNavigate();
   const { userProfile, user } = useAuth();
   const { company, loading: companyLoading } = useCompany();
   const [searchQuery, setSearchQuery] = useState('');
   const [openSection, setOpenSection] = useState<string | null>(null);
+
+  const handleBackClick = () => {
+    if (onNavigate) {
+      onNavigate('dashboard');
+    } else {
+      navigate('/');
+    }
+  };
 
   const handleTextSupport = () => {
     const phoneNumber = '8283182617';
@@ -55,7 +67,7 @@ const SettingsPage = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/')}
+            onClick={handleBackClick}
             className="h-10 w-10"
           >
             <ArrowLeft className="h-5 w-5" />
