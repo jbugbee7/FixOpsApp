@@ -21,40 +21,40 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
   const chartConfig = {
     workOrders: {
       label: "Work Orders",
-      color: "#DC2626",
+      color: "hsl(var(--primary))",
     },
     revenue: {
       label: "Revenue",
-      color: "#991B1B",
+      color: "hsl(var(--accent))",
     },
     completion: {
       label: "Completion Rate",
-      color: "#B91C1C",
+      color: "hsl(var(--secondary))",
     },
   };
 
-  // Red color palette for pie charts
-  const redColorPalette = [
-    '#DC2626', // red-600
-    '#991B1B', // red-800
-    '#B91C1C', // red-700
-    '#EF4444', // red-500
-    '#7F1D1D', // red-900
-    '#FCA5A5', // red-300
+  // Color palette using design system
+  const colorPalette = [
+    'hsl(var(--primary))',
+    'hsl(var(--accent))',
+    'hsl(var(--secondary))',
+    'hsl(120 12% 45%)', // moss green variant
+    'hsl(16 45% 48%)', // rust variant
+    'hsl(45 35% 85%)', // ECRU variant
   ];
 
   // Transform monthly data to pie chart format for work orders
   const workOrdersPieData = monthlyData.map((item, index) => ({
     name: item.month,
     value: item.workOrders,
-    color: redColorPalette[index % redColorPalette.length]
+    color: colorPalette[index % colorPalette.length]
   }));
 
   // Transform monthly data to pie chart format for revenue
   const revenuePieData = monthlyData.map((item, index) => ({
     name: item.month,
     value: item.revenue,
-    color: redColorPalette[index % redColorPalette.length]
+    color: colorPalette[index % colorPalette.length]
   }));
 
   // Mobile-first chart configuration
@@ -121,11 +121,11 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
         <div className="space-y-8">
           {/* Stats Overview - Modern Card Grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group">
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-500/30">
-                    <Wrench className="h-5 w-5 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
+                    <Wrench className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full ${metrics.monthlyGrowth >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'}`}>
                     {metrics.monthlyGrowth >= 0 ? '+' : ''}{metrics.monthlyGrowth.toFixed(0)}%
@@ -136,11 +136,11 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               </CardContent>
             </Card>
             
-            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group">
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 group">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg shadow-purple-600/30">
-                    <CheckCircle className="h-5 w-5 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent shadow-lg shadow-primary/30">
+                    <CheckCircle className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <div className="w-12 h-12 rounded-full border-4 border-muted flex items-center justify-center">
                     <span className="text-xs font-bold">{metrics.completionRate.toFixed(0)}%</span>
@@ -151,11 +151,11 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               </CardContent>
             </Card>
             
-            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group">
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 group">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-700 to-pink-700 shadow-lg shadow-purple-700/30">
-                    <DollarSign className="h-5 w-5 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-primary shadow-lg shadow-accent/30">
+                    <DollarSign className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
@@ -166,11 +166,11 @@ const NewDashboardPage = ({ onNavigate }: NewDashboardPageProps) => {
               </CardContent>
             </Card>
             
-            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-purple-500/10 transition-all duration-300 group">
+            <Card className="rounded-2xl border-border/50 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-lg hover:shadow-secondary/10 transition-all duration-300 group">
               <CardContent className="p-4 sm:p-6">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-purple-800 to-pink-800 shadow-lg shadow-purple-800/30">
-                    <Clock className="h-5 w-5 text-white" />
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-secondary to-primary shadow-lg shadow-secondary/30">
+                    <Clock className="h-5 w-5 text-primary-foreground" />
                   </div>
                   <AlertTriangle className="h-5 w-5 text-muted-foreground" />
                 </div>
