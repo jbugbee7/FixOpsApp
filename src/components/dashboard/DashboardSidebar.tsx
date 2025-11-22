@@ -75,6 +75,11 @@ const menuItems = [
     value: "settings",
     icon: Settings,
   },
+  {
+    title: "Logout",
+    value: "logout",
+    icon: LogOut,
+  },
 ];
 
 const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => {
@@ -83,6 +88,10 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
   const { toast } = useToast();
 
   const handleTabChange = (tab: string) => {
+    if (tab === 'logout') {
+      handleLogout();
+      return;
+    }
     onTabChange(tab);
     // Close mobile sidebar when an item is clicked
     if (isMobile) {
@@ -133,7 +142,11 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
                   <SidebarMenuButton
                     isActive={activeTab === item.value}
                     onClick={() => handleTabChange(item.value)}
-                    className="rounded-xl hover:bg-purple-100 dark:hover:bg-muted/80 text-slate-900 dark:text-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-600 data-[active=true]:to-pink-600 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-purple-500/30 transition-all duration-200 h-11"
+                    className={
+                      item.value === 'logout'
+                        ? "rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 text-slate-900 dark:text-foreground hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 h-11"
+                        : "rounded-xl hover:bg-purple-100 dark:hover:bg-muted/80 text-slate-900 dark:text-foreground data-[active=true]:bg-gradient-to-r data-[active=true]:from-purple-600 data-[active=true]:to-pink-600 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-purple-500/30 transition-all duration-200 h-11"
+                    }
                   >
                     <item.icon className="h-4 w-4" />
                     <span className="font-medium">{item.title}</span>
@@ -144,20 +157,6 @@ const DashboardSidebar = ({ activeTab, onTabChange }: DashboardSidebarProps) => 
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="border-t border-border/50 p-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={handleLogout}
-              className="rounded-xl hover:bg-red-100 dark:hover:bg-red-900/20 text-slate-900 dark:text-foreground hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 h-11"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="font-medium">Logout</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 };
