@@ -29,33 +29,25 @@ const ChatInput = ({
 
   useEffect(() => {
     const handleResize = () => {
-      // Detect keyboard on mobile devices
-      let isKeyboard = false;
-      
-      if (window.visualViewport) {
-        // Modern browsers with Visual Viewport API
+      if (typeof window !== 'undefined' && window.visualViewport) {
         const viewportHeight = window.visualViewport.height;
         const windowHeight = window.innerHeight;
-        isKeyboard = viewportHeight < windowHeight * 0.75;
+        const isKeyboard = viewportHeight < windowHeight * 0.75;
+        setIsKeyboardVisible(isKeyboard);
+        
+        if (isKeyboard) {
+          setTimeout(() => {
+            onScrollToBottom();
+          }, 100);
+        }
       }
-      
-      setIsKeyboardVisible(isKeyboard);
     };
 
     const handleFocus = () => {
-      // Delay to ensure keyboard is fully shown
       setTimeout(() => {
         setIsKeyboardVisible(true);
         onScrollToBottom();
-        
-        // Scroll input into view on mobile
-        if (inputRef.current) {
-          inputRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'nearest' 
-          });
-        }
-      }, 300);
+      }, 150);
     };
 
     const handleBlur = () => {
@@ -64,29 +56,26 @@ const ChatInput = ({
       }, 100);
     };
 
-    // Listen to viewport changes
-    if (window.visualViewport) {
+    if (typeof window !== 'undefined' && window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleResize);
-      window.visualViewport.addEventListener('scroll', handleResize);
     }
-
-    const inputElement = inputRef.current;
-    if (inputElement) {
-      inputElement.addEventListener('focus', handleFocus);
-      inputElement.addEventListener('blur', handleBlur);
+    
+    const input = inputRef.current;
+    if (input) {
+      input.addEventListener('focus', handleFocus);
+      input.addEventListener('blur', handleBlur);
     }
 
     return () => {
-      if (window.visualViewport) {
+      if (typeof window !== 'undefined' && window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleResize);
-        window.visualViewport.removeEventListener('scroll', handleResize);
       }
-      if (inputElement) {
-        inputElement.removeEventListener('focus', handleFocus);
-        inputElement.removeEventListener('blur', handleBlur);
+      if (input) {
+        input.removeEventListener('focus', handleFocus);
+        input.removeEventListener('blur', handleBlur);
       }
     };
-  }, [setIsKeyboardVisible, onScrollToBottom]);
+  }, [onScrollToBottom, setIsKeyboardVisible]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
@@ -97,34 +86,33 @@ const ChatInput = ({
 
   return (
     <div 
-      className="fixed left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 z-[60] transition-all duration-200"
+      className="border-t border-border bg-background p-3 w-full"
       style={{
+        position: 'sticky',
         bottom: 0,
-        transform: isKeyboardVisible ? 'translateY(0)' : 'translateY(0)',
-        paddingBottom: 'env(safe-area-inset-bottom)'
+        paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+        zIndex: 10
       }}
     >
-      <div className="max-w-4xl mx-auto flex space-x-2 sm:space-x-3 p-3 sm:p-4">
+      <div className="flex gap-2 max-w-4xl mx-auto">
         <Input
           ref={inputRef}
+          type="text"
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={hasConnectionError 
-            ? "AI features temporarily limited..." 
-            : "Type your message..."
-          }
-          className="flex-1 text-sm sm:text-base h-10 sm:h-11 touch-manipulation"
-          disabled={isLoading}
+          placeholder={hasConnectionError ? "Connection error..." : "Type a message..."}
+          disabled={isLoading || hasConnectionError}
+          className="flex-1 bg-muted touch-manipulation"
           enterKeyHint="send"
           inputMode="text"
           autoComplete="off"
         />
-        <Button 
-          onClick={onSendMessage} 
+        <Button
+          onClick={onSendMessage}
+          disabled={!inputMessage.trim() || isLoading || hasConnectionError}
           size="icon"
-          disabled={isLoading || !inputMessage.trim()}
-          className="h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 touch-manipulation"
+          className="flex-shrink-0 touch-manipulation"
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
