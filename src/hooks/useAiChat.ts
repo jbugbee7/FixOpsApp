@@ -111,5 +111,6 @@ export const useAiChat = () => {
     isLoading,
     hasConnectionError,
     handleSendMessage,
+    setMessages
   };
 };
