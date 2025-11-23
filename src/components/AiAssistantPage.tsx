@@ -7,14 +7,16 @@ import ChatInput from './chat/ChatInput';
 import { useAiChat } from '@/hooks/useAiChat';
 import { useAiConversations } from '@/hooks/useAiConversations';
 import AiChatSidebar from './chat/AiChatSidebar';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useViewport } from '@/hooks/use-mobile';
 
 const AiAssistantPage = () => {
   const isMobile = useIsMobile();
+  const { height: viewportHeight } = useViewport();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     conversations,
@@ -59,6 +61,12 @@ const AiAssistantPage = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (isKeyboardVisible && isMobile) {
+      scrollToBottom();
+    }
+  }, [isKeyboardVisible, isMobile]);
+
   const handleNewConversation = () => {
     createNewConversation();
     setSidebarOpen(false);
@@ -70,7 +78,13 @@ const AiAssistantPage = () => {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div 
+      className="flex overflow-hidden"
+      style={{ 
+        height: isMobile ? `${viewportHeight}px` : '100vh',
+        maxHeight: isMobile ? `${viewportHeight}px` : '100vh'
+      }}
+    >
       {/* Sidebar - Mobile Only */}
       {isMobile && (
         <AiChatSidebar
@@ -85,10 +99,10 @@ const AiAssistantPage = () => {
       )}
 
       {/* Main Chat Area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 overflow-hidden min-h-0">
         {/* Header with Menu Button - Mobile Only */}
         {isMobile && (
-          <div className="flex items-center gap-2 p-3 border-b border-border bg-background">
+          <div className="flex items-center gap-2 p-3 border-b border-border bg-background flex-shrink-0">
             <Button
               variant="ghost"
               size="icon"
@@ -103,16 +117,12 @@ const AiAssistantPage = () => {
         {/* Chat Container */}
         <div 
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto"
-          style={{
-            paddingBottom: '80px',
-            height: '100%'
-          }}
+          className="flex-1 overflow-y-auto overflow-x-hidden min-h-0"
         >
           {/* Messages */}
-          <div className="space-y-4 p-4">
+          <div className="space-y-4 p-4 pb-6">
             {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
                 <div className="text-center">
                   <p className="text-lg mb-2">Start a conversation</p>
                   <p className="text-sm">Ask me anything!</p>
@@ -138,16 +148,18 @@ const AiAssistantPage = () => {
         </div>
 
         {/* Chat Input */}
-        <ChatInput
-          inputMessage={inputMessage}
-          setInputMessage={setInputMessage}
-          onSendMessage={handleSendMessage}
-          isLoading={isLoading}
-          hasConnectionError={hasConnectionError}
-          isKeyboardVisible={isKeyboardVisible}
-          setIsKeyboardVisible={setIsKeyboardVisible}
-          onScrollToBottom={scrollToBottom}
-        />
+        <div ref={inputContainerRef} className="flex-shrink-0">
+          <ChatInput
+            inputMessage={inputMessage}
+            setInputMessage={setInputMessage}
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            hasConnectionError={hasConnectionError}
+            isKeyboardVisible={isKeyboardVisible}
+            setIsKeyboardVisible={setIsKeyboardVisible}
+            onScrollToBottom={scrollToBottom}
+          />
+        </div>
       </div>
     </div>
   );
