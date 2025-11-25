@@ -108,15 +108,6 @@ export const useCreateCaseSubmit = () => {
       return;
     }
 
-    if (!company?.id) {
-      toast({
-        title: "Company Setup Required",
-        description: "Please complete company setup before creating work orders.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (!formData.applianceBrand || !formData.applianceType || !formData.problemDescription) {
       toast({
         title: "Required Fields Missing",
@@ -129,7 +120,7 @@ export const useCreateCaseSubmit = () => {
     setIsSubmitting(true);
 
     try {
-      console.log('Creating work order with company_id:', company.id);
+      console.log('Creating work order with company_id:', company?.id || 'none');
       
       await Promise.all([
         saveApplianceModel(user, formData),
@@ -139,7 +130,7 @@ export const useCreateCaseSubmit = () => {
       const { error } = await supabase
         .from('cases')
         .insert({
-          company_id: company.id,
+          company_id: company?.id || null,
           customer_name: customerName,
           customer_phone: formData.customerPhone,
           customer_email: formData.customerEmail,
