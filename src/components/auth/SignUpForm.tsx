@@ -18,7 +18,6 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [companyName, setCompanyName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,13 +46,12 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
 
     try {
       const defaultFullName = email.split('@')[0];
-      const defaultCompanyName = 'My Company';
       
       const { data, error } = await signUpUser(
         email, 
         password, 
         fullName || defaultFullName, 
-        companyName || defaultCompanyName
+        ''
       );
 
       if (error) {
@@ -68,7 +66,6 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
         setPassword('');
         setConfirmPassword('');
         setFullName('');
-        setCompanyName('');
         
         setShowVerificationMessage(true);
         
@@ -87,7 +84,7 @@ const SignUpForm = ({ error, setError, setShowVerificationMessage, setActiveTab 
     } finally {
       setLoading(false);
     }
-  }, [email, password, confirmPassword, fullName, companyName, setError, setShowVerificationMessage, toast]);
+  }, [email, password, confirmPassword, fullName, setError, setShowVerificationMessage, toast]);
 
   return (
     <form onSubmit={handleSignUp} className="space-y-4">
