@@ -46,8 +46,14 @@ export type Database = {
           appliance_brand: string | null
           appliance_model: string | null
           appliance_type: string | null
+          authorization_signature: string | null
+          authorization_signature_date: string | null
+          authorization_signed_by: string | null
           company_id: string | null
           completed_date: string | null
+          completion_signature: string | null
+          completion_signature_date: string | null
+          completion_signed_by: string | null
           created_at: string | null
           customer_id: string | null
           diagnosis: string | null
@@ -55,6 +61,10 @@ export type Database = {
           issue_description: string | null
           labor_cost: number | null
           parts_cost: number | null
+          payment_amount: number | null
+          payment_date: string | null
+          payment_intent_id: string | null
+          payment_status: string | null
           resolution: string | null
           scheduled_date: string | null
           service_type: string | null
@@ -67,8 +77,14 @@ export type Database = {
           appliance_brand?: string | null
           appliance_model?: string | null
           appliance_type?: string | null
+          authorization_signature?: string | null
+          authorization_signature_date?: string | null
+          authorization_signed_by?: string | null
           company_id?: string | null
           completed_date?: string | null
+          completion_signature?: string | null
+          completion_signature_date?: string | null
+          completion_signed_by?: string | null
           created_at?: string | null
           customer_id?: string | null
           diagnosis?: string | null
@@ -76,6 +92,10 @@ export type Database = {
           issue_description?: string | null
           labor_cost?: number | null
           parts_cost?: number | null
+          payment_amount?: number | null
+          payment_date?: string | null
+          payment_intent_id?: string | null
+          payment_status?: string | null
           resolution?: string | null
           scheduled_date?: string | null
           service_type?: string | null
@@ -88,8 +108,14 @@ export type Database = {
           appliance_brand?: string | null
           appliance_model?: string | null
           appliance_type?: string | null
+          authorization_signature?: string | null
+          authorization_signature_date?: string | null
+          authorization_signed_by?: string | null
           company_id?: string | null
           completed_date?: string | null
+          completion_signature?: string | null
+          completion_signature_date?: string | null
+          completion_signed_by?: string | null
           created_at?: string | null
           customer_id?: string | null
           diagnosis?: string | null
@@ -97,6 +123,10 @@ export type Database = {
           issue_description?: string | null
           labor_cost?: number | null
           parts_cost?: number | null
+          payment_amount?: number | null
+          payment_date?: string | null
+          payment_intent_id?: string | null
+          payment_status?: string | null
           resolution?: string | null
           scheduled_date?: string | null
           service_type?: string | null

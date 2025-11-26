@@ -45,4 +45,14 @@ export interface Case {
   diagnostic_fee_type?: string;
   diagnostic_fee_amount?: number;
   spt_status?: string;
+  authorization_signature?: string;
+  authorization_signature_date?: string;
+  authorization_signed_by?: string;
+  completion_signature?: string;
+  completion_signature_date?: string;
+  completion_signed_by?: string;
+  payment_intent_id?: string;
+  payment_amount?: number;
+  payment_status?: string;
+  payment_date?: string;
 }
