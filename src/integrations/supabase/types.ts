@@ -55,7 +55,12 @@ export type Database = {
           completion_signature_date: string | null
           completion_signed_by: string | null
           created_at: string | null
+          customer_address: string | null
+          customer_address_line_2: string | null
+          customer_city: string | null
           customer_id: string | null
+          customer_state: string | null
+          customer_zip_code: string | null
           diagnosis: string | null
           id: string
           issue_description: string | null
@@ -86,7 +91,12 @@ export type Database = {
           completion_signature_date?: string | null
           completion_signed_by?: string | null
           created_at?: string | null
+          customer_address?: string | null
+          customer_address_line_2?: string | null
+          customer_city?: string | null
           customer_id?: string | null
+          customer_state?: string | null
+          customer_zip_code?: string | null
           diagnosis?: string | null
           id?: string
           issue_description?: string | null
@@ -117,7 +127,12 @@ export type Database = {
           completion_signature_date?: string | null
           completion_signed_by?: string | null
           created_at?: string | null
+          customer_address?: string | null
+          customer_address_line_2?: string | null
+          customer_city?: string | null
           customer_id?: string | null
+          customer_state?: string | null
+          customer_zip_code?: string | null
           diagnosis?: string | null
           id?: string
           issue_description?: string | null
